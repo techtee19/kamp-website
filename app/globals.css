@@ -1,26 +1,42 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ── KAMP brand tokens ─────────────────────────────────────────
+   startup.md Phase 7 specifies these as `theme.extend` in a
+   tailwind.config.ts. This project is on Tailwind v4, which is
+   CSS-first: tokens live in `@theme` here and there is no config
+   file. Each entry below produces the same utilities the v3 config
+   would have (bg-navy, text-gold-light, font-display, …).
+   ──────────────────────────────────────────────────────────── */
+@theme {
+  --color-navy: #1b2a4a;
+  --color-navy-light: #2e4470;
+  --color-gold: #c49a22;
+  --color-gold-light: #f0d080;
+  --color-cream: #f5f0e8;
+  --color-charcoal: #333333;
+  --color-charcoal-light: #595959;
+  --color-muted: #6b6b6b;
+
+  --font-display: var(--font-playfair), Georgia, serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* Tailwind v4 removed the `theme.container` config option, so the
+   centred max-width wrapper from Phase 7 is a custom utility. */
+@utility container {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1rem;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  @media (width >= theme(--breakpoint-md)) {
+    padding-inline: 1.5rem;
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  @media (width >= theme(--breakpoint-lg)) {
+    padding-inline: 2rem;
+  }
+
+  @media (width >= theme(--breakpoint-xl)) {
+    max-width: 1200px;
+  }
 }

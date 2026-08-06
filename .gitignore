@@ -32,6 +32,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...but .env.example is a template of empty values and is meant to be committed
+# (startup.md Phase 3.1). Real secrets only ever live in .env.local.
+!.env.example
 
 # vercel
 .vercel
