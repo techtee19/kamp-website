@@ -93,10 +93,12 @@ export default function HomePage() {
 
       <GalleryMarquee />
 
-      <section className="bg-brand-white pb-0 pt-4">
-        <div className="container max-w-[840px] [&>p]:text-xs [&>p]:leading-[1.35] xl:max-w-[1200px]">
+      <section className="bg-brand-white">
+        <div>
+          <div className="hidden">
           <h2 className="max-w-3xl font-display text-[26px] font-semibold leading-tight text-brand-ink">Take action and grow with KAMP</h2>
           <p className="mt-4 max-w-3xl text-sm leading-relaxed text-brand-black/80 sm:text-base">Whether you&apos;re a student looking for direction, a professional ready to give back, or a partner who believes in Africa&apos;s next generation — there&apos;s a place for you here.</p>
+          </div>
           <GetInvolvedTabs />
         </div>
       </section>

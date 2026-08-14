@@ -1,6 +1,6 @@
 'use client'
 
-// Interactive audience tabs for the get-involved section.
+// Scroll-driven audience selector that keeps the entire get-involved scene visible.
 import { useEffect, useRef, useState } from 'react'
 
 const tabs = [
@@ -24,8 +24,7 @@ export default function GetInvolvedTabs() {
       const bounds = section.getBoundingClientRect()
       const scrollDistance = Math.max(section.offsetHeight - window.innerHeight, 1)
       const progress = Math.min(1, Math.max(0, -bounds.top / scrollDistance))
-      const nextTab = Math.min(tabs.length - 1, Math.floor(progress * tabs.length))
-      setActiveTab(nextTab)
+      setActiveTab(Math.min(tabs.length - 1, Math.floor(progress * tabs.length)))
     }
 
     const handleScroll = () => {
@@ -44,23 +43,31 @@ export default function GetInvolvedTabs() {
   }, [])
 
   return (
-    <div ref={scrollSectionRef} className="relative left-1/2 mt-5 h-[360vh] w-screen -translate-x-1/2">
-      <div className="sticky top-0 bg-brand-gold py-11 xl:py-16">
-        <div className="container grid max-w-[840px] gap-10 md:min-h-[208px] md:grid-cols-[342px_1fr] md:gap-24 xl:min-h-[300px] xl:max-w-[1200px] xl:grid-cols-[1fr_1fr] xl:gap-10">
-        <div className="border-brand-ink/35 md:border-r">
-          <div className="flex flex-col items-start gap-4">
-            {tabs.map((tab, index) => (
-              <button key={tab.label} type="button" onClick={() => setActiveTab(index)} className={`font-display text-left text-2xl transition xl:text-3xl ${index === activeTab ? 'font-semibold text-brand-deep' : 'text-brand-ink/45 hover:text-brand-ink'}`} aria-pressed={index === activeTab}>
-                <span className="mr-5 text-xl xl:text-2xl">{index + 1}.</span>{tab.label}
-              </button>
-            ))}
+    <div ref={scrollSectionRef} className="relative left-1/2 h-[360vh] w-screen -translate-x-1/2">
+      <div className="sticky top-0 flex h-screen flex-col overflow-hidden bg-brand-white">
+        <div className="container shrink-0 max-w-[840px] px-6 pb-6 pt-10 md:px-0 xl:max-w-[1200px] xl:pb-8 xl:pt-16">
+          <h2 className="font-display text-[26px] font-semibold leading-tight text-brand-ink">Take action and grow with KAMP</h2>
+          <p className="mt-4 max-w-3xl text-xs leading-[1.35] text-brand-deep xl:max-w-[1000px]">Whether you&apos;re a student looking for direction, a professional ready to give back, or a partner who believes in Africa&apos;s next generation — there&apos;s a place for you here.</p>
+        </div>
+
+        <div className="flex min-h-0 flex-1 items-center bg-brand-gold py-8 xl:py-12">
+          <div className="container grid w-full max-w-[840px] gap-10 md:min-h-[208px] md:grid-cols-[342px_1fr] md:gap-24 xl:min-h-[300px] xl:max-w-[1200px] xl:grid-cols-[1fr_1fr] xl:gap-10">
+            <div className="border-brand-ink/35 md:border-r">
+              <div className="flex flex-col items-start gap-4">
+                {tabs.map((tab, index) => (
+                  <button key={tab.label} type="button" onClick={() => setActiveTab(index)} className={`font-display text-left text-2xl transition xl:text-3xl ${index === activeTab ? 'font-semibold text-brand-deep' : 'text-brand-ink/45 hover:text-brand-ink'}`} aria-pressed={index === activeTab}>
+                    <span className="mr-5 text-xl xl:text-2xl">{index + 1}.</span>{tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex max-w-[350px] flex-col items-start justify-center text-brand-deep xl:max-w-[520px]">
+              <p className="text-xs leading-[1.15rem] xl:text-base xl:leading-relaxed">{active.copy}</p>
+              <p className="mt-7 text-xs leading-[1.15rem] xl:mt-10 xl:text-base xl:leading-relaxed">Get mentored, get connected, get moving on the leadership path you&apos;re already on.</p>
+              <button type="button" className="mt-3 rounded-full bg-brand-ink px-5 py-2 text-xs text-brand-white xl:mt-5 xl:px-7 xl:py-3 xl:text-sm">{active.action}</button>
+            </div>
           </div>
-        </div>
-        <div className="flex max-w-[350px] flex-col items-start justify-center text-brand-deep xl:max-w-[520px]">
-          <p className="text-xs leading-[1.15rem] xl:text-base xl:leading-relaxed">{active.copy}</p>
-          <p className="mt-7 text-xs leading-[1.15rem] xl:mt-10 xl:text-base xl:leading-relaxed">Get mentored, get connected, get moving on the leadership path you&apos;re already on.</p>
-          <button type="button" className="mt-3 rounded-full bg-brand-ink px-5 py-2 text-xs text-brand-white xl:mt-5 xl:px-7 xl:py-3 xl:text-sm">{active.action}</button>
-        </div>
         </div>
       </div>
     </div>
