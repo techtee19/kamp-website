@@ -13,14 +13,14 @@ export default function StatCounter({ value }: StatCounterProps) {
   useEffect(() => {
     const target = Number(value.replace(/\D/g, ''))
     const suffix = value.replace(/[\d,]/g, '')
-    const duration = 2200
+    const duration = 4200
     let animationFrame = 0
     let startTime: number | null = null
 
     const update = (time: number) => {
       if (startTime === null) startTime = time
       const progress = Math.min((time - startTime) / duration, 1)
-      const easedProgress = 1 - (1 - progress) ** 4
+      const easedProgress = 1 - (1 - progress) ** 3
       const current = Math.round(target * easedProgress)
       setDisplayValue(`${current.toLocaleString()}${suffix}`)
 

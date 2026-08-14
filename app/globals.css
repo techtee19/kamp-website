@@ -33,13 +33,42 @@
     font-family: var(--font-body);
     background-color: var(--color-background);
     color: var(--color-primary);
+    scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
     overflow-x: hidden;
+    scrollbar-color: var(--color-brand-gold) var(--color-brand-black);
+    scrollbar-width: thin;
   }
 
   body {
     min-width: 320px;
     overflow-x: hidden;
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+/* A compact KAMP scrollbar for Chromium and Safari. */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-brand-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-brand-gold);
+  border: 3px solid var(--color-brand-black);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-teal);
 }
 
 @utility container {

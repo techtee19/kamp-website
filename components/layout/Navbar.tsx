@@ -1,6 +1,6 @@
 'use client'
 
-// Responsive site navigation with a full-screen mobile menu.
+// Responsive site navigation with a compact mobile side drawer.
 import { Menu, X } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -51,20 +51,22 @@ export default function Navbar() {
       </nav>
 
       {menuOpen && (
-        <div className="fixed inset-0 z-50 flex min-h-screen flex-col bg-brand-black px-6 py-6 text-brand-white lg:hidden">
-          <div className="flex items-center justify-between">
-            <Image src="/kamp_logo.svg" alt="KAMP" width={171} height={81} className="h-9 w-auto object-contain" />
-            <button type="button" className="grid size-10 place-items-center rounded-full border border-brand-white" onClick={() => setMenuOpen(false)} aria-label="Close navigation menu">
-              <X size={21} />
-            </button>
-          </div>
-          <div className="mt-auto flex flex-col gap-6 pb-12">
-            {links.map((link) => (
-              <Link key={link.href} href={link.href} onClick={() => setMenuOpen(false)} className="font-display text-4xl">
-                {link.label}
-              </Link>
-            ))}
-            <div className="mt-4 flex flex-wrap gap-3">
+        <div className="fixed inset-0 z-50 bg-brand-black/40 lg:hidden" onClick={() => setMenuOpen(false)}>
+          <aside className="ml-auto flex h-[calc(100dvh-3rem)] w-[min(76vw,288px)] flex-col bg-brand-black px-5 py-5 text-brand-white shadow-2xl" onClick={(event) => event.stopPropagation()} aria-label="Mobile navigation">
+            <div className="flex items-center justify-between">
+              <Image src="/kamp_logo.svg" alt="KAMP" width={171} height={81} className="h-9 w-auto object-contain" />
+              <button type="button" className="grid size-10 place-items-center rounded-full border border-brand-white" onClick={() => setMenuOpen(false)} aria-label="Close navigation menu">
+                <X size={21} />
+              </button>
+            </div>
+            <div className="mt-10 flex flex-col gap-4">
+              {links.map((link) => (
+                <Link key={link.href} href={link.href} onClick={() => setMenuOpen(false)} className="font-display text-2xl leading-none">
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+            <div className="mt-auto flex flex-wrap gap-3 pt-8">
               <Link href="/get-involved" onClick={() => setMenuOpen(false)} className="rounded-full border border-brand-white px-5 py-2 text-sm">
                 Join a program
               </Link>
@@ -72,7 +74,7 @@ export default function Navbar() {
                 Donate
               </Link>
             </div>
-          </div>
+          </aside>
         </div>
       )}
     </header>

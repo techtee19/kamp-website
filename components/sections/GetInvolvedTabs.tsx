@@ -12,6 +12,7 @@ const tabs = [
 
 export default function GetInvolvedTabs() {
   const [activeTab, setActiveTab] = useState(0)
+  const [scenePosition, setScenePosition] = useState<'before' | 'pinned' | 'after'>('before')
   const scrollSectionRef = useRef<HTMLDivElement>(null)
   const active = tabs[activeTab]
 
@@ -24,9 +25,14 @@ export default function GetInvolvedTabs() {
       const section = scrollSectionRef.current
       if (!section) return
 
-      const bounds = section.getBoundingClientRect()
+      const sectionTop = section.getBoundingClientRect().top + window.scrollY
       const scrollDistance = Math.max(section.offsetHeight - window.innerHeight, 1)
-      const progress = Math.min(1, Math.max(0, -bounds.top / scrollDistance))
+      const relativeScroll = window.scrollY - sectionTop
+      const progress = Math.min(1, Math.max(0, relativeScroll / scrollDistance))
+
+      setScenePosition(
+        relativeScroll < 0 ? 'before' : relativeScroll > scrollDistance ? 'after' : 'pinned'
+      )
       setActiveTab(Math.min(tabs.length - 1, Math.floor(progress * tabs.length)))
     }
 
@@ -72,8 +78,10 @@ export default function GetInvolvedTabs() {
         </div>
       </section>
 
-      <div ref={scrollSectionRef} className="relative left-1/2 hidden h-[360vh] w-screen -translate-x-1/2 md:block">
-        <div className="sticky top-0 flex h-screen flex-col overflow-hidden bg-brand-white">
+      <div ref={scrollSectionRef} className="relative ml-[calc(50%-50vw)] hidden h-[360vh] w-screen bg-brand-gold md:block">
+        <div
+          className={`${scenePosition === 'before' ? 'absolute inset-x-0 top-0' : scenePosition === 'after' ? 'hidden' : 'fixed inset-0 z-20'} flex h-screen flex-col overflow-hidden bg-brand-white`}
+        >
           <div className="container shrink-0 max-w-[840px] px-6 pb-6 pt-10 md:px-0 xl:max-w-[1200px] xl:pb-8 xl:pt-16">
             <h2 className="font-display text-[26px] font-semibold leading-tight text-brand-ink">Take action and grow with KAMP</h2>
             <p className="mt-4 max-w-3xl text-xs leading-[1.35] text-brand-deep xl:max-w-[1000px]">Whether you&apos;re a student looking for direction, a professional ready to give back, or a partner who believes in Africa&apos;s next generation — there&apos;s a place for you here.</p>
