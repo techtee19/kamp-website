@@ -32,6 +32,26 @@ export default function AboutPage() {
         </div>
       </section>
 
+      <section className="relative py-20 md:py-24 xl:py-28">
+        <Image src="/images/star.png" alt="" width={36} height={36} className="pointer-events-none absolute -left-8 top-10 size-24 md:-left-5 md:size-32" />
+        <div className="container max-w-[1200px]">
+          <div className="max-w-2xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-gold">What guides us</p>
+            <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight md:text-4xl">Our mission and vision</h2>
+          </div>
+          <div className="mt-8 grid gap-4 md:mt-10 md:grid-cols-2 md:gap-6">
+            <article className="rounded-xl border-l-4 border-brand-gold bg-brand-card p-7 md:min-h-72 md:p-9">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-gold">Mission</p>
+              <p className="mt-5 font-display text-xl leading-relaxed md:text-2xl">To foster a community of transformative leaders, committed to personal growth, social responsibility, and collaborative action empowering them to drive meaningful change and improve the lives of those around them.</p>
+            </article>
+            <article className="rounded-xl border-l-4 border-brand-gold bg-brand-card p-7 md:min-h-72 md:p-9">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-gold">Vision</p>
+              <p className="mt-5 font-display text-xl leading-relaxed md:text-2xl">Raising transformative leaders that will influence their communities positively.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <section className="relative pb-20 md:pb-24 xl:pb-32">
         <div className="container max-w-[1200px]">
           <h2 className="font-display text-2xl font-semibold tracking-tight md:text-3xl">Every great leader was once mentored</h2>
