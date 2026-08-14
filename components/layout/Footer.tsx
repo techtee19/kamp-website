@@ -14,7 +14,7 @@ const links = [
 export default function Footer() {
   return (
     <footer className="bg-brand-black text-brand-white">
-      <div className="container py-16 lg:py-20">
+      <div className="container py-24 lg:py-28">
         <div className="grid gap-12 lg:grid-cols-[1.45fr_.65fr_.7fr] lg:items-start">
           <div>
             <h2 className="font-display text-4xl font-semibold leading-none">Stay Updated</h2>

@@ -1,8 +1,11 @@
 // KAMP landing page assembling the campaign's stories, actions, and community proof.
-import { Building2, Compass, Hammer, MoveRight, UsersRound } from 'lucide-react'
+import { Building2, Compass, Hammer, UsersRound } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import GalleryMarquee from '@/components/sections/GalleryMarquee'
 import GetInvolvedTabs from '@/components/sections/GetInvolvedTabs'
+import HeroImageRotator from '@/components/sections/HeroImageRotator'
+import StatCounter from '@/components/sections/StatCounter'
 import Testimonials from '@/components/sections/Testimonials'
 
 const stats = [
@@ -19,21 +22,6 @@ const actions = [
   { icon: Building2, title: 'Leadership Development', copy: "Practical training in the skills conferences don't have time to teach — before, between, and after every event." },
 ]
 
-const galleryImages = [
-  '/images/gallery/visit-gallery-1.png',
-  '/images/gallery/visit-gallery-2.png',
-  '/images/gallery/visit-gallery-3.png',
-  '/images/gallery/visit-gallery-4.png',
-  '/images/gallery/visit-gallery-5.png',
-  '/images/gallery/visit-gallery-6.png',
-  '/images/gallery/visit-gallery-7.png',
-  '/images/gallery/visit-gallery-8.jpg',
-  '/images/gallery/visit-gallery-9.jpg',
-  '/images/gallery/visit-gallery-10.jpg',
-  '/images/gallery/visit-gallery-11.jpg',
-  '/images/gallery/visit-gallery-12.jpg',
-]
-
 const partners = [
   '/images/partners/partner-1.png',
   '/images/partners/partner-2.png',
@@ -46,10 +34,10 @@ export default function HomePage() {
   return (
     <div className="bg-brand-white text-brand-black">
 
-      <section className="relative isolate overflow-hidden bg-brand-black">
-        <Image src="/images/hero/kamp-hero1.png" alt="KAMP students gathered at a conference" fill priority sizes="100vw" className="-z-20 object-cover" />
-        <div className="absolute inset-0 -z-10 bg-brand-black/70" />
-        <div className="container grid min-h-[540px] items-center gap-12 pb-16 pt-28 lg:min-h-[620px] lg:grid-cols-[1fr_.9fr] lg:pb-20 lg:pt-28">
+      <section className="relative isolate aspect-[1280/665] min-h-[480px] overflow-hidden bg-brand-black lg:min-h-0">
+        <HeroImageRotator />
+        <div className="absolute inset-0 -z-10 bg-brand-black/45" />
+        <div className="container grid h-full items-end gap-12 pb-10 pt-24 lg:grid-cols-[1fr_.9fr] lg:pb-12 lg:pt-28">
           <div className="max-w-xl text-brand-white">
             <h1 className="font-display text-5xl font-semibold leading-[.88] tracking-tight sm:text-6xl lg:text-7xl">
               <span className="block">Build.</span>
@@ -58,9 +46,9 @@ export default function HomePage() {
             </h1>
             <p className="mt-7 max-w-lg text-base leading-relaxed text-brand-white/85 sm:text-lg">KAMP mentors students across Nigerian universities through conferences, community projects, and hands-on leadership training — turning potential into transformation, one campus at a time.</p>
           </div>
-          <div className="relative mx-auto w-full max-w-lg lg:justify-self-end">
-            <span className="absolute -left-6 -top-12 font-display text-6xl leading-none text-brand-teal">*</span>
-            <div className="relative aspect-[1.75/1] overflow-hidden rounded-3xl border-4 border-brand-white">
+          <div className="relative isolate mx-auto w-full max-w-lg lg:justify-self-end">
+            <Image src="/images/star.png" alt="" width={36} height={36} className="absolute -left-6 -top-6 z-0 size-14" />
+            <div className="relative z-10 aspect-[1.75/1] overflow-hidden rounded-3xl border-4 border-brand-white">
               <Image src="/images/hero/kamp-hero2.png" alt="KAMP conference speaker addressing students" fill sizes="(min-width: 1024px) 42vw, 100vw" className="object-cover" />
               <span className="absolute inset-0 grid place-items-center bg-brand-black/20"><span className="grid size-16 place-items-center rounded-full border border-brand-white bg-brand-black/35 pl-1 text-2xl text-brand-white">▶</span></span>
             </div>
@@ -72,7 +60,7 @@ export default function HomePage() {
         <div className="container grid grid-cols-2 gap-y-9 text-center md:grid-cols-4">
           {stats.map(([value, label]) => (
             <div key={label}>
-              <p className="font-display text-4xl leading-none text-brand-black">{value}</p>
+              <p className="font-display text-4xl leading-none text-brand-black"><StatCounter value={value} /></p>
               <p className="mt-2 text-sm text-brand-black/80">{label}</p>
             </div>
           ))}
@@ -103,40 +91,26 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-brand-white py-20 lg:py-28">
-        <div className="container">
-          <div className="flex items-end justify-between gap-6">
-            <h2 className="font-display text-4xl sm:text-5xl">Our Gallery <span className="text-brand-teal">*</span></h2>
-          </div>
-          <div className="relative mt-10 grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-6 lg:items-center">
-            <span className="absolute right-4 top-0 z-10 font-display text-7xl leading-none text-brand-teal lg:-top-12">*</span>
-            {galleryImages.map((image, index) => (
-              <div key={image} className={`relative overflow-hidden rounded-lg ${index % 6 === 1 || index % 6 === 4 ? 'aspect-[.78/1]' : 'aspect-[.82/1]'} ${index < 6 ? 'lg:translate-y-0' : 'lg:-translate-y-2'}`}>
-                <Image src={image} alt="KAMP community moment" fill sizes="(min-width: 1024px) 16vw, (min-width: 768px) 33vw, 50vw" className="object-cover" />
-              </div>
-            ))}
-          </div>
-          <div className="mt-12 text-center lg:mt-16"><Link href="/gallery" className="inline-flex items-center gap-2 rounded-full border border-brand-black px-6 py-2 text-sm text-brand-black transition hover:bg-brand-card">Visit Full Gallery <MoveRight size={16} /></Link></div>
-        </div>
-      </section>
+      <GalleryMarquee />
 
-      <section className="py-20 lg:py-28">
-        <div className="container">
-          <h2 className="max-w-3xl font-display text-4xl leading-tight sm:text-5xl">Take action and grow with <span className="text-brand-gold">KAMP</span></h2>
+      <section className="bg-brand-white pb-0 pt-4">
+        <div className="container max-w-[840px] [&>p]:text-xs [&>p]:leading-[1.35] xl:max-w-[1200px]">
+          <h2 className="max-w-3xl font-display text-[26px] font-semibold leading-tight text-brand-ink">Take action and grow with KAMP</h2>
           <p className="mt-4 max-w-3xl text-sm leading-relaxed text-brand-black/80 sm:text-base">Whether you&apos;re a student looking for direction, a professional ready to give back, or a partner who believes in Africa&apos;s next generation — there&apos;s a place for you here.</p>
           <GetInvolvedTabs />
         </div>
       </section>
 
-      <section className="bg-brand-white py-20 lg:py-32">
-        <div className="container grid items-center gap-12 lg:grid-cols-[.85fr_1.15fr] lg:gap-20">
-          <div className="relative mx-auto h-80 w-full max-w-md sm:h-96">
-            <div className="absolute bottom-0 left-0 h-[84%] w-[48%] overflow-hidden rounded-lg"><Image src="/images/programs-section-1.png" alt="Student participating in a KAMP program" fill sizes="(min-width: 1024px) 24vw, 45vw" className="object-cover" /></div>
-            <div className="absolute right-0 top-0 h-[90%] w-[57%] overflow-hidden rounded-lg"><Image src="/images/programs-section-2.png" alt="KAMP participant sharing at an event" fill sizes="(min-width: 1024px) 28vw, 50vw" className="object-cover" /></div>
+      <section className="bg-brand-white py-16 xl:py-32">
+        <div className="container grid max-w-[760px] items-center gap-10 md:grid-cols-[306px_1fr] md:gap-10 xl:max-w-[1200px] xl:grid-cols-[575px_1fr] xl:gap-20">
+          <div className="relative mx-auto h-[211px] w-[306px] xl:h-[400px] xl:w-[575px]">
+            <div className="absolute bottom-0 left-0 h-[187px] w-[132px] overflow-hidden rounded xl:h-[353px] xl:w-[248px]"><Image src="/images/programs-section-1.png" alt="Student participating in a KAMP program" fill sizes="(min-width: 1280px) 248px, 132px" className="object-cover" /></div>
+            <div className="absolute right-0 top-0 h-[211px] w-[167px] overflow-hidden rounded xl:h-[400px] xl:w-[313px]"><Image src="/images/programs-section-2.png" alt="KAMP participant sharing at an event" fill sizes="(min-width: 1280px) 313px, 167px" className="object-cover" /></div>
           </div>
-          <div className="max-w-xl">
-            <p className="text-base leading-relaxed text-brand-black/85 sm:text-lg">KAMP started with a question: what happens if someone invests in Nigeria&apos;s student leaders before the world tells them who they&apos;re supposed to become? Since 2018, that question has turned into conferences, campus projects, and a growing community of students who are done waiting for permission to lead. Get mentored, get connected, get moving on the leadership path you&apos;re already on.</p>
-            <Link href="/programs" className="mt-8 inline-block rounded-full bg-brand-black px-6 py-2.5 text-sm text-brand-white">View programs</Link>
+          <div className="max-w-[350px] text-brand-ink xl:max-w-[545px]">
+            <p className="text-xs leading-[1.45] xl:text-lg xl:leading-[1.45]">KAMP started with a question: what happens if someone invests in Nigeria&apos;s student leaders before the world tells them who they&apos;re supposed to become? Since 2018, that question has turned into conferences, campus projects, and a growing community of students who are done waiting for permission to lead.</p>
+            <p className="mt-12 text-xs leading-[1.45] xl:mt-20 xl:text-lg xl:leading-[1.45]">Get mentored, get connected, get moving on the leadership path you&apos;re already on.</p>
+            <Link href="/programs" className="mt-3 inline-block rounded-full bg-brand-ink px-5 py-2 text-xs text-brand-white transition hover:bg-brand-deep xl:mt-5 xl:px-8 xl:py-3 xl:text-base">View programs</Link>
           </div>
         </div>
       </section>

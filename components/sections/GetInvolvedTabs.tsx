@@ -1,7 +1,7 @@
 'use client'
 
 // Interactive audience tabs for the get-involved section.
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const tabs = [
   { label: 'Students', action: 'Apply', copy: "You don't have to figure it out alone. KAMP connects Nigerian university students with mentors, peers, and programs designed to sharpen your leadership, clarify your direction, and push you further than you'd go on your own. Whether you're in your first year or your final semester, there's a place for you here. Show up, get involved, and start leading now — not later." },
@@ -12,24 +12,55 @@ const tabs = [
 
 export default function GetInvolvedTabs() {
   const [activeTab, setActiveTab] = useState(0)
+  const scrollSectionRef = useRef<HTMLDivElement>(null)
   const active = tabs[activeTab]
 
+  useEffect(() => {
+    let frame = 0
+
+    const updateActiveTab = () => {
+      const section = scrollSectionRef.current
+      if (!section) return
+      const bounds = section.getBoundingClientRect()
+      const scrollDistance = Math.max(section.offsetHeight - window.innerHeight, 1)
+      const progress = Math.min(1, Math.max(0, -bounds.top / scrollDistance))
+      const nextTab = Math.min(tabs.length - 1, Math.floor(progress * tabs.length))
+      setActiveTab(nextTab)
+    }
+
+    const handleScroll = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(updateActiveTab)
+    }
+
+    updateActiveTab()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('resize', handleScroll)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('resize', handleScroll)
+    }
+  }, [])
+
   return (
-    <div className="mt-10 bg-brand-gold/25 px-6 py-12 sm:px-10 lg:mt-14 lg:px-16 lg:py-16">
-      <div className="grid gap-10 lg:grid-cols-[.9fr_1.1fr] lg:gap-20">
-        <div className="border-brand-black/35 lg:border-r lg:pr-16">
+    <div ref={scrollSectionRef} className="relative left-1/2 mt-5 h-[360vh] w-screen -translate-x-1/2">
+      <div className="sticky top-0 bg-brand-gold py-11 xl:py-16">
+        <div className="container grid max-w-[840px] gap-10 md:min-h-[208px] md:grid-cols-[342px_1fr] md:gap-24 xl:min-h-[300px] xl:max-w-[1200px] xl:grid-cols-[1fr_1fr] xl:gap-10">
+        <div className="border-brand-ink/35 md:border-r">
           <div className="flex flex-col items-start gap-4">
             {tabs.map((tab, index) => (
-              <button key={tab.label} type="button" onClick={() => setActiveTab(index)} className={`font-display text-left text-3xl transition sm:text-4xl ${index === activeTab ? 'font-bold text-brand-black' : 'text-brand-grey/55 hover:text-brand-grey'}`} aria-pressed={index === activeTab}>
-                <span className="mr-5 text-2xl sm:text-3xl">{index + 1}.</span>{tab.label}
+              <button key={tab.label} type="button" onClick={() => setActiveTab(index)} className={`font-display text-left text-2xl transition xl:text-3xl ${index === activeTab ? 'font-semibold text-brand-deep' : 'text-brand-ink/45 hover:text-brand-ink'}`} aria-pressed={index === activeTab}>
+                <span className="mr-5 text-xl xl:text-2xl">{index + 1}.</span>{tab.label}
               </button>
             ))}
           </div>
         </div>
-        <div className="flex max-w-xl flex-col items-start justify-center">
-          <p className="text-base leading-relaxed text-brand-black/85">{active.copy}</p>
-          <p className="mt-8 text-base leading-relaxed text-brand-black">Get mentored, get connected, get moving on the leadership path you&apos;re already on.</p>
-          <button type="button" className="mt-5 rounded-full bg-brand-black px-6 py-2.5 text-sm text-brand-white">{active.action}</button>
+        <div className="flex max-w-[350px] flex-col items-start justify-center text-brand-deep xl:max-w-[520px]">
+          <p className="text-xs leading-[1.15rem] xl:text-base xl:leading-relaxed">{active.copy}</p>
+          <p className="mt-7 text-xs leading-[1.15rem] xl:mt-10 xl:text-base xl:leading-relaxed">Get mentored, get connected, get moving on the leadership path you&apos;re already on.</p>
+          <button type="button" className="mt-3 rounded-full bg-brand-ink px-5 py-2 text-xs text-brand-white xl:mt-5 xl:px-7 xl:py-3 xl:text-sm">{active.action}</button>
+        </div>
         </div>
       </div>
     </div>
