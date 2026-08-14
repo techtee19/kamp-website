@@ -1,16 +1,10 @@
 import type { Metadata } from 'next'
-import { Playfair_Display, Inter } from 'next/font/google'
+import { Urbanist } from 'next/font/google'
 import './globals.css'
 
-const playfair = Playfair_Display({
+const urbanist = Urbanist({
   subsets: ['latin'],
-  variable: '--font-playfair',
-  display: 'swap',
-})
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-urbanist',
   display: 'swap',
 })
 
@@ -32,7 +26,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable} h-full`}>
+    <html lang="en" className={`${urbanist.variable} h-full`}>
       <body className="font-body text-charcoal flex min-h-full flex-col bg-white antialiased">
         {children}
       </body>
