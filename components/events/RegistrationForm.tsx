@@ -1,3 +1,12 @@
-export default function RegistrationForm() {
-  return null
+'use client'
+
+// Inline event registration form with confirmation and capacity states.
+import { FormEvent, useState } from 'react'
+
+export default function RegistrationForm({ eventTitle, registrationClosed = false }: { eventTitle: string; registrationClosed?: boolean }) {
+  const [confirmed, setConfirmed] = useState(false)
+  if (registrationClosed) return <div className="rounded-xl border-l-4 border-brand-gold bg-brand-card p-7"><p className="font-display text-2xl font-semibold">Registration closed</p><p className="mt-3 text-sm leading-relaxed text-brand-grey">This event has reached capacity. Please check our events page for the next opportunity to join KAMP.</p></div>
+  if (confirmed) return <div className="rounded-xl border-l-4 border-brand-gold bg-brand-card p-7"><p className="font-display text-2xl font-semibold">You’re confirmed</p><p className="mt-3 text-sm leading-relaxed text-brand-grey">Your place at {eventTitle} is reserved. We’ll send the event details to your email shortly.</p></div>
+  const submit = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); setConfirmed(true) }
+  return <form onSubmit={submit} className="grid gap-4 rounded-xl bg-brand-card p-6 md:grid-cols-2 md:p-8"><label className="text-sm font-medium">Full name<input required className="mt-2 w-full rounded-lg border border-brand-ink/25 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold" /></label><label className="text-sm font-medium">Email address<input required type="email" className="mt-2 w-full rounded-lg border border-brand-ink/25 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold" /></label><label className="text-sm font-medium">Phone number<input required type="tel" className="mt-2 w-full rounded-lg border border-brand-ink/25 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold" /></label><label className="text-sm font-medium">University<input required className="mt-2 w-full rounded-lg border border-brand-ink/25 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold" /></label><label className="text-sm font-medium md:col-span-2">Level/year of study<select required defaultValue="" className="mt-2 w-full rounded-lg border border-brand-ink/25 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold"><option value="" disabled>Select your level</option><option>100L</option><option>200L</option><option>300L</option><option>400L</option><option>500L</option><option>Postgraduate</option><option>Other</option></select></label><button type="submit" className="justify-self-start rounded-full bg-brand-ink px-6 py-3 text-sm text-brand-white md:col-span-2">Confirm registration</button></form>
 }
