@@ -19,7 +19,7 @@ const links = [
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const pathname = usePathname()
-  const isHome = pathname === '/'
+  const isHome = pathname === '/' || pathname === '/about'
 
   return (
     <header className={`${isHome ? 'absolute inset-x-0 top-0 bg-brand-black/20 text-brand-white' : 'sticky top-0 border-b border-brand-black/10 bg-brand-white/95 text-brand-black backdrop-blur'} z-50`}>

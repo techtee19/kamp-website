@@ -34,7 +34,7 @@ export default function HomePage() {
   return (
     <div className="bg-brand-white text-brand-black">
 
-      <section className="relative isolate aspect-[1280/665] min-h-[480px] overflow-hidden bg-brand-black lg:min-h-0">
+      <section className="relative isolate aspect-[1200/600] min-h-[420px] overflow-hidden bg-brand-black lg:min-h-0">
         <HeroImageRotator />
         <div className="absolute inset-0 -z-10 bg-brand-black/45" />
         <div className="container grid h-full items-end gap-12 pb-10 pt-24 lg:grid-cols-[1fr_.9fr] lg:pb-12 lg:pt-28">

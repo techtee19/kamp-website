@@ -1,6 +1,6 @@
 'use client'
 
-// Clickable testimonial cards and active testimonial detail.
+// Compact selectable testimonials with a cropped background star detail.
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -18,30 +18,31 @@ export default function Testimonials() {
   const active = testimonials[activeIndex]
 
   return (
-    <section className="relative overflow-hidden bg-brand-white py-20 lg:py-28">
-      <div className="container relative">
-        <span className="pointer-events-none absolute -right-6 top-36 hidden font-display text-[13rem] leading-none text-brand-teal lg:block">*</span>
-        <h2 className="max-w-2xl font-display text-4xl font-semibold leading-tight text-brand-black sm:text-5xl">Here&apos;s what people think of KAMP</h2>
-        <div className="mt-12 grid gap-10 lg:grid-cols-[.72fr_1.28fr] lg:items-center lg:gap-12">
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
+    <section className="relative overflow-hidden bg-brand-white py-16 lg:py-20 xl:py-24">
+      <Image src="/images/star.png" alt="" width={36} height={36} className="pointer-events-none absolute -right-10 top-6 size-28 md:-right-8 md:top-10" />
+      <div className="container relative max-w-[800px] xl:max-w-[1200px]">
+        <h2 className="font-display text-2xl font-semibold leading-tight text-brand-ink xl:text-3xl">Here&apos;s what people think of KAMP</h2>
+        <div className="mt-5 grid gap-6 md:grid-cols-[168px_1fr] md:items-center md:gap-6 xl:mt-8 xl:grid-cols-[280px_1fr] xl:gap-10">
+          <div className="grid gap-1.5">
             {testimonials.map((testimonial, index) => (
-              <button key={testimonial.name} type="button" onClick={() => setActiveIndex(index)} className={`relative min-h-12 overflow-hidden rounded-lg text-left transition lg:min-h-14 ${index === activeIndex ? 'ring-2 ring-brand-gold' : 'opacity-80 hover:opacity-100'} ${index === 2 ? 'lg:min-h-32' : ''}`} aria-pressed={index === activeIndex}>
-                <Image src={testimonial.image} alt="" fill sizes="(min-width: 1024px) 320px, 33vw" className="object-cover" />
-                <span className="absolute inset-0 bg-brand-black/70" />
-                <span className="relative flex h-full min-h-12 items-center gap-3 px-4 py-2 text-brand-white lg:min-h-14">
-                  <Image src={testimonial.image} alt="" width={30} height={30} className="size-8 rounded-full border border-brand-white object-cover" />
-                  <span className="font-display text-sm font-semibold">{testimonial.name}</span>
-                </span>
+              <button key={testimonial.name} type="button" onClick={() => setActiveIndex(index)} className={`relative overflow-hidden rounded-lg text-left transition ${index === 2 ? 'h-32 border-2 border-brand-gold xl:h-52' : 'h-6 xl:h-10'} ${index === activeIndex ? 'opacity-100' : 'opacity-80 hover:opacity-100'}`} aria-label={`Show testimonial from ${testimonial.name}`} aria-pressed={index === activeIndex}>
+                <Image src={testimonial.image} alt="" fill sizes="168px" className="object-cover" />
+                <span className="absolute inset-0 bg-brand-black/55" />
               </button>
             ))}
           </div>
-          <article className="max-w-2xl rounded-xl bg-brand-card p-7 sm:p-10">
+
+          <article className="rounded-xl bg-brand-card p-5 xl:p-8">
             {/* TODO: replace placeholder quotes with verified KAMP testimonials. */}
-            <blockquote className="text-sm leading-relaxed text-brand-black sm:text-base">{active.quote}</blockquote>
-            <blockquote className="mt-5 text-sm leading-relaxed text-brand-black/80 sm:text-base">{active.quote}</blockquote>
-            <p className="mt-8 font-display text-2xl font-bold text-brand-black">{active.name}</p>
-            <p className="mt-1 text-sm text-brand-grey">{active.role}</p>
-            <Link href="/get-involved" className="mt-7 inline-block rounded-full bg-brand-black px-6 py-2.5 text-sm text-brand-white">Join KAMP</Link>
+            <blockquote className="text-xs leading-[1.35] text-brand-deep xl:text-sm xl:leading-relaxed">{active.quote}</blockquote>
+            <blockquote className="mt-4 text-xs leading-[1.35] text-brand-deep/80 xl:mt-6 xl:text-sm xl:leading-relaxed">{active.quote}</blockquote>
+            <div className="mt-5 flex items-end justify-between gap-4 xl:mt-8">
+              <div>
+                <p className="font-display text-xl font-semibold text-brand-ink xl:text-2xl">{active.name}</p>
+                <p className="mt-1 text-[10px] text-brand-grey xl:text-xs">{active.role}</p>
+              </div>
+              <Link href="/get-involved" className="shrink-0 rounded-full bg-brand-ink px-4 py-1.5 text-[10px] text-brand-white xl:px-6 xl:py-2.5 xl:text-xs">Join KAMP</Link>
+            </div>
           </article>
         </div>
       </div>
