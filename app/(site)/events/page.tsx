@@ -7,8 +7,8 @@ export default function EventsPage() {
   return (
     <div className="overflow-hidden bg-brand-white text-brand-ink">
       <section className="relative border-b border-brand-ink/10 py-20 md:py-28 xl:py-32">
-        <Image src="/images/star.png" alt="" width={36} height={36} className="pointer-events-none absolute -right-7 top-16 size-28 md:-right-4 md:size-36" />
-        <div className="container max-w-[1200px]">
+        <Image src="/images/star.png" alt="" width={36} height={36} className="pointer-events-none absolute -right-7 top-16 z-0 size-28 md:-right-4 md:size-36" />
+        <div className="container relative z-10 max-w-[1200px]">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-gold">Make an impact</p>
           <h1 className="mt-3 max-w-3xl font-display text-5xl font-semibold tracking-tight text-brand-black sm:text-6xl md:text-7xl">Find your next KAMP experience.</h1>
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-brand-grey md:text-lg">Meet mentors, challenge your thinking, and build alongside students who are ready to lead their campuses and communities.</p>

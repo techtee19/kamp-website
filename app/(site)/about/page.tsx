@@ -63,9 +63,9 @@ export default function AboutPage() {
           alt=""
           width={36}
           height={36}
-          className="pointer-events-none absolute top-24 -right-7 size-24 md:-right-4 md:size-32"
+          className="pointer-events-none absolute top-24 -right-7 z-0 size-24 md:-right-4 md:size-32"
         />
-        <div className="container grid max-w-[1200px] gap-8 md:grid-cols-[.78fr_1.22fr] md:gap-16">
+        <div className="container relative z-10 grid max-w-[1200px] gap-8 md:grid-cols-[.78fr_1.22fr] md:gap-16">
           <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
             Who we are
           </h2>
@@ -83,9 +83,9 @@ export default function AboutPage() {
           alt=""
           width={36}
           height={36}
-          className="pointer-events-none absolute top-10 -left-8 size-24 md:-left-5 md:size-32"
+          className="pointer-events-none absolute top-10 -left-8 z-0 size-24 md:-left-5 md:size-32"
         />
-        <div className="container max-w-[1200px]">
+        <div className="container relative z-10 max-w-[1200px]">
           <div className="max-w-2xl">
             <p className="text-brand-gold text-sm font-semibold tracking-[0.18em] uppercase">
               What guides us
@@ -119,7 +119,7 @@ export default function AboutPage() {
       </section>
 
       <section className="relative pb-20 md:pb-24 xl:pb-32">
-        <div className="container max-w-[1200px]">
+        <div className="container relative z-10 max-w-[1200px]">
           <h2 className="font-display text-2xl font-semibold tracking-tight md:text-3xl">
             Every great leader was once mentored
           </h2>
@@ -198,7 +198,7 @@ export default function AboutPage() {
           alt=""
           width={36}
           height={36}
-          className="pointer-events-none absolute -right-8 bottom-6 size-28 md:-right-5 md:size-36"
+          className="pointer-events-none absolute -right-8 bottom-6 z-0 size-28 md:-right-5 md:size-36"
         />
       </section>
 

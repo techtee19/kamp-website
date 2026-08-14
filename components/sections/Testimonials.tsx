@@ -19,8 +19,8 @@ export default function Testimonials() {
 
   return (
     <section className="relative overflow-hidden bg-brand-white py-16 lg:py-20 xl:py-24">
-      <Image src="/images/star.png" alt="" width={36} height={36} className="pointer-events-none absolute -right-10 top-6 size-28 md:-right-8 md:top-10" />
-      <div className="container relative max-w-[800px] xl:max-w-[1200px]">
+      <Image src="/images/star.png" alt="" width={36} height={36} className="pointer-events-none absolute -right-10 top-6 z-0 size-28 md:-right-8 md:top-10" />
+      <div className="container relative z-10 max-w-[800px] xl:max-w-[1200px]">
         <h2 className="font-display text-2xl font-semibold leading-tight text-brand-ink xl:text-3xl">Here&apos;s what people think of KAMP</h2>
         <div className="mt-5 grid gap-6 md:grid-cols-[168px_1fr] md:items-center md:gap-6 xl:mt-8 xl:grid-cols-[280px_1fr] xl:gap-10">
           <div className="grid gap-1.5">
