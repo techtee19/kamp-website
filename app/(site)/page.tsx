@@ -34,10 +34,10 @@ export default function HomePage() {
   return (
     <div className="bg-brand-white text-brand-black">
 
-      <section className="relative isolate aspect-[1200/600] min-h-[420px] overflow-hidden bg-brand-black lg:min-h-0">
+      <section className="relative isolate min-h-[720px] overflow-hidden bg-brand-black sm:min-h-[680px] lg:aspect-[1200/600] lg:min-h-0">
         <HeroImageRotator />
         <div className="absolute inset-0 -z-10 bg-brand-black/45" />
-        <div className="container grid h-full items-end gap-12 pb-10 pt-24 lg:grid-cols-[1fr_.9fr] lg:pb-12 lg:pt-28">
+        <div className="container grid h-full items-end gap-8 pb-10 pt-24 sm:gap-10 lg:grid-cols-[1fr_.9fr] lg:gap-12 lg:pb-12 lg:pt-28">
           <div className="max-w-xl text-brand-white">
             <h1 className="font-display text-5xl font-semibold leading-[.88] tracking-tight sm:text-6xl lg:text-7xl">
               <span className="block">Build.</span>

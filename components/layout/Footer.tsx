@@ -19,10 +19,10 @@ export default function Footer() {
           <div>
             <h2 className="font-display text-4xl font-semibold leading-none">Stay Updated</h2>
             <p className="mt-3 text-sm text-brand-white/80">Get updates on upcoming conferences and campus projects</p>
-            <form className="mt-5 flex max-w-md gap-0">
+            <form className="mt-5 flex max-w-md flex-col gap-3 sm:flex-row sm:gap-0">
               <label className="sr-only" htmlFor="footer-email">Email address</label>
               <input id="footer-email" type="email" placeholder="Enter your Email Address" className="min-w-0 flex-1 rounded-full bg-brand-white/15 px-5 py-2.5 text-sm text-brand-white outline-none placeholder:text-brand-white/65 focus:ring-2 focus:ring-brand-gold" />
-              <button type="submit" className="-ml-3 rounded-full bg-brand-gold px-5 py-2.5 text-sm text-brand-deep">Subscribe</button>
+              <button type="submit" className="rounded-full bg-brand-gold px-5 py-2.5 text-sm text-brand-deep sm:-ml-3">Subscribe</button>
             </form>
             <p className="mt-3 text-sm text-brand-white/75">Get updates on upcoming conferences and campus projects</p>
           </div>

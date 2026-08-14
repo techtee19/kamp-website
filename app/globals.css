@@ -33,6 +33,12 @@
     font-family: var(--font-body);
     background-color: var(--color-background);
     color: var(--color-primary);
+    overflow-x: hidden;
+  }
+
+  body {
+    min-width: 320px;
+    overflow-x: hidden;
   }
 }
 

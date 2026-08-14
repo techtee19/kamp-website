@@ -1,6 +1,7 @@
 // KAMP's contact page with enquiry form and direct community channels.
 import Image from 'next/image'
-import { AtSign, Mail, MapPin, Share2 } from 'lucide-react'
+import { Mail, MapPin } from 'lucide-react'
+import { FaInstagram as AtSign, FaLinkedinIn as Share2 } from 'react-icons/fa'
 import ContactForm from '@/components/contact/ContactForm'
 
 export default function ContactPage() {
