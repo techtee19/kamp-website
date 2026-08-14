@@ -8,6 +8,14 @@ import { rateLimit, getClientIp } from '@/lib/ratelimit'
 
 export async function POST(req: NextRequest) {
   try {
+    if (!client) {
+      console.error('[/api/register] Missing NEXT_PUBLIC_SANITY_PROJECT_ID')
+      return NextResponse.json(
+        { error: 'Event registration is temporarily unavailable. Please try again later.' },
+        { status: 503 }
+      )
+    }
+
     // 0. Rate limit by client IP (backend.md §8)
     if (!rateLimit(getClientIp(req))) {
       return NextResponse.json(

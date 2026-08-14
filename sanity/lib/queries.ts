@@ -4,7 +4,7 @@ import { client } from './client'
 // ── Image URL builder ─────────────────────────────────────────
 // backend.md §3.8 uses the default export; that is deprecated in the installed
 // version of @sanity/image-url, so this uses the named export instead.
-const builder = createImageUrlBuilder(client)
+const builder = createImageUrlBuilder(client ?? undefined)
 export const urlFor = (source: unknown) =>
   builder.image(source as Parameters<typeof builder.image>[0])
 
