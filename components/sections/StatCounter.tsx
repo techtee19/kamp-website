@@ -13,7 +13,7 @@ export default function StatCounter({ value }: StatCounterProps) {
   useEffect(() => {
     const target = Number(value.replace(/\D/g, ''))
     const suffix = value.replace(/[\d,]/g, '')
-    const duration = 4200
+    const duration = 6500
     let animationFrame = 0
     let startTime: number | null = null
 

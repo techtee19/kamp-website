@@ -13,6 +13,7 @@ const tabs = [
 export default function GetInvolvedTabs() {
   const [activeTab, setActiveTab] = useState(0)
   const [scenePosition, setScenePosition] = useState<'before' | 'pinned' | 'after'>('before')
+  const mobileScrollSectionRef = useRef<HTMLDivElement>(null)
   const scrollSectionRef = useRef<HTMLDivElement>(null)
   const active = tabs[activeTab]
 
@@ -20,9 +21,7 @@ export default function GetInvolvedTabs() {
     let frame = 0
 
     const updateActiveTab = () => {
-      if (window.innerWidth < 768) return
-
-      const section = scrollSectionRef.current
+      const section = window.innerWidth < 768 ? mobileScrollSectionRef.current : scrollSectionRef.current
       if (!section) return
 
       const sectionTop = section.getBoundingClientRect().top + window.scrollY
@@ -61,8 +60,9 @@ export default function GetInvolvedTabs() {
         </div>
       </section>
 
-      <section className="bg-brand-gold py-10 md:hidden">
-        <div className="container">
+      <div ref={mobileScrollSectionRef} className="relative h-[400svh] bg-brand-gold md:hidden">
+        <div className={`${scenePosition === 'before' ? 'absolute inset-x-0 top-0' : scenePosition === 'after' ? 'hidden' : 'fixed inset-0 z-20'} flex h-[100svh] items-center bg-brand-gold`}>
+          <div className="container w-full">
           <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none]">
             {tabs.map((tab, index) => (
               <button key={tab.label} type="button" onClick={() => setActiveTab(index)} className={`shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition ${index === activeTab ? 'border-brand-ink bg-brand-ink text-brand-white' : 'border-brand-ink/30 text-brand-ink'}`} aria-pressed={index === activeTab}>
@@ -70,13 +70,14 @@ export default function GetInvolvedTabs() {
               </button>
             ))}
           </div>
-          <div className="mt-7 border-t border-brand-ink/25 pt-7 text-brand-deep">
+          <div key={active.label} className="mt-7 border-t border-brand-ink/25 pt-7 text-brand-deep motion-safe:animate-[fade-in_250ms_ease-out]">
             <p className="text-[15px] leading-relaxed">{active.copy}</p>
             <p className="mt-6 text-[15px] leading-relaxed">Get mentored, get connected, get moving on the leadership path you&apos;re already on.</p>
             <button type="button" className="mt-5 rounded-full bg-brand-ink px-6 py-3 text-sm font-semibold text-brand-white">{active.action}</button>
           </div>
         </div>
-      </section>
+        </div>
+      </div>
 
       <div ref={scrollSectionRef} className="relative ml-[calc(50%-50vw)] hidden h-[360vh] w-screen bg-brand-gold md:block">
         <div

@@ -54,7 +54,9 @@ export default function Navbar() {
         <div className="fixed inset-0 z-50 bg-brand-black/40 lg:hidden" onClick={() => setMenuOpen(false)}>
           <aside className="ml-auto flex h-[calc(100dvh-3rem)] w-[min(76vw,288px)] flex-col bg-brand-black px-5 py-5 text-brand-white shadow-2xl" onClick={(event) => event.stopPropagation()} aria-label="Mobile navigation">
             <div className="flex items-center justify-between">
-              <Image src="/kamp_logo.svg" alt="KAMP" width={171} height={81} className="h-9 w-auto object-contain" />
+              <Link href="/" onClick={() => setMenuOpen(false)} aria-label="KAMP home">
+                <Image src="/kamp_logo.svg" alt="KAMP" width={171} height={81} className="h-9 w-auto object-contain" />
+              </Link>
               <button type="button" className="grid size-10 place-items-center rounded-full border border-brand-white" onClick={() => setMenuOpen(false)} aria-label="Close navigation menu">
                 <X size={21} />
               </button>

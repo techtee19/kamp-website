@@ -33,7 +33,7 @@ export default function GalleryMarquee() {
 
   useEffect(() => {
     const updatePosition = () => {
-      setScrollPhase((window.scrollY / 900) % 1)
+      setScrollPhase((window.scrollY / 2400) % 1)
     }
 
     updatePosition()
@@ -45,8 +45,8 @@ export default function GalleryMarquee() {
     }
   }, [])
 
-  const topOffset = -33.333 + scrollPhase * 33.333
-  const bottomOffset = -33.333 - scrollPhase * 33.333
+  const topOffset = -16.667 + scrollPhase * 16.667
+  const bottomOffset = -16.667 - scrollPhase * 16.667
 
   return (
     <section className="overflow-hidden bg-brand-white py-16 lg:py-20">
