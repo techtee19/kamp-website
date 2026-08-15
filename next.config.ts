@@ -42,6 +42,14 @@ const nextConfig: NextConfig = {
           { key: 'Content-Security-Policy', value: csp },
         ],
       },
+      {
+        // Sanity Studio is embedded at /studio and needs to frame itself
+        // (presentation/preview panes), so relax the site-wide DENY here.
+        source: '/studio/:path*',
+        headers: [
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+        ],
+      },
     ]
   },
 }

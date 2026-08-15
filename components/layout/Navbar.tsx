@@ -23,9 +23,9 @@ export default function Navbar() {
 
   return (
     <header className={`${isHome ? 'absolute inset-x-0 top-0 bg-brand-black/20 text-brand-white' : 'sticky top-0 border-b border-brand-black/10 bg-brand-white/95 text-brand-black backdrop-blur'} z-50`}>
-      <nav className="container flex h-16 items-center justify-between gap-6 lg:h-20" aria-label="Main navigation">
+      <nav className="container flex h-24 items-center justify-between gap-6 lg:h-20" aria-label="Main navigation">
         <Link href="/" className="shrink-0" aria-label="KAMP home">
-          <Image src="/kamp_logo.svg" alt="KAMP" width={171} height={81} priority className="h-9 w-auto object-contain" />
+          <Image src="/kamp_logo.svg" alt="KAMP" width={171} height={81} priority className="h-10 w-auto object-contain lg:h-9" />
         </Link>
 
         <div className="hidden items-center gap-6 lg:flex">

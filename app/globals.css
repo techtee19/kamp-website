@@ -86,17 +86,17 @@
 @utility container {
   width: 100%;
   margin-inline: auto;
-  padding-inline: 1rem;
+  padding-inline: 1.25rem;
 
   @media (width >= theme(--breakpoint-md)) {
     padding-inline: 1.5rem;
   }
 
   @media (width >= theme(--breakpoint-lg)) {
-    padding-inline: 2rem;
+    padding-inline: 5rem;
   }
 
   @media (width >= theme(--breakpoint-xl)) {
-    max-width: 1400px;
+    max-width: 1600px;
   }
 }
