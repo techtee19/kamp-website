@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Design mockups plus a standalone CommonJS asset generator that is run by
+    // hand with `node`, so the app's ESM/TypeScript rules do not apply to it.
+    "design/**",
   ]),
 ]);
 

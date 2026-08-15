@@ -136,14 +136,14 @@ export default function AboutPage() {
             impact projects on Nigerian university campuses.
           </p>
           <blockquote className="border-brand-gold font-display mt-8 border-l-4 py-3 pl-3 text-base leading-relaxed font-semibold md:mt-10 md:pl-4 md:text-lg">
-            “You're not just volunteering; you're making impact, inspiring others, and helping
+            “You&apos;re not just volunteering; you&apos;re making impact, inspiring others, and helping
             shape lives in your own unique way.”
           </blockquote>
           <p className="mt-8 max-w-6xl text-sm leading-relaxed md:mt-10 md:text-base">
             Today, KAMP is a growing family of mentors, mentees, volunteers, and partners
             united by one mission: raising transformative leaders who positively influence
             their communities — with a bold goal of mentoring and training 10,000 youths
-            annually. And we're just getting started.
+            annually. And we&apos;re just getting started.
           </p>
         </div>
       </section>
