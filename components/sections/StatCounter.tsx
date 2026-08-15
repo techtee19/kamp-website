@@ -1,7 +1,9 @@
 'use client'
 
-// Eased stat counter that animates from zero to its final value on page load.
-import { useEffect, useState } from 'react'
+// Eased stat counter that counts up the first time it scrolls into view. The
+// stats sit directly below a full-height hero, so animating on mount meant the
+// numbers had already finished climbing before anyone could see them.
+import { useEffect, useRef, useState } from 'react'
 
 type StatCounterProps = {
   value: string
@@ -9,11 +11,33 @@ type StatCounterProps = {
 
 export default function StatCounter({ value }: StatCounterProps) {
   const [displayValue, setDisplayValue] = useState('0+')
+  const [hasEnteredView, setHasEnteredView] = useState(false)
+  const numberRef = useRef<HTMLSpanElement>(null)
 
   useEffect(() => {
+    const node = numberRef.current
+    if (!node) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return
+        setHasEnteredView(true)
+        // Count up once — scrolling back past it should not reset the number.
+        observer.disconnect()
+      },
+      { threshold: 0.6 },
+    )
+
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!hasEnteredView) return
+
     const target = Number(value.replace(/\D/g, ''))
     const suffix = value.replace(/[\d,]/g, '')
-    const duration = 6500
+    const duration = 2000
     let animationFrame = 0
     let startTime: number | null = null
 
@@ -29,7 +53,7 @@ export default function StatCounter({ value }: StatCounterProps) {
 
     animationFrame = requestAnimationFrame(update)
     return () => cancelAnimationFrame(animationFrame)
-  }, [value])
+  }, [value, hasEnteredView])
 
-  return <span>{displayValue}</span>
+  return <span ref={numberRef}>{displayValue}</span>
 }

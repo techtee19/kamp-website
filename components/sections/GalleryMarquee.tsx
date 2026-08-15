@@ -3,9 +3,9 @@
 // Full-bleed gallery mosaic for the home page, in two arrangements.
 //
 // Mobile is three static columns, each with its own top offset so the rows read
-// as staggered rather than gridded. From `lg` up it becomes two rows that share
-// the same column positions and drift together on scroll, so the columns stay
-// aligned; varying tile heights plus centre alignment stagger each row's edge.
+// as staggered rather than gridded. From `lg` up it becomes two rows that
+// counter-scroll — the top row drifts right, the bottom row left — with varying
+// tile heights and centre alignment breaking up each row's edge.
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -22,9 +22,12 @@ const columns = [
   { top: '/images/gallery/visit-gallery-7.png', topRatio: 1.26, bottom: '/images/gallery/visit-gallery-14.jpg', bottomRatio: 1.3 },
 ]
 
-// Three copies of the set: we park on the middle one so the row is cut off at
-// both edges, and one full set of travel loops back to an identical frame.
-const SETS = 3
+// Four copies of the set. A row parks between the first and second copy, which
+// leaves one copy off-screen left — so the row is always cut off at that edge —
+// and two to the right, enough to cover a wide monitor at either end of the
+// travel. One set of travel in either direction lands on an identical frame,
+// which is what makes the loop seamless.
+const SETS = 4
 const SET_SHIFT = 100 / SETS
 const TILE_SIZES = '(min-width: 1280px) 224px, (min-width: 1024px) 200px, 176px'
 
@@ -104,8 +107,11 @@ export default function GalleryMarquee() {
     }
   }, [])
 
-  // Both rows take the same offset — that is what keeps the columns aligned.
-  const offset = -SET_SHIFT - scrollPhase * SET_SHIFT
+  // The rows counter-scroll: the top travels right, the bottom left. Both stay
+  // between one and two sets of shift, so neither runs out of tiles at its end.
+  const drift = scrollPhase * SET_SHIFT
+  const topOffset = -SET_SHIFT * 2 + drift
+  const bottomOffset = -SET_SHIFT - drift
 
   return (
     <section className="overflow-hidden bg-brand-white py-14 lg:py-20 [--tile:176px] lg:[--tile:200px] xl:[--tile:224px]">
@@ -129,8 +135,8 @@ export default function GalleryMarquee() {
         </div>
 
         <div className="relative z-10 hidden flex-col gap-2.5 lg:flex">
-          <MosaicRow row="top" offset={offset} />
-          <MosaicRow row="bottom" offset={offset} />
+          <MosaicRow row="top" offset={topOffset} />
+          <MosaicRow row="bottom" offset={bottomOffset} />
         </div>
       </div>
       <div className="mt-7 text-center lg:mt-8">
