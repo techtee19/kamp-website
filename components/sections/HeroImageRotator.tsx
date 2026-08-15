@@ -25,7 +25,7 @@ export default function HeroImageRotator() {
   return (
     <div className="absolute inset-0 -z-20" aria-hidden="true">
       {heroImages.map((image, index) => (
-        <Image key={image} src={image} alt="" fill priority={index === 0} sizes="100vw" className={`object-fill transition-opacity duration-[1200ms] ease-in-out md:object-cover ${index === activeImage ? 'opacity-100' : 'opacity-0'}`} />
+        <Image key={image} src={image} alt="" fill priority={index === 0} sizes="100vw" className={`object-cover object-center transition-opacity duration-[1200ms] ease-in-out ${index === activeImage ? 'opacity-100' : 'opacity-0'}`} />
       ))}
     </div>
   )
