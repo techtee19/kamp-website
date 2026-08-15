@@ -77,8 +77,8 @@ export default function HomePage() {
       <section className="py-20 lg:py-24">
         <div className="container relative z-10">
           <Image src="/images/star.png" alt="" width={36} height={36} className="absolute right-14 top-3 z-0 size-9" />
-          <h2 className="max-w-3xl font-display text-3xl font-semibold leading-tight text-brand-ink sm:text-4xl">Take action and grow with KAMP</h2>
-          <p className="mt-4 max-w-3xl text-sm leading-relaxed text-brand-black/80 sm:text-base">Whether you&apos;re a student looking for direction, a professional ready to give back, or a partner who believes in Africa&apos;s next generation — there&apos;s a place for you here.</p>
+          <h2 className="relative z-10 max-w-3xl font-display text-3xl font-semibold leading-tight text-brand-ink sm:text-4xl">Take action and grow with KAMP</h2>
+          <p className="relative z-10 mt-4 max-w-3xl text-sm leading-relaxed text-brand-black/80 sm:text-base">Whether you&apos;re a student looking for direction, a professional ready to give back, or a partner who believes in Africa&apos;s next generation — there&apos;s a place for you here.</p>
           <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {actions.map(({ title, copy }, index) => (
               <article key={title} className="flex min-h-60 flex-col rounded-lg bg-brand-card p-5">

@@ -78,7 +78,7 @@ export default function GalleryMarquee() {
       </div>
       <div className="relative isolate mt-10 lg:mt-12">
         {/* Brand star rises out of the top row; the tiles cover its lower half. */}
-        <Image src="/images/star.png" alt="" width={96} height={96} className="absolute -top-8 right-[18%] z-0 size-16 lg:-top-9 lg:size-24" />
+        <Image src="/images/star.png" alt="" width={96} height={96} className="pointer-events-none absolute -top-8 right-[18%] z-0 size-16 lg:-top-9 lg:size-24" />
         <div className="relative z-10 flex flex-col gap-2.5">
           <MosaicRow row="top" offset={offset} />
           <MosaicRow row="bottom" offset={offset} />
