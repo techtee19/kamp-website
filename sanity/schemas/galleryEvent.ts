@@ -1,4 +1,4 @@
-import { defineField, defineType } from 'sanity'
+import { defineArrayMember, defineField, defineType } from 'sanity'
 
 export const galleryEventSchema = defineType({
   name: 'galleryEvent',
@@ -36,13 +36,41 @@ export const galleryEventSchema = defineType({
       title: 'Cover / Thumbnail Image',
       type: 'image',
       options: { hotspot: true },
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt text',
+          type: 'string',
+        }),
+      ],
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'photos',
       title: 'Photo Album',
+      description: 'Upload multiple photos at once by selecting all files together',
       type: 'array',
-      of: [{ type: 'image', options: { hotspot: true } }],
+      of: [
+        defineArrayMember({
+          type: 'image',
+          options: { hotspot: true },
+          fields: [
+            defineField({
+              name: 'caption',
+              title: 'Caption (optional)',
+              type: 'string',
+            }),
+            defineField({
+              name: 'alt',
+              title: 'Alt text',
+              description: 'Describe the image for accessibility',
+              type: 'string',
+            }),
+          ],
+        }),
+      ],
+      // Grid shows thumbnails instead of a stacked list; reordering is still drag-and-drop.
+      options: { layout: 'grid' },
       validation: (Rule) => Rule.required().min(1),
     }),
     defineField({

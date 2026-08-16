@@ -1,4 +1,4 @@
-import { defineField, defineType } from 'sanity'
+import { defineArrayMember, defineField, defineType } from 'sanity'
 
 export const eventSchema = defineType({
   name: 'event',
@@ -84,8 +84,29 @@ export const eventSchema = defineType({
     defineField({
       name: 'galleryImages',
       title: 'Post-Event Gallery Images',
+      description: 'Upload multiple photos at once by selecting all files together',
       type: 'array',
-      of: [{ type: 'image', options: { hotspot: true } }],
+      of: [
+        defineArrayMember({
+          type: 'image',
+          options: { hotspot: true },
+          fields: [
+            defineField({
+              name: 'caption',
+              title: 'Caption (optional)',
+              type: 'string',
+            }),
+            defineField({
+              name: 'alt',
+              title: 'Alt text',
+              description: 'Describe the image for accessibility',
+              type: 'string',
+            }),
+          ],
+        }),
+      ],
+      // Grid shows thumbnails instead of a stacked list; reordering is still drag-and-drop.
+      options: { layout: 'grid' },
     }),
   ],
   orderings: [
