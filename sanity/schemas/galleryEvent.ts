@@ -48,7 +48,8 @@ export const galleryEventSchema = defineType({
     defineField({
       name: 'photos',
       title: 'Photo Album',
-      description: 'Upload multiple photos at once by selecting all files together',
+      description:
+        'Select all the photos on your computer, then drag the whole selection onto this field — they upload as one batch. Pasting images works too. Drag a thumbnail to reorder.',
       type: 'array',
       of: [
         defineArrayMember({
