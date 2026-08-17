@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "migrate:events": "node --env-file=.env.local --experimental-strip-types scripts/migrate-events.mjs"
+    "migrate:events": "node --env-file=.env.local --experimental-strip-types scripts/migrate-events.mjs",
+    "migrate:gallery": "node --env-file=.env.local --experimental-strip-types scripts/migrate-gallery.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",

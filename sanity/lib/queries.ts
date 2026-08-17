@@ -76,6 +76,17 @@ export const EVENT_BY_ID_QUERY = `
 // event queries above use. `_type` is projected for the same reason it is there:
 // GalleryEventDocument declares it, so leaving it out would make the runtime shape
 // disagree with the type.
+//
+// The urls carry Sanity's own resize parameters because the originals are 4-7MB
+// exports up to 6900px wide. Handing those to next/image made its optimizer time out
+// and return 500s once an album filled the fourteen-slot mosaic; asking Sanity to
+// downscale first turns a 3.7MB fetch into 364KB and the timeouts go away. The
+// numbers are the widest either surface can display: the mosaic and lightbox tiles
+// never exceed a third of a wide viewport, while a cover also fills the full-bleed
+// hero. next/image still produces the responsive srcset from these.
+const GALLERY_PHOTO_WIDTH = 1600
+const GALLERY_COVER_WIDTH = 2400
+
 export const GALLERY_EVENTS_QUERY = `
   *[_type == "galleryEvent"] | order(date desc) {
     _id,
@@ -87,11 +98,11 @@ export const GALLERY_EVENTS_QUERY = `
     year,
     recap,
     coverImage {
-      asset->{url},
+      "asset": { "url": asset->url + "?w=${GALLERY_COVER_WIDTH}&q=80" },
       alt
     },
     photos[] {
-      asset->{url},
+      "asset": { "url": asset->url + "?w=${GALLERY_PHOTO_WIDTH}&q=80" },
       alt,
       caption
     },

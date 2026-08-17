@@ -3,7 +3,7 @@
 // referenced as gallery content — the one that remains is a hero fallback for when
 // Sanity has no cover image to use yet.
 import Image from 'next/image'
-import GalleryAlbum from '@/components/sections/GalleryAlbum'
+import GalleryAlbums from '@/components/sections/GalleryAlbums'
 import { client } from '@/sanity/lib/client'
 import { GALLERY_EVENTS_QUERY } from '@/sanity/lib/queries'
 import type { GalleryEventDocument } from '@/types/sanity'
@@ -63,13 +63,9 @@ export default async function GalleryPage() {
         <div className="absolute inset-0 bg-brand-black/65" />
       </section>
 
-      {/* One album section per gallery event. The section wrapper carries the
-          vertical rhythm the single hardcoded album used to have. */}
-      {galleryEvents.map((event) => (
-        <section key={event._id} className="py-16 md:py-20 xl:py-24">
-          <GalleryAlbum event={event} />
-        </section>
-      ))}
+      {/* One album at a time; its arrows step between events. The hero above stays on
+          the most recent event rather than following the arrows. */}
+      <GalleryAlbums events={galleryEvents} />
     </div>
   )
 }
