@@ -10,32 +10,48 @@ export const urlFor = (source: unknown) =>
 
 // ── Events ────────────────────────────────────────────────────
 
+// Every event projection dereferences the image asset to a plain CDN url so the
+// pages can hand it straight to next/image. `_type` and `isPublished` are
+// projected even though the filters already imply them, so the shape actually
+// matches EventDocument rather than leaving those two fields undefined at runtime.
+const eventImage = `{ asset->{ url }, alt }`
+
 // All published upcoming events, ordered by date
 export const UPCOMING_EVENTS_QUERY = `
   *[_type == "event" && isPublished == true && status == "upcoming"] | order(date asc) {
-    _id, title, slug, date, university, location, theme, status, coverImage, capacity
+    _id, _type, title, slug, date, university, location, theme, status, capacity, isPublished,
+    coverImage ${eventImage}
   }
 `
 
 // All published past events
 export const PAST_EVENTS_QUERY = `
   *[_type == "event" && isPublished == true && status == "past"] | order(date desc) {
-    _id, title, slug, date, university, location, theme, status, coverImage
+    _id, _type, title, slug, date, university, location, theme, status, isPublished,
+    coverImage ${eventImage}
   }
 `
 
 // Single event by slug (for /events/[slug] page)
 export const EVENT_BY_SLUG_QUERY = `
   *[_type == "event" && slug.current == $slug && isPublished == true][0] {
-    _id, title, slug, date, university, location, theme, description, coverImage, capacity, status, galleryImages
+    _id, _type, title, slug, date, university, location, theme, status, capacity, isPublished, description,
+    coverImage ${eventImage},
+    galleryImages[] ${eventImage}
   }
 `
 
 // Most recent upcoming event (for Home page featured event)
 export const FEATURED_EVENT_QUERY = `
   *[_type == "event" && isPublished == true && status == "upcoming"] | order(date asc)[0] {
-    _id, title, slug, date, university, location, theme, coverImage
+    _id, _type, title, slug, date, university, location, theme, status, isPublished,
+    coverImage ${eventImage}
   }
+`
+
+// Slugs of every published event — feeds generateStaticParams for /events/[slug]
+export const EVENT_SLUGS_QUERY = `
+  *[_type == "event" && isPublished == true && defined(slug.current)] { slug }
 `
 
 // Single event by _id — used by /api/register to read capacity, date and location

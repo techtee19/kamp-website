@@ -1,64 +1,52 @@
 // KAMP's editorial events page with upcoming and concluded gatherings.
+// Content is managed in Sanity Studio; this page only renders it.
 import { Play } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { client } from '@/sanity/lib/client'
+import {
+  PAST_EVENTS_QUERY,
+  UPCOMING_EVENTS_QUERY,
+} from '@/sanity/lib/queries'
+import type { EventDocument } from '@/types/sanity'
 
+export const revalidate = 3600
+
+// Shown in the row's paragraph slot when an event has no theme of its own yet.
 const introduction =
   'KAMP was founded on a simple conviction: potential is everywhere, but guidance is not. Across Africa, brilliant young people carry big dreams — yet too many walk the journey alone, without someone ahead of them to say, “this is the way.” The Kolade Adepoju Mentoring Program exists to close that gap.'
-
-const upcomingEvents = [
-  {
-    title: 'Every great leader was once mentored',
-    image: '/images/gallery/kamp-gallery/DSC06240.jpg',
-    href: '/events/emerge-2026',
-  },
-  {
-    title: 'CONCLAVE (2026)',
-    image: '/images/gallery/kamp-gallery/DSC06037.jpg',
-    href: '/events/campus-leadership-forum',
-  },
-]
-
-const concludedEvents = [
-  {
-    title: 'Emerge Conference (2026)',
-    image: '/images/gallery/kamp-gallery/DSC06118.jpg',
-    href: '/events/emerge-2025',
-  },
-  {
-    title: 'Shine your light ted talk (2025).',
-    image: '/images/gallery/kamp-gallery/DSC05771.jpg',
-    href: '/events/mentors-roundtable-2025',
-  },
-]
 
 function EventRow({
   event,
   concluded = false,
 }: {
-  event: { title: string; image: string; href: string }
+  event: EventDocument
   concluded?: boolean
 }) {
   return (
     <article className="grid items-center gap-7 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:gap-10 xl:gap-14">
       <div className="bg-brand-card relative aspect-[1.62/1] overflow-hidden rounded-2xl">
-        <Image
-          src={event.image}
-          alt={event.title}
-          fill
-          sizes="(min-width: 768px) 42vw, 100vw"
-          className="object-cover"
-        />
+        {/* No placeholder asset exists, so a cover-less event just shows the
+            card tint rather than requesting a file that would 404. */}
+        {event.coverImage?.asset?.url && (
+          <Image
+            src={event.coverImage.asset.url}
+            alt={event.coverImage.alt ?? event.title}
+            fill
+            sizes="(min-width: 768px) 42vw, 100vw"
+            className="object-cover"
+          />
+        )}
       </div>
       <div className="max-w-[540px]">
         <h2 className="font-display text-brand-ink text-2xl leading-tight font-semibold sm:text-3xl xl:text-[34px]">
           {event.title}
         </h2>
         <p className="text-brand-ink/85 mt-4 text-sm leading-relaxed sm:text-base">
-          {introduction}
+          {event.theme ?? introduction}
         </p>
         <Link
-          href={event.href}
+          href={`/events/${event.slug.current}`}
           className="bg-brand-ink text-brand-white hover:bg-brand-deep mt-6 inline-flex items-center gap-3 rounded-full px-5 py-2.5 text-sm transition"
         >
           {concluded ? 'Watch on youtube' : 'Register'}
@@ -69,7 +57,19 @@ function EventRow({
   )
 }
 
-export default function EventsPage() {
+export default async function EventsPage() {
+  // The client is null until the Sanity env vars are set, which keeps builds
+  // green before the CMS exists; treat it as "nothing published yet".
+  const [upcomingEvents, pastEvents] = client
+    ? await Promise.all([
+        client.fetch<EventDocument[]>(UPCOMING_EVENTS_QUERY),
+        client.fetch<EventDocument[]>(PAST_EVENTS_QUERY),
+      ])
+    : [[], []]
+
+  const hasUpcoming = upcomingEvents.length > 0
+  const hasPast = pastEvents.length > 0
+
   return (
     <main className="bg-brand-white text-brand-ink overflow-hidden">
       <section className="container max-w-[1400px] pt-28 pb-7 sm:pt-32 sm:pb-9 xl:pt-36 xl:pb-11">
@@ -97,27 +97,41 @@ export default function EventsPage() {
         />
       </section>
 
-      <section className="container max-w-[1200px] py-16 sm:py-20 xl:py-24">
-        <h2 className="font-display text-brand-ink text-3xl leading-tight font-semibold sm:text-4xl xl:text-5xl">
-          Upcoming events
-        </h2>
-        <div className="mt-8 space-y-12 sm:mt-10 sm:space-y-14 xl:mt-12 xl:space-y-16">
-          {upcomingEvents.map((event) => (
-            <EventRow key={event.title} event={event} />
-          ))}
+      {!hasUpcoming && !hasPast ? (
+        <div className="py-20 text-center">
+          <p className="text-brand-grey">
+            No events yet. Check back soon or follow us on Instagram @wearekamp.
+          </p>
         </div>
-      </section>
+      ) : (
+        <>
+          {hasUpcoming && (
+            <section className="container max-w-[1200px] py-16 sm:py-20 xl:py-24">
+              <h2 className="font-display text-brand-ink text-3xl leading-tight font-semibold sm:text-4xl xl:text-5xl">
+                Upcoming events
+              </h2>
+              <div className="mt-8 space-y-12 sm:mt-10 sm:space-y-14 xl:mt-12 xl:space-y-16">
+                {upcomingEvents.map((event) => (
+                  <EventRow key={event._id} event={event} />
+                ))}
+              </div>
+            </section>
+          )}
 
-      <section className="container max-w-[1200px] pt-3 pb-20 sm:pb-24 xl:pt-5 xl:pb-32">
-        <h2 className="font-display text-brand-ink text-3xl leading-tight font-semibold sm:text-4xl xl:text-5xl">
-          Concluded events
-        </h2>
-        <div className="mt-8 space-y-12 sm:mt-10 sm:space-y-14 xl:mt-12 xl:space-y-16">
-          {concludedEvents.map((event) => (
-            <EventRow key={event.title} event={event} concluded />
-          ))}
-        </div>
-      </section>
+          {hasPast && (
+            <section className="container max-w-[1200px] pt-3 pb-20 sm:pb-24 xl:pt-5 xl:pb-32">
+              <h2 className="font-display text-brand-ink text-3xl leading-tight font-semibold sm:text-4xl xl:text-5xl">
+                Concluded events
+              </h2>
+              <div className="mt-8 space-y-12 sm:mt-10 sm:space-y-14 xl:mt-12 xl:space-y-16">
+                {pastEvents.map((event) => (
+                  <EventRow key={event._id} event={event} concluded />
+                ))}
+              </div>
+            </section>
+          )}
+        </>
+      )}
     </main>
   )
 }

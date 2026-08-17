@@ -4,6 +4,13 @@ export interface SanityImage {
   hotspot?: { x: number; y: number; height: number; width: number }
 }
 
+// An image after the event queries have dereferenced its asset to a CDN url.
+// `asset` is nullable because a projection over a missing image yields null.
+export interface SanityResolvedImage {
+  asset: { url: string } | null
+  alt?: string
+}
+
 export interface SanitySlug {
   _type: 'slug'
   current: string
@@ -25,12 +32,12 @@ export interface EventDocument {
   university: string
   location: string
   theme?: string
-  description: SanityBlock[]
-  coverImage: SanityImage
-  capacity?: number
   status: 'upcoming' | 'ongoing' | 'past'
+  capacity?: number
+  description?: SanityBlock[]
+  coverImage: SanityResolvedImage | null
+  galleryImages?: SanityResolvedImage[]
   isPublished: boolean
-  galleryImages?: SanityImage[]
 }
 
 export interface GalleryEventDocument {

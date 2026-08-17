@@ -53,6 +53,14 @@ export const eventSchema = defineType({
       title: 'Cover Image',
       type: 'image',
       options: { hotspot: true },
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt text',
+          description: 'Describe the image for accessibility',
+          type: 'string',
+        }),
+      ],
       validation: (Rule) => Rule.required(),
     }),
     defineField({
