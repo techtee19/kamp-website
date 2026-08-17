@@ -10,15 +10,10 @@
 import Image from 'next/image'
 import { useState } from 'react'
 import GalleryLightbox from '@/components/sections/GalleryLightbox'
-
-type Photo = {
-  src: string
-  alt: string
-}
+import type { GalleryEventDocument } from '@/types/sanity'
 
 type GalleryAlbumProps = {
-  title: string
-  photos: Photo[]
+  event: GalleryEventDocument
 }
 
 // Column and row spans per slot, in order. Which photo lands in which slot
@@ -40,12 +35,14 @@ const slots = [
   'col-span-2 row-span-2 md:col-span-3 md:row-span-2',
 ]
 
-export default function GalleryAlbum({ title, photos }: GalleryAlbumProps) {
+export default function GalleryAlbum({ event }: GalleryAlbumProps) {
   const [page, setPage] = useState(0)
 
+  const photos = event.photos ?? []
   const pageCount = Math.max(1, Math.ceil(photos.length / slots.length))
   const start = Math.max(0, Math.min(page * slots.length, photos.length - slots.length))
   const visible = photos.slice(start, start + slots.length)
+  const hiddenCount = photos.length - visible.length
 
   // Both arrows wrap, so neither dead-ends on the first or last page and the
   // design keeps two live arrows instead of needing a disabled state.
@@ -54,15 +51,18 @@ export default function GalleryAlbum({ title, photos }: GalleryAlbumProps) {
   return (
     <div className="container max-w-[1200px]">
       <div className="flex items-center justify-between gap-6">
-        <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h2>
-        <div className="hidden items-center gap-7 md:flex">
-          <button type="button" onClick={() => step(-1)} className="rounded-sm transition hover:-translate-x-1 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-gold" aria-label="Show previous photos">
-            <Image src="/images/gallery/left-arrow.png" alt="" width={38} height={20} className="h-5 w-auto" />
-          </button>
-          <button type="button" onClick={() => step(1)} className="rounded-sm transition hover:translate-x-1 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-gold" aria-label="Show next photos">
-            <Image src="/images/gallery/right-arrow.png" alt="" width={38} height={20} className="h-5 w-auto" />
-          </button>
-        </div>
+        <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{event.title}</h2>
+        {/* One page of photos means the arrows have nowhere to go. */}
+        {pageCount > 1 && (
+          <div className="hidden items-center gap-7 md:flex">
+            <button type="button" onClick={() => step(-1)} className="rounded-sm transition hover:-translate-x-1 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-gold" aria-label="Show previous photos">
+              <Image src="/images/gallery/left-arrow.png" alt="" width={38} height={20} className="h-5 w-auto" />
+            </button>
+            <button type="button" onClick={() => step(1)} className="rounded-sm transition hover:translate-x-1 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-gold" aria-label="Show next photos">
+              <Image src="/images/gallery/right-arrow.png" alt="" width={38} height={20} className="h-5 w-auto" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* The arrows swap the grid in place, which is silent without this. */}
@@ -72,11 +72,20 @@ export default function GalleryAlbum({ title, photos }: GalleryAlbumProps) {
         {visible.map((photo, index) => (
           // Keying on the page as well as the photo remounts each tile, which is
           // what replays the fade as a new page comes in.
-          <figure key={`${page}-${photo.src}`} className={`relative overflow-hidden rounded-2xl bg-brand-card motion-safe:animate-[fade-in_400ms_ease-out] ${slots[index]}`}>
-            <Image src={`/images/gallery/kamp-gallery/${photo.src}`} alt={photo.alt} fill sizes="(min-width: 768px) 20vw, 48vw" className="object-cover transition duration-500 hover:scale-105" />
+          <figure key={`${page}-${index}-${photo.asset?.url}`} className={`relative overflow-hidden rounded-2xl bg-brand-card motion-safe:animate-[fade-in_400ms_ease-out] ${slots[index]}`}>
+            {/* An image field an editor added but never uploaded to projects as a
+                null asset, so that slot keeps the card tint instead of handing
+                next/image an undefined src. */}
+            {photo.asset?.url && (
+              <Image src={photo.asset.url} alt={photo.alt ?? event.title} fill sizes="(min-width: 768px) 20vw, 48vw" className="object-cover transition duration-500 hover:scale-105" />
+            )}
           </figure>
         ))}
-        <GalleryLightbox images={photos.map((photo) => photo.src)} hiddenCount={photos.length - visible.length} />
+        {/* With a single page there is nothing behind the tile, and a "+0" tile
+            reads as broken — the album is already showing everything. */}
+        {hiddenCount > 0 && (
+          <GalleryLightbox images={photos} hiddenCount={hiddenCount} title={event.title} backdropUrl={event.coverImage?.asset?.url} />
+        )}
       </div>
     </div>
   )
