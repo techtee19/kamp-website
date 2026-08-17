@@ -16,10 +16,16 @@ export const urlFor = (source: unknown) =>
 // matches EventDocument rather than leaving those two fields undefined at runtime.
 const eventImage = `{ asset->{ url }, alt }`
 
-// All published upcoming events, ordered by date
+// Every published event that has not concluded, ordered by date.
+// Filtering on `status != "past"` rather than `status == "upcoming"` is deliberate:
+// an event switched to "ongoing" on the day it runs used to match neither this
+// query nor PAST_EVENTS_QUERY, so it vanished from the site mid-event. The two
+// filters are now complements, which means every published event appears in
+// exactly one of the listing's two sections.
 export const UPCOMING_EVENTS_QUERY = `
-  *[_type == "event" && isPublished == true && status == "upcoming"] | order(date asc) {
+  *[_type == "event" && isPublished == true && status != "past"] | order(date asc) {
     _id, _type, title, slug, date, university, location, theme, status, capacity, isPublished,
+    registrationClosed,
     coverImage ${eventImage}
   }
 `
@@ -35,15 +41,17 @@ export const PAST_EVENTS_QUERY = `
 // Single event by slug (for /events/[slug] page)
 export const EVENT_BY_SLUG_QUERY = `
   *[_type == "event" && slug.current == $slug && isPublished == true][0] {
-    _id, _type, title, slug, date, university, location, theme, status, capacity, isPublished, description,
+    _id, _type, title, slug, date, university, location, theme, status, capacity, isPublished,
+    registrationClosed, description,
     coverImage ${eventImage},
     galleryImages[] ${eventImage}
   }
 `
 
-// Most recent upcoming event (for Home page featured event)
+// Most recent unconcluded event (for Home page featured event). Matches
+// UPCOMING_EVENTS_QUERY's filter so an ongoing event stays featured while it runs.
 export const FEATURED_EVENT_QUERY = `
-  *[_type == "event" && isPublished == true && status == "upcoming"] | order(date asc)[0] {
+  *[_type == "event" && isPublished == true && status != "past"] | order(date asc)[0] {
     _id, _type, title, slug, date, university, location, theme, status, isPublished,
     coverImage ${eventImage}
   }
@@ -63,10 +71,32 @@ export const EVENT_BY_ID_QUERY = `
 
 // ── Gallery ───────────────────────────────────────────────────
 
-// All gallery events, newest first
+// All gallery events, newest first. Image assets are dereferenced to plain CDN
+// urls so the page can hand them straight to next/image, matching the pattern the
+// event queries above use. `_type` is projected for the same reason it is there:
+// GalleryEventDocument declares it, so leaving it out would make the runtime shape
+// disagree with the type.
 export const GALLERY_EVENTS_QUERY = `
   *[_type == "galleryEvent"] | order(date desc) {
-    _id, title, date, university, theme, year, recap, coverImage, photos, videoUrl, pressLinks
+    _id,
+    _type,
+    title,
+    date,
+    university,
+    theme,
+    year,
+    recap,
+    coverImage {
+      asset->{url},
+      alt
+    },
+    photos[] {
+      asset->{url},
+      alt,
+      caption
+    },
+    videoUrl,
+    pressLinks
   }
 `
 

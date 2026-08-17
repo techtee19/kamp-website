@@ -61,7 +61,10 @@ export default async function EventDetailPage({
 
   if (!event) notFound()
 
-  const isUpcoming = event.status === 'upcoming'
+  // An ongoing event has not concluded, so it keeps the live styling and stays
+  // registerable — someone arriving on the day should still be able to sign up.
+  const hasConcluded = event.status === 'past'
+  const canRegister = !hasConcluded && !event.registrationClosed
 
   return (
     <div className="overflow-hidden bg-brand-white text-brand-ink">
@@ -79,7 +82,7 @@ export default async function EventDetailPage({
         <div className="absolute inset-0 -z-10 bg-brand-black/70" />
         <div className="container flex min-h-[440px] max-w-[1200px] flex-col justify-end pb-12 text-brand-white md:min-h-[560px] md:pb-16">
           <Link href="/events" className="mb-auto mt-2 inline-flex w-fit items-center gap-2 text-sm text-brand-white/80 transition hover:text-brand-white">← Back to events</Link>
-          <span className={`mb-5 w-fit rounded-full px-4 py-1.5 text-sm font-semibold capitalize ${isUpcoming ? 'bg-brand-gold text-brand-black' : 'bg-brand-white text-brand-ink'}`}>{event.status}</span>
+          <span className={`mb-5 w-fit rounded-full px-4 py-1.5 text-sm font-semibold capitalize ${hasConcluded ? 'bg-brand-white text-brand-ink' : 'bg-brand-gold text-brand-black'}`}>{event.status}</span>
           {event.theme && <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-gold">{event.theme}</p>}
           <h1 className="mt-3 max-w-4xl font-display text-5xl font-semibold tracking-tight sm:text-6xl md:text-7xl">{event.title}</h1>
         </div>
@@ -99,10 +102,12 @@ export default async function EventDetailPage({
           </div>
 
           <div>
-            {isUpcoming ? (
+            {canRegister ? (
               <><p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-gold">Reserve your place</p><h2 className="mt-2 font-display text-3xl font-semibold tracking-tight md:text-4xl">Register for {event.title}</h2><p className="mt-3 text-sm leading-relaxed text-brand-grey">Complete the form below and we&apos;ll confirm your registration by email.</p><div className="mt-7"><RegistrationForm eventId={event._id} eventTitle={event.title} eventDate={formatDate(event.date)} eventLocation={event.location} capacity={event.capacity} /></div></>
-            ) : (
+            ) : hasConcluded ? (
               <div className="rounded-xl border-l-4 border-brand-gold bg-brand-card p-7 md:p-9"><p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-gold">Event complete</p><h2 className="mt-3 font-display text-3xl font-semibold">This KAMP experience has passed.</h2><p className="mt-4 text-sm leading-relaxed text-brand-grey">Explore our upcoming events to find your next room for growth, connection, and meaningful leadership.</p><Link href="/events" className="mt-6 inline-flex rounded-full bg-brand-ink px-5 py-2.5 text-sm text-brand-white">View upcoming events</Link></div>
+            ) : (
+              <div className="rounded-xl border-l-4 border-brand-gold bg-brand-card p-7 md:p-9"><p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-gold">Registration closed</p><h2 className="mt-3 font-display text-3xl font-semibold">Sign-ups for this event have closed.</h2><p className="mt-4 text-sm leading-relaxed text-brand-grey">This gathering is still going ahead, but we are no longer taking new registrations. Follow us on Instagram @wearekamp for updates, or find another event to join.</p><Link href="/events" className="mt-6 inline-flex rounded-full bg-brand-ink px-5 py-2.5 text-sm text-brand-white">View other events</Link></div>
             )}
           </div>
         </div>

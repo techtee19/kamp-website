@@ -28,9 +28,9 @@ export default function EventCard({ event }: EventCardProps) {
         )}
         <span
           className={`absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold capitalize ${
-            event.status === 'upcoming'
-              ? 'bg-brand-gold text-brand-black'
-              : 'bg-brand-white text-brand-ink'
+            event.status === 'past'
+              ? 'bg-brand-white text-brand-ink'
+              : 'bg-brand-gold text-brand-black'
           }`}
         >
           {event.status}
@@ -47,7 +47,7 @@ export default function EventCard({ event }: EventCardProps) {
           href={`/events/${event.slug.current}`}
           className="mt-6 inline-flex rounded-full bg-brand-ink px-5 py-2 text-sm text-brand-white"
         >
-          {event.status === 'upcoming' ? 'View & register' : 'View event'}
+          {event.status === 'past' ? 'View event' : 'View & register'}
         </Link>
       </div>
     </article>

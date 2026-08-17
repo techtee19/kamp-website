@@ -49,7 +49,11 @@ function EventRow({
           href={`/events/${event.slug.current}`}
           className="bg-brand-ink text-brand-white hover:bg-brand-deep mt-6 inline-flex items-center gap-3 rounded-full px-5 py-2.5 text-sm transition"
         >
-          {concluded ? 'Watch on youtube' : 'Register'}
+          {concluded
+            ? 'Watch on youtube'
+            : event.registrationClosed
+              ? 'View event'
+              : 'Register'}
           {concluded && <Play size={14} fill="currentColor" />}
         </Link>
       </div>

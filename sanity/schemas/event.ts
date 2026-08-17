@@ -84,6 +84,17 @@ export const eventSchema = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'registrationClosed',
+      title: 'Registration closed',
+      description:
+        'Hides the registration form while the event itself still shows as upcoming or ongoing — use it when the room is full or sign-ups have ended early. A Past event closes registration on its own.',
+      type: 'boolean',
+      initialValue: false,
+      // Irrelevant once the event has concluded, so it only shows while the
+      // event can still take registrations.
+      hidden: ({ parent }) => parent?.status === 'past',
+    }),
+    defineField({
       name: 'isPublished',
       title: 'Published',
       type: 'boolean',

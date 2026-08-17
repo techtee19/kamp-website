@@ -34,10 +34,22 @@ export interface EventDocument {
   theme?: string
   status: 'upcoming' | 'ongoing' | 'past'
   capacity?: number
+  // Closes sign-ups without marking the event concluded (full room, early cutoff).
+  registrationClosed?: boolean
   description?: SanityBlock[]
   coverImage: SanityResolvedImage | null
   galleryImages?: SanityResolvedImage[]
   isPublished: boolean
+}
+
+export interface SanityImageAsset {
+  url: string
+}
+
+export interface SanityGalleryImage {
+  asset: SanityImageAsset
+  alt?: string
+  caption?: string
 }
 
 export interface GalleryEventDocument {
@@ -49,10 +61,17 @@ export interface GalleryEventDocument {
   theme?: string
   year: number
   recap?: string
-  coverImage: SanityImage
-  photos: SanityImage[]
+  coverImage: {
+    asset: SanityImageAsset
+    alt?: string
+  }
+  photos: SanityGalleryImage[]
   videoUrl?: string
-  pressLinks?: Array<{ outlet: string; headline: string; url: string }>
+  pressLinks?: Array<{
+    outlet: string
+    headline: string
+    url: string
+  }>
 }
 
 export interface TeamMemberDocument {
