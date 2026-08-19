@@ -1,6 +1,10 @@
 'use client'
 
-// Scroll-driven audience selector with a touch-friendly mobile layout.
+// Scroll-driven audience selector, pinned at every width.
+//
+// A tall runway pins the panel to the viewport and scroll progress through the
+// runway advances the active tab. Mobile and desktop keep their own layouts, so
+// each has its own runway and only the visible one drives the scene.
 import { useEffect, useRef, useState } from 'react'
 
 const tabs = [
@@ -29,17 +33,21 @@ const tabs = [
 export default function GetInvolvedTabs() {
   const [activeTab, setActiveTab] = useState(0)
   const [scenePosition, setScenePosition] = useState<'before' | 'pinned' | 'after'>('before')
-  const scrollSectionRef = useRef<HTMLDivElement>(null)
+  const mobileSectionRef = useRef<HTMLDivElement>(null)
+  const desktopSectionRef = useRef<HTMLDivElement>(null)
+  const mobileTabsRowRef = useRef<HTMLDivElement>(null)
   const active = tabs[activeTab]
 
-  // Only the desktop scene is scroll-driven; on mobile the tabs are tapped, so
-  // the section is `md:block` and this bails out while it is hidden.
+  // Mobile and desktop each have their own runway; whichever one is on screen
+  // drives the scene, so the hidden layout is skipped via `offsetParent`.
   useEffect(() => {
     let frame = 0
 
     const updateActiveTab = () => {
-      const section = scrollSectionRef.current
-      if (!section || section.offsetParent === null) return
+      const section = [mobileSectionRef.current, desktopSectionRef.current].find(
+        (candidate) => candidate && candidate.offsetParent !== null
+      )
+      if (!section) return
 
       const sectionTop = section.getBoundingClientRect().top + window.scrollY
       const scrollDistance = Math.max(section.offsetHeight - window.innerHeight, 1)
@@ -68,6 +76,26 @@ export default function GetInvolvedTabs() {
     }
   }, [])
 
+  // The mobile numbered row is wider than the screen, so bring the tab the
+  // scroll just picked into view.
+  useEffect(() => {
+    const row = mobileTabsRowRef.current
+    if (!row || row.offsetParent === null) return
+
+    const tab = row.children[activeTab]
+    if (!(tab instanceof HTMLElement)) return
+
+    const rowBox = row.getBoundingClientRect()
+    const tabBox = tab.getBoundingClientRect()
+
+    row.scrollBy({
+      left: tabBox.left - rowBox.left - (rowBox.width - tabBox.width) / 2,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'auto'
+        : 'smooth',
+    })
+  }, [activeTab])
+
   return (
     <>
       <section className="bg-brand-white pt-14 pb-10 md:hidden">
@@ -83,45 +111,55 @@ export default function GetInvolvedTabs() {
         </div>
       </section>
 
-      {/* Mobile is a plain stacked section — tabs are tapped, not scrolled
-          through — so the numbered row scrolls sideways past the right edge. */}
-      <section className="bg-brand-gold pt-20 pb-15 md:hidden">
-        <div className="container">
-          <div className="-mr-5 flex scrollbar-none gap-7 overflow-x-auto pr-5 pb-1 [&::-webkit-scrollbar]:hidden">
-            {tabs.map((tab, index) => (
-              <button
-                key={tab.label}
-                type="button"
-                onClick={() => setActiveTab(index)}
-                className={`font-display shrink-0 text-[17px] whitespace-nowrap transition ${index === activeTab ? 'text-brand-ink font-semibold' : 'text-brand-ink/35'}`}
-                aria-pressed={index === activeTab}
-              >
-                <span className="mr-2">{index + 1}.</span>
-                {tab.label}
-              </button>
-            ))}
-          </div>
-          <div
-            key={active.label}
-            className="border-brand-ink/25 text-brand-deep mt-7 -mr-4 border-t pt-4 motion-safe:animate-[fade-in_250ms_ease-out]"
-          >
-            <p className="pr-4 text-[15px] leading-tight">{active.copy}</p>
-            <p className="mt-14 pr-4 text-[15px] leading-tight">
-              Get mentored, get connected, get moving on the leadership path you&apos;re
-              already on.
-            </p>
-            <button
-              type="button"
-              className="bg-brand-ink text-brand-white mt-5 rounded-full px-6 py-2.5 text-sm"
+      {/* Mobile runs the same pinned scene as desktop, with the stacked layout:
+          the numbered row scrolls sideways past the right edge and follows the
+          tab that scrolling picks. */}
+      <div ref={mobileSectionRef} className="bg-brand-gold relative h-[360vh] md:hidden">
+        <div
+          className={`${scenePosition === 'before' ? 'absolute inset-x-0 top-0' : scenePosition === 'after' ? 'hidden' : 'fixed inset-x-0 top-0 z-20'} bg-brand-gold flex h-svh flex-col justify-center overflow-hidden`}
+        >
+          <div className="container">
+            <div
+              ref={mobileTabsRowRef}
+              className="-mr-5 flex scrollbar-none gap-7 overflow-x-auto pr-5 pb-1 [&::-webkit-scrollbar]:hidden"
             >
-              {active.action}
-            </button>
+              {tabs.map((tab, index) => (
+                <button
+                  key={tab.label}
+                  type="button"
+                  onClick={() => setActiveTab(index)}
+                  className={`font-display shrink-0 text-[17px] whitespace-nowrap transition ${index === activeTab ? 'text-brand-ink font-semibold' : 'text-brand-ink/35'}`}
+                  aria-pressed={index === activeTab}
+                >
+                  <span className="mr-2">{index + 1}.</span>
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+            {/* The floor keeps all four tabs the same height, so the panel holds
+                still as the scene advances. */}
+            <div
+              key={active.label}
+              className="border-brand-ink/25 text-brand-deep mt-7 -mr-4 min-h-84 border-t pt-4 motion-safe:animate-[fade-in_250ms_ease-out]"
+            >
+              <p className="pr-4 text-[15px] leading-tight">{active.copy}</p>
+              <p className="mt-14 pr-4 text-[15px] leading-tight">
+                Get mentored, get connected, get moving on the leadership path you&apos;re
+                already on.
+              </p>
+              <button
+                type="button"
+                className="bg-brand-ink text-brand-white mt-5 rounded-full px-6 py-2.5 text-sm"
+              >
+                {active.action}
+              </button>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
       <div
-        ref={scrollSectionRef}
+        ref={desktopSectionRef}
         className="bg-brand-gold relative ml-[calc(50%-50vw)] hidden h-[360vh] w-screen md:block"
       >
         <div

@@ -2,10 +2,10 @@
 
 // Selectable testimonials with a cropped background star detail.
 //
-// From `md` up this runs the same scene as "Take action": a tall runway pins the
+// Every breakpoint runs the same scene as "Take action": a tall runway pins the
 // panel to the viewport and scroll progress through the runway advances the
-// active testimonial, so the strips grow and shrink as you scroll. Mobile keeps
-// the plain stacked section, where the strips are tapped instead.
+// active testimonial, so the strips grow and shrink as you scroll. Tapping a
+// strip still works; the next scroll takes the wheel back.
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
@@ -24,8 +24,8 @@ export default function Testimonials() {
   const scrollSectionRef = useRef<HTMLDivElement>(null)
   const active = testimonials[activeIndex]
 
-  // Only the desktop scene is scroll-driven; on mobile the strips are tapped, so
-  // the runway is `md:block` and this bails out while it is hidden.
+  // Only the scroll position drives the active index, so the runway is the same
+  // at every width; the guard keeps this inert if the scene is ever hidden.
   useEffect(() => {
     let frame = 0
 
@@ -62,26 +62,30 @@ export default function Testimonials() {
     }
   }, [])
 
-  // One tree for both wrappers: the layout is identical, only the enclosing
-  // section differs (a normal block on mobile, a pinned panel on desktop).
+  // One tree for every width. Mobile fills the pinned screen with a flex column
+  // — the strips take whatever height the heading and the quote card leave over,
+  // sharing it 4:1 between active and inactive — so the scene never outgrows a
+  // phone viewport. From `md` up the strips go back to fixed heights.
   const panel = (
     <>
       <Image src="/images/star.png" alt="" width={36} height={36} className="pointer-events-none absolute -right-10 top-6 z-0 size-28 md:-right-8 md:top-10" />
-      <div className="container relative z-10 max-w-[800px] xl:max-w-[1200px]">
-        <h2 className="font-display text-[26px] font-semibold leading-tight text-brand-ink md:text-2xl xl:text-3xl">Here&apos;s what people think of KAMP</h2>
-        <div className="mt-5 grid gap-6 md:grid-cols-[168px_1fr] md:items-center md:gap-6 xl:mt-8 xl:grid-cols-[280px_1fr] xl:gap-10">
-          <div className="grid gap-1.5">
+      <div className="container relative z-10 flex min-h-0 w-full max-w-[800px] flex-1 flex-col py-6 md:block md:flex-none md:py-0 xl:max-w-[1200px]">
+        <h2 className="shrink-0 font-display text-[26px] font-semibold leading-tight text-brand-ink md:text-2xl xl:text-3xl">Here&apos;s what people think of KAMP</h2>
+        <div className="mt-5 flex min-h-0 flex-1 flex-col gap-4 md:grid md:grid-cols-[168px_1fr] md:items-center md:gap-6 xl:mt-8 xl:grid-cols-[280px_1fr] xl:gap-10">
+          <div className="flex min-h-0 flex-1 flex-col gap-1.5 md:grid md:flex-none">
             {testimonials.map((testimonial, index) => (
-              <button key={testimonial.name} type="button" onClick={() => setActiveIndex(index)} className={`relative overflow-hidden rounded-lg text-left transition-[height,opacity] duration-300 ease-out ${index === activeIndex ? 'h-50 md:h-32 xl:h-52' : 'h-12 opacity-80 hover:opacity-100 md:h-6 xl:h-10'}`} aria-label={`Show testimonial from ${testimonial.name}`} aria-pressed={index === activeIndex}>
+              <button key={testimonial.name} type="button" onClick={() => setActiveIndex(index)} className={`relative min-h-0 basis-0 overflow-hidden rounded-lg text-left transition-[height,flex-grow,opacity] duration-300 ease-out md:basis-auto md:grow-0 ${index === activeIndex ? 'grow-4 md:h-32 xl:h-52' : 'grow opacity-80 hover:opacity-100 md:h-6 xl:h-10'}`} aria-label={`Show testimonial from ${testimonial.name}`} aria-pressed={index === activeIndex}>
                 <Image src={testimonial.image} alt="" fill sizes="(min-width: 1280px) 280px, (min-width: 768px) 168px, 100vw" className="object-cover grayscale" />
                 <span className="absolute inset-0 bg-brand-black/55" />
               </button>
             ))}
           </div>
 
-          <article className="rounded-xl bg-brand-card p-3 md:p-5 xl:p-8">
+          <article className="shrink-0 rounded-xl bg-brand-card p-3 md:p-5 xl:p-8">
             {/* TODO: replace placeholder quotes with verified KAMP testimonials. */}
-            <blockquote key={active.name} className="text-[13px] leading-[20px] text-brand-deep motion-safe:animate-[fade-in_400ms_ease-out] md:text-xs md:leading-[1.35] xl:text-sm xl:leading-relaxed">{active.quote}</blockquote>
+            {/* The mobile floor under the quote keeps every card the same height,
+                so the strips above hold still while the scene advances. */}
+            <blockquote key={active.name} className="min-h-30 text-[13px] leading-[20px] text-brand-deep motion-safe:animate-[fade-in_400ms_ease-out] md:min-h-0 md:text-xs md:leading-[1.35] xl:text-sm xl:leading-relaxed">{active.quote}</blockquote>
             <div className="mt-5 flex items-end justify-between gap-4 xl:mt-8">
               <div>
                 <p className="font-display text-[17px] font-semibold text-brand-ink md:text-xl xl:text-2xl">{active.name}</p>
@@ -96,18 +100,14 @@ export default function Testimonials() {
   )
 
   return (
-    <>
-      <section className="relative overflow-hidden bg-brand-white py-16 md:hidden">{panel}</section>
-
-      {/* The runway gives each testimonial roughly the same slice of scroll as a
-          "Take action" tab, plus a closing screen for the panel to leave on. */}
-      <div ref={scrollSectionRef} className="relative hidden h-[425vh] bg-brand-white md:block">
-        <div
-          className={`${scenePosition === 'before' ? 'absolute inset-x-0 top-0' : scenePosition === 'after' ? 'absolute inset-x-0 bottom-0' : 'fixed inset-0 z-20'} flex h-screen flex-col justify-center overflow-hidden bg-brand-white`}
-        >
-          {panel}
-        </div>
+    /* The runway gives each testimonial roughly the same slice of scroll as a
+       "Take action" tab, plus a closing screen for the panel to leave on. */
+    <div ref={scrollSectionRef} className="relative h-[425vh] bg-brand-white">
+      <div
+        className={`${scenePosition === 'before' ? 'absolute inset-x-0 top-0' : scenePosition === 'after' ? 'absolute inset-x-0 bottom-0' : 'fixed inset-x-0 top-0 z-20'} flex h-svh flex-col justify-center overflow-hidden bg-brand-white md:h-screen`}
+      >
+        {panel}
       </div>
-    </>
+    </div>
   )
 }
