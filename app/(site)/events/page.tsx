@@ -4,17 +4,14 @@ import { Play } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { client } from '@/sanity/lib/client'
-import {
-  PAST_EVENTS_QUERY,
-  UPCOMING_EVENTS_QUERY,
-} from '@/sanity/lib/queries'
+import { PAST_EVENTS_QUERY, UPCOMING_EVENTS_QUERY } from '@/sanity/lib/queries'
 import type { EventDocument } from '@/types/sanity'
 
 export const revalidate = 3600
 
 // Shown in the row's paragraph slot when an event has no theme of its own yet.
 const introduction =
-  'KAMP was founded on a simple conviction: potential is everywhere, but guidance is not. Across Africa, brilliant young people carry big dreams — yet too many walk the journey alone, without someone ahead of them to say, “this is the way.” The Kolade Adepoju Mentoring Program exists to close that gap.'
+  'KAMP was founded on a simple conviction: potential is everywhere, but guidance is not. Across Africa, brilliant young people carry big dreams yet too many walk the journey alone, without someone ahead of them to say, “this is the way.” The Kolade Adepoju Mentoring Program exists to close that gap.'
 
 function EventRow({
   event,

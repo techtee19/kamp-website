@@ -35,7 +35,7 @@ const actions = [
   {
     icon: Building2,
     title: 'Leadership Development',
-    copy: "Practical training in the skills conferences don't have time to teach — before, between, and after every event.",
+    copy: "Practical training in the skills conferences don't have time to teach before, between, and after every event.",
   },
 ]
 
@@ -62,7 +62,7 @@ export default function HomePage() {
           height={96}
           className="pointer-events-none absolute top-[18svh] -right-8 z-0 size-24 lg:hidden"
         />
-        <div className="container flex h-full flex-col justify-end gap-10 pt-24 pb-13 lg:grid lg:items-end lg:gap-12 lg:pt-28 lg:pb-12 lg:grid-cols-[1fr_.9fr]">
+        <div className="container flex h-full flex-col justify-end gap-10 pt-24 pb-13 lg:grid lg:grid-cols-[1fr_.9fr] lg:items-end lg:gap-12 lg:pt-28 lg:pb-12">
           <div className="text-brand-white max-w-xl">
             <h1 className="font-display text-[40px] leading-[1.1] font-semibold tracking-tight sm:text-6xl sm:leading-[.88] lg:text-7xl">
               <span className="block">Build.</span>
@@ -71,8 +71,8 @@ export default function HomePage() {
             </h1>
             <p className="text-brand-white/85 mt-6 max-w-lg text-[15px] leading-relaxed sm:mt-7 sm:text-lg">
               KAMP mentors students across Nigerian universities through conferences, community
-              projects, and hands-on leadership training — turning potential into
-              transformation, one campus at a time.
+              projects, and hands-on leadership training turning potential into transformation,
+              one campus at a time.
             </p>
           </div>
           <div className="relative isolate mx-auto w-full max-w-lg lg:justify-self-end">
@@ -93,7 +93,11 @@ export default function HomePage() {
               />
               <span className="bg-brand-black/20 absolute inset-0 grid place-items-center">
                 <span className="border-brand-white/70 bg-brand-white/25 text-brand-white grid size-12 place-items-center rounded-full border backdrop-blur-sm lg:size-16">
-                  <svg viewBox="0 0 24 24" aria-hidden="true" className="ml-0.5 size-5 fill-current lg:size-6">
+                  <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    className="ml-0.5 size-5 fill-current lg:size-6"
+                  >
                     <path d="M8 5v14l11-7z" />
                   </svg>
                 </span>
@@ -132,7 +136,7 @@ export default function HomePage() {
           </h2>
           <p className="text-brand-black/80 relative z-10 mt-4 max-w-3xl text-[15px] leading-relaxed sm:text-base">
             Whether you&apos;re a student looking for direction, a professional ready to give
-            back, or a partner who believes in Africa&apos;s next generation — there&apos;s a
+            back, or a partner who believes in Africa&apos;s next generation there&apos;s a
             place for you here.
           </p>
           <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4">
@@ -212,7 +216,9 @@ export default function HomePage() {
 
       <section className="bg-brand-white py-10 lg:py-9">
         <div className="container flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-center lg:gap-9">
-          <p className="font-display text-brand-ink text-2xl font-semibold lg:text-3xl">Partnered with:</p>
+          <p className="font-display text-brand-ink text-2xl font-semibold lg:text-3xl">
+            Partnered with:
+          </p>
           <div className="grid grid-cols-2 items-center gap-x-4 gap-y-5 lg:flex lg:flex-nowrap lg:gap-x-6 lg:gap-y-4">
             {partners.map((partner, index) => (
               <Image

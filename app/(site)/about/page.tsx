@@ -3,10 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 const values = [
-  [
-    'Build',
-    'We invest in character and capacity — developing whole leaders, not just skills.',
-  ],
+  ['Build', 'We invest in character and capacity developing whole leaders, not just skills.'],
   [
     'Connect',
     'We link generations: mentors to mentees, campuses to communities, Africa to the world.',
@@ -15,7 +12,7 @@ const values = [
     'Inspire',
     'We tell stories, host gatherings, and model excellence that awakens vision in others.',
   ],
-  ['Service', 'Our volunteers lead by serving — every effort counts toward lasting change.'],
+  ['Service', 'Our volunteers lead by serving every effort counts toward lasting change.'],
   [
     'Excellence',
     'We pursue the highest standard in everything, from mentorship planning to event production.',
@@ -27,7 +24,7 @@ const values = [
   ],
   [
     'Leadership Development',
-    "Practical training in the skills conferences don't have time to teach — before, between, and after every event.",
+    "Practical training in the skills conferences don't have time to teach before, between, and after every event.",
   ],
 ]
 
@@ -65,14 +62,14 @@ export default function AboutPage() {
           height={36}
           className="pointer-events-none absolute top-24 -right-7 z-0 size-24 md:-right-4 md:size-32"
         />
-        <div className="container relative z-10 grid max-w-[1200px] gap-8 md:grid-cols-[.78fr_1.22fr] md:gap-16">
+        <div className="relative z-10 container grid max-w-[1200px] gap-8 md:grid-cols-[.78fr_1.22fr] md:gap-16">
           <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
             Who we are
           </h2>
           <p className="max-w-3xl text-sm leading-relaxed md:pt-2 md:text-base">
-            KAMP — the Kolade Adepoju Mentoring Program — is a non-profit organization
-            dedicated to building, connecting, and inspiring transformative leaders across
-            Africa and beyond.
+            KAMP, the Kolade Adepoju Mentoring Program, is a non-profit organization dedicated
+            to building, connecting, and inspiring transformative leaders across Africa and
+            beyond.
           </p>
         </div>
       </section>
@@ -85,7 +82,7 @@ export default function AboutPage() {
           height={36}
           className="pointer-events-none absolute top-10 -left-8 z-0 size-24 md:-left-5 md:size-32"
         />
-        <div className="container relative z-10 max-w-[1200px]">
+        <div className="relative z-10 container max-w-[1200px]">
           <div className="max-w-2xl">
             <p className="text-brand-gold text-sm font-semibold tracking-[0.18em] uppercase">
               What guides us
@@ -119,30 +116,30 @@ export default function AboutPage() {
       </section>
 
       <section className="relative pb-20 md:pb-24 xl:pb-32">
-        <div className="container relative z-10 max-w-[1200px]">
+        <div className="relative z-10 container max-w-[1200px]">
           <h2 className="font-display text-2xl font-semibold tracking-tight md:text-3xl">
             Every great leader was once mentored
           </h2>
           <p className="mt-4 max-w-6xl text-sm leading-relaxed md:text-base">
             KAMP was founded on a simple conviction: potential is everywhere, but guidance is
-            not. Across Africa, brilliant young people carry big dreams — yet too many walk the
+            not. Across Africa, brilliant young people carry big dreams yet too many walk the
             journey alone, without someone ahead of them to say, “This is the way.”
           </p>
           <p className="mt-3 max-w-6xl text-sm leading-relaxed md:text-base">
             The Kolade Adepoju Mentoring Program exists to close that gap. Through structured
             mentorship, campus chapters like KAMP LAUTECH, and gatherings like THE NEW
             Conference, we create rooms where young leaders are seen, sharpened, and sent out
-            to transform their communities — through mentorship conferences and community
-            impact projects on Nigerian university campuses.
+            to transform their communities through mentorship conferences and community impact
+            projects on Nigerian university campuses.
           </p>
           <blockquote className="border-brand-gold font-display mt-8 border-l-4 py-3 pl-3 text-base leading-relaxed font-semibold md:mt-10 md:pl-4 md:text-lg">
-            “You&apos;re not just volunteering; you&apos;re making impact, inspiring others, and helping
-            shape lives in your own unique way.”
+            “You&apos;re not just volunteering; you&apos;re making impact, inspiring others,
+            and helping shape lives in your own unique way.”
           </blockquote>
           <p className="mt-8 max-w-6xl text-sm leading-relaxed md:mt-10 md:text-base">
             Today, KAMP is a growing family of mentors, mentees, volunteers, and partners
             united by one mission: raising transformative leaders who positively influence
-            their communities — with a bold goal of mentoring and training 10,000 youths
+            their communities with a bold goal of mentoring and training 10,000 youths
             annually. And we&apos;re just getting started.
           </p>
         </div>
@@ -178,7 +175,7 @@ export default function AboutPage() {
                   addressing housing challenges across Nigeria, Africa, and beyond.
                 </p>
                 <p>
-                  His passion for mentoring led him to establish KAMP — the non-profit through
+                  His passion for mentoring led him to establish KAMP the non-profit through
                   which he pours that experience into the next generation. He is happily
                   married to Damilola Adepoju, and they are blessed with two sons, David and
                   Jason, and a daughter, Queen Esther.
