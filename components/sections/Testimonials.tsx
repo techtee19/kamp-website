@@ -12,18 +12,18 @@ import { useEffect, useRef, useState } from 'react'
 
 const testimonials = [
   {
-    name: 'Popoola Deborah',
-    role: 'Computer scientist, content creator',
-    image: '/images/gallery/visit-gallery-1.png',
+    name: 'Stephen Oladejo',
+    role: 'lead photographer at KAMP Global',
+    image: '/images/testimonials/steveman.jpeg',
     quote:
-      'KAMP started with a question: what happens if someone invests in Nigeria’s student leaders before the world tells them who they’re supposed to become? Since 2018, that question has turned into conferences, campus projects, and a growing community of students who are done waiting for permission to lead.',
+      'I’m Stephen Oladejo, lead photographer at KAMP Global, and working with KAMP has completely expanded my mindset on what impact truly means. Traveling to different campuses across Nigeria to host conferences and enlighten students has been a game changer for me.Being under the mentorship of Dr. Kolade Adepoju while documenting these powerful moments through my lens and shooting with top-tier gadgets has elevated my craft in ways I could not have imagined.',
   },
   {
-    name: 'KAMP Alumnus',
-    role: 'Student leader',
-    image: '/images/gallery/visit-gallery-2.png',
+    name: 'Ololade Oluwafunmbi',
+    role: 'TEAM LEAD, Editorial Team UNILAG',
+    image: '/images/testimonials/omolade.jpeg',
     quote:
-      'KAMP gave me the confidence to speak up, build with others, and take responsibility for the change I wanted to see on campus.',
+      'Being in KAMP has opened my eyes to so many different things and made me go out I’ve learned the importance of mentorship, the value of showing up for people even during difficult times, and the power of creativity especially at the most unexpected moments. Being part of the editorial team has challenged me to think differently, express ideas creatively, and work with others to bring those ideas to life.It is fun because I am being challenged.',
   },
   {
     name: 'Abiola Simbiat Itunuoluwa',
@@ -33,11 +33,11 @@ const testimonials = [
       'Being part of the Kolade Adepoju Mentoring Program has been more than just being part of a club, it has felt like finding family. It is a space that promotes togetherness, encourages self discovery and teaches you to embrace your uniqueness without prejudice.Since joining, I have gained valuable insight, mentorship, and a deeper understanding of myself. I still remember attending one of the program’s events in 2025 and leaving with a feeling I had never quite experienced before,I knew I had finally found where I fit.The Kolade Adepoju Mentoring Program has reminded me that sometimes, finding your people is also finding a part of yourself. I am genuinely grateful to be part of this family',
   },
   {
-    name: 'Campus Partner',
-    role: 'University partner',
-    image: '/images/gallery/visit-gallery-4.png',
+    name: 'Josh Matiluko',
+    role: 'KAMP media director',
+    image: '/images/testimonials/josh.jpeg',
     quote:
-      'Seeing our students return from KAMP with clearer goals and a deeper commitment to their community is the kind of impact every campus needs.',
+      'My journey with KAMP began with a re-examination of self, followed by a redefinition of purpose.  Since I joined KAMP’s meetings, the community and mentorship here have consistently challenged my old mindset and strengthened my vision I’m grateful for that growth',
   },
   {
     name: 'KAMP Volunteer',
