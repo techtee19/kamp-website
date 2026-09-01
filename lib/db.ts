@@ -8,7 +8,8 @@ const globalForDb = globalThis as unknown as { db: ReturnType<typeof postgres> }
 export const db =
   globalForDb.db ??
   postgres(connectionString, {
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    // Supabase requires SSL on all connections, including local dev.
+    ssl: { rejectUnauthorized: false },
     max: 10,
     idle_timeout: 20,
     connect_timeout: 10,

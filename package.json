@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "db:check": "node --env-file=.env.local scripts/db-check.mjs",
+    "db:migrate": "node --env-file=.env.local --experimental-strip-types lib/db-migrate.ts",
     "migrate:events": "node --env-file=.env.local --experimental-strip-types scripts/migrate-events.mjs",
     "migrate:gallery": "node --env-file=.env.local --experimental-strip-types scripts/migrate-gallery.mjs"
   },
