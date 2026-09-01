@@ -8,12 +8,24 @@ import HeroImageRotator from '@/components/sections/HeroImageRotator'
 import QuickStory from '@/components/sections/QuickStory'
 import StatCounter from '@/components/sections/StatCounter'
 import Testimonials from '@/components/sections/Testimonials'
+import { client } from '@/sanity/lib/client'
+import {
+  FEATURED_EVENT_QUERY,
+  GALLERY_EVENTS_QUERY,
+  SITE_SETTINGS_QUERY,
+  UPCOMING_EVENTS_QUERY,
+} from '@/sanity/lib/queries'
+import type { EventDocument, GalleryEventDocument, SiteSettings } from '@/types/sanity'
 
-const stats = [
-  ['5+', 'Universities Reached'],
-  ['10,000+', 'Students Mentored'],
-  ['20+', 'Campus impact projects delivered'],
-  ['5+', 'Years running'],
+export const revalidate = 3600 // re-fetch from Sanity every 1 hour
+
+// Used until a siteSettings document exists in Sanity. The dataset has no
+// siteSettings yet, so dropping these would blank the strip out entirely.
+const fallbackStats: Array<{ value: string; label: string }> = [
+  { value: '5+', label: 'Universities Reached' },
+  { value: '10,000+', label: 'Students Mentored' },
+  { value: '20+', label: 'Campus impact projects delivered' },
+  { value: '5+', label: 'Years running' },
 ]
 
 const actions = [
@@ -47,7 +59,28 @@ const partners = [
   '/images/partners/partner-5.png',
 ]
 
-export default function HomePage() {
+export default async function HomePage() {
+  // The client is null until the Sanity env vars are set, which keeps builds green
+  // before the CMS exists; treat it as "nothing published yet". This mirrors the
+  // guard the events and gallery pages already use.
+  const [siteSettings] = client
+    ? await Promise.all([
+        client.fetch<SiteSettings | null>(SITE_SETTINGS_QUERY),
+        client.fetch<EventDocument | null>(FEATURED_EVENT_QUERY),
+        client.fetch<GalleryEventDocument[]>(GALLERY_EVENTS_QUERY),
+        client.fetch<EventDocument[]>(UPCOMING_EVENTS_QUERY),
+      ])
+    : [null]
+
+  // impactStats is the only fetched field this page has a section for today. The
+  // featured event, gallery and upcoming-event queries are fetched above so the
+  // data is in hand, but FeaturedEvent/StatStrip are unbuilt stubs and the gallery
+  // preview is a curated local mosaic, so nothing here consumes them yet.
+  const stats =
+    siteSettings?.impactStats && siteSettings.impactStats.length > 0
+      ? siteSettings.impactStats
+      : fallbackStats
+
   return (
     <div className="bg-brand-white text-brand-black">
       <section className="bg-brand-black relative isolate h-[100svh] min-h-[100svh] overflow-hidden md:h-[100dvh] md:min-h-[100dvh]">
@@ -109,7 +142,7 @@ export default function HomePage() {
 
       <section className="bg-brand-gold py-12 lg:py-14">
         <div className="container grid grid-cols-2 gap-y-9 text-center md:grid-cols-4">
-          {stats.map(([value, label]) => (
+          {stats.map(({ value, label }) => (
             <div key={label}>
               <p className="font-display text-brand-black text-4xl leading-none">
                 <StatCounter value={value} />

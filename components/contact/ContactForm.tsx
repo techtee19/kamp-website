@@ -4,29 +4,42 @@
 import { FormEvent, useState } from 'react'
 
 export default function ContactForm() {
-  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
-    setStatus('sending')
+    const data = Object.fromEntries(new FormData(form))
+    setErrorMessage(null)
+    setStatus('loading')
 
     try {
-      const response = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(new FormData(form))) })
-      if (!response.ok) throw new Error('Unable to send message')
+      const response = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+      const payload = await response.json().catch(() => null)
+
+      if (!response.ok) {
+        setStatus('error')
+        setErrorMessage(payload?.error ?? 'Failed to send message.')
+        return
+      }
+
       setStatus('success')
       form.reset()
     } catch {
       setStatus('error')
+      setErrorMessage('Network error. Please try again.')
     }
   }
 
-  if (status === 'success') return <div className="rounded-2xl border-l-4 border-brand-gold bg-brand-card p-8 md:p-10"><p className="font-display text-3xl font-semibold">Message received.</p><p className="mt-3 text-sm leading-relaxed text-brand-grey">Thank you for reaching out to KAMP. A member of our team will be in touch soon.</p><button type="button" onClick={() => setStatus('idle')} className="mt-7 rounded-full bg-brand-ink px-6 py-3 text-sm text-brand-white">Send another message</button></div>
+  if (status === 'success') return <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">Message received! We&apos;ll get back to you soon.</div>
 
-  return <form onSubmit={submit} className="rounded-2xl bg-brand-card p-6 md:p-8"><div className="grid gap-4 md:grid-cols-2">
-    <label className="text-sm font-medium">Full name<input required name="name" className="mt-2 w-full rounded-xl border border-brand-ink/20 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold" /></label>
-    <label className="text-sm font-medium">Email address<input required type="email" name="email" className="mt-2 w-full rounded-xl border border-brand-ink/20 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold" /></label>
-    <label className="text-sm font-medium md:col-span-2">Subject<input required name="subject" className="mt-2 w-full rounded-xl border border-brand-ink/20 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold" placeholder="How can we help?" /></label>
-    <label className="text-sm font-medium md:col-span-2">Message<textarea required name="message" rows={6} className="mt-2 w-full resize-none rounded-xl border border-brand-ink/20 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold" placeholder="Tell us a little more" /></label>
-  </div>{status === 'error' && <p className="mt-4 text-sm text-brand-grey">We couldn&apos;t send your message just now. Please try again in a moment.</p>}<button type="submit" disabled={status === 'sending'} className="mt-7 rounded-full bg-brand-ink px-6 py-3 text-sm text-brand-white transition hover:bg-brand-black disabled:opacity-60">{status === 'sending' ? 'Sending…' : 'Send message'}</button></form>
+  const submitting = status === 'loading'
+
+  return <form onSubmit={submit} className="rounded-2xl bg-brand-card p-6 md:p-8">{status === 'error' && errorMessage && <div role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{errorMessage}</div>}<div className="grid gap-4 md:grid-cols-2">
+    <label className="text-sm font-medium">Full name<input required name="name" disabled={submitting} className="mt-2 w-full rounded-xl border border-brand-ink/20 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold" /></label>
+    <label className="text-sm font-medium">Email address<input required type="email" name="email" disabled={submitting} className="mt-2 w-full rounded-xl border border-brand-ink/20 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold" /></label>
+    <label className="text-sm font-medium md:col-span-2">Subject<input required name="subject" disabled={submitting} className="mt-2 w-full rounded-xl border border-brand-ink/20 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold" placeholder="How can we help?" /></label>
+    <label className="text-sm font-medium md:col-span-2">Message<textarea required name="message" rows={6} disabled={submitting} className="mt-2 w-full resize-none rounded-xl border border-brand-ink/20 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold" placeholder="Tell us a little more" /></label>
+  </div><button type="submit" disabled={submitting} className="mt-7 rounded-full bg-brand-ink px-6 py-3 text-sm text-brand-white transition hover:bg-brand-black disabled:opacity-60">{submitting ? <span className="inline-flex items-center gap-2"><span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />Submitting...</span> : 'Send message'}</button></form>
 }

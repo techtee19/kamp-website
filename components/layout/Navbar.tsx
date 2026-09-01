@@ -21,6 +21,12 @@ export default function Navbar() {
   const pathname = usePathname()
   const isHome = pathname === '/' || pathname === '/about'
 
+  // Prefix match so nested routes keep their section lit — /events/the-new-conference
+  // highlights Events rather than nothing. The `/` guard stops a bare slash from
+  // matching every path, though no nav link uses it today.
+  const isActive = (href: string) =>
+    pathname === href || (href !== '/' && pathname.startsWith(`${href}/`))
+
   return (
     <header className={`${isHome ? 'absolute inset-x-0 top-0 bg-brand-black/20 text-brand-white' : 'sticky top-0 border-b border-brand-black/10 bg-brand-white/95 text-brand-black backdrop-blur'} z-50`}>
       <nav className="container flex h-24 items-center justify-between gap-6 lg:h-20" aria-label="Main navigation">
@@ -30,7 +36,7 @@ export default function Navbar() {
 
         <div className="hidden items-center gap-6 lg:flex">
           {links.map((link) => (
-            <Link key={link.href} href={link.href} className={`border-b-2 py-1 text-sm transition hover:border-brand-gold ${pathname === link.href ? 'border-brand-gold' : 'border-transparent'} ${isHome ? 'text-brand-white' : 'text-brand-black'}`}>
+            <Link key={link.href} href={link.href} aria-current={isActive(link.href) ? 'page' : undefined} className={`border-b-2 py-1 text-sm transition hover:border-brand-gold ${isActive(link.href) ? 'border-brand-gold' : 'border-transparent'} ${isHome ? 'text-brand-white' : 'text-brand-black'}`}>
               {link.label}
             </Link>
           ))}
@@ -63,7 +69,7 @@ export default function Navbar() {
             </div>
             <div className="mt-10 flex flex-col gap-4">
               {links.map((link) => (
-                <Link key={link.href} href={link.href} onClick={() => setMenuOpen(false)} className="font-display text-2xl leading-none">
+                <Link key={link.href} href={link.href} onClick={() => setMenuOpen(false)} aria-current={isActive(link.href) ? 'page' : undefined} className={`font-display w-fit text-2xl leading-none ${isActive(link.href) ? 'border-b-2 border-brand-gold' : ''}`}>
                   {link.label}
                 </Link>
               ))}

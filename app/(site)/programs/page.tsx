@@ -1,7 +1,18 @@
 // KAMP's programs, impact pillars, and leadership structure.
+// The focus-area pillars come from Sanity's `program` documents when present; the
+// list below is the fallback, because the dataset has none yet.
 import Image from 'next/image'
 import Link from 'next/link'
+import { PortableText } from '@portabletext/react'
 import { ArrowRight, Building2, GraduationCap, HandHeart } from 'lucide-react'
+import { client } from '@/sanity/lib/client'
+import { PROGRAMS_QUERY } from '@/sanity/lib/queries'
+import type { ProgramDocument } from '@/types/sanity'
+
+export const revalidate = 86400
+
+// PROGRAMS_QUERY projects a subset, so this names the fields that come back.
+type ProgramCard = Pick<ProgramDocument, '_id' | 'title' | 'description' | 'icon'>
 
 const focusAreas = [
   ['Leadership Development', 'Cultivating visionary leaders with strong moral values and decision-making capacity.'],
@@ -26,7 +37,11 @@ const journey = [
   ['03', 'Transform', 'Put your learning into action on campus and in your community.'],
 ]
 
-export default function ProgramsPage() {
+export default async function ProgramsPage() {
+  // The client is null until the Sanity env vars are set, which keeps builds green
+  // before the CMS exists; treat it as "nothing published yet".
+  const programs = client ? await client.fetch<ProgramCard[]>(PROGRAMS_QUERY) : []
+
   return (
     <div className="overflow-hidden bg-brand-white text-brand-ink">
       <section className="relative border-b border-brand-ink/10 py-20 md:py-28 xl:py-32">
@@ -45,7 +60,7 @@ export default function ProgramsPage() {
 
       <section className="bg-brand-gold py-16 md:py-20 xl:py-24"><div className="container max-w-[1200px]"><p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-black/70">Your KAMP journey</p><h2 className="mt-2 font-display text-3xl font-semibold tracking-tight text-brand-black md:text-4xl">How it works</h2><div className="mt-10 grid gap-8 md:grid-cols-3 md:gap-0">{journey.map(([number, title, copy], index) => <article key={title} className={`px-0 md:px-8 ${index > 0 ? 'md:border-l md:border-brand-black/20' : ''}`}><p className="font-display text-5xl text-brand-black/35">{number}</p><h3 className="mt-4 font-display text-2xl font-semibold text-brand-black">{title}</h3><p className="mt-3 max-w-xs text-sm leading-relaxed text-brand-black/75">{copy}</p></article>)}</div><Link href="/get-involved" className="mt-10 inline-flex items-center gap-2 rounded-full bg-brand-ink px-6 py-3 text-sm text-brand-white">Start your journey <ArrowRight className="size-4" /></Link></div></section>
 
-      <section className="relative py-16 md:py-20 xl:py-24"><Image src="/images/star.png" alt="" width={36} height={36} className="pointer-events-none absolute -left-8 top-12 z-0 size-24 md:-left-5 md:size-32" /><div className="container relative z-10 max-w-[1200px]"><p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-gold">Core focus areas</p><h2 className="mt-2 max-w-2xl font-display text-3xl font-semibold tracking-tight md:text-4xl">Our work is anchored on these pillars.</h2><div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{focusAreas.map(([title, copy]) => <article key={title} className="rounded-xl border-l-4 border-brand-gold bg-brand-card p-6"><h3 className="font-display text-xl font-semibold">{title}</h3><p className="mt-3 text-sm leading-relaxed text-brand-grey">{copy}</p></article>)}</div></div></section>
+      <section className="relative py-16 md:py-20 xl:py-24"><Image src="/images/star.png" alt="" width={36} height={36} className="pointer-events-none absolute -left-8 top-12 z-0 size-24 md:-left-5 md:size-32" /><div className="container relative z-10 max-w-[1200px]"><p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-gold">Core focus areas</p><h2 className="mt-2 max-w-2xl font-display text-3xl font-semibold tracking-tight md:text-4xl">Our work is anchored on these pillars.</h2><div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{programs.length > 0 ? programs.map((program) => <article key={program._id} className="rounded-xl border-l-4 border-brand-gold bg-brand-card p-6"><h3 className="font-display text-xl font-semibold">{program.title}</h3><div className="mt-3 space-y-3 text-sm leading-relaxed text-brand-grey"><PortableText value={program.description} /></div></article>) : focusAreas.map(([title, copy]) => <article key={title} className="rounded-xl border-l-4 border-brand-gold bg-brand-card p-6"><h3 className="font-display text-xl font-semibold">{title}</h3><p className="mt-3 text-sm leading-relaxed text-brand-grey">{copy}</p></article>)}</div></div></section>
 
       <section className="pb-16 md:pb-20 xl:pb-24"><div className="container max-w-[1200px]"><div className="grid gap-8 border-t border-brand-ink/15 pt-12 lg:grid-cols-[.8fr_1.2fr]"><div><p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-gold">The people behind the work</p><h2 className="mt-2 font-display text-3xl font-semibold tracking-tight md:text-4xl">Core Executive Committee</h2><p className="mt-4 text-sm leading-relaxed text-brand-grey">Our CEC are the decision makers and strategic leaders responsible for moving the KAMP mission forward.</p><HandHeart className="mt-7 size-9 text-brand-gold" strokeWidth={1.5} /></div><div className="grid gap-3 sm:grid-cols-2">{executiveRoles.map(([role, copy]) => <article key={role} className="rounded-xl bg-brand-card p-5"><h3 className="font-display text-lg font-semibold">{role}</h3><p className="mt-2 text-sm leading-relaxed text-brand-grey">{copy}</p></article>)}</div></div></div></section>
     </div>

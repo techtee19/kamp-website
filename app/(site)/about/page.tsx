@@ -1,6 +1,30 @@
 // KAMP's About page, presenting its mission, founder, and core values.
+// The founder, team and mission statement come from Sanity when present; the copy
+// below is the fallback, because the dataset has no teamMember or siteSettings
+// documents yet and dropping it would leave the page blank.
 import Image from 'next/image'
 import Link from 'next/link'
+import { client } from '@/sanity/lib/client'
+import {
+  FOUNDER_QUERY,
+  SITE_SETTINGS_QUERY,
+  TEAM_MEMBERS_QUERY,
+  urlFor,
+} from '@/sanity/lib/queries'
+import type { SiteSettings, TeamMemberDocument } from '@/types/sanity'
+
+export const revalidate = 86400 // 24 hours — about page changes rarely
+
+// The two team queries project a subset of the document, so these name exactly the
+// fields that actually come back rather than claiming the whole shape.
+type FounderCard = Pick<
+  TeamMemberDocument,
+  '_id' | 'name' | 'role' | 'bio' | 'photo' | 'quote' | 'linkedinUrl'
+>
+type TeamCard = FounderCard & Pick<TeamMemberDocument, 'isFounder'>
+
+const fallbackMission =
+  'To foster a community of transformative leaders, committed to personal growth, social responsibility, and collaborative action empowering them to drive meaningful change and improve the lives of those around them.'
 
 const values = [
   ['Build', 'We invest in character and capacity developing whole leaders, not just skills.'],
@@ -28,7 +52,25 @@ const values = [
   ],
 ]
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  // The client is null until the Sanity env vars are set, which keeps builds green
+  // before the CMS exists; treat it as "nothing published yet".
+  const [founder, teamMembers, siteSettings] = client
+    ? await Promise.all([
+        client.fetch<FounderCard | null>(FOUNDER_QUERY),
+        client.fetch<TeamCard[]>(TEAM_MEMBERS_QUERY),
+        client.fetch<SiteSettings | null>(SITE_SETTINGS_QUERY),
+      ])
+    : [null, [], null]
+
+  // A Sanity bio is a plain string, so blank lines are what separates paragraphs.
+  const founderBio = founder?.bio
+    ? founder.bio.split(/\n{2,}/).filter((paragraph) => paragraph.trim().length > 0)
+    : []
+
+  // The founder is already given his own section above, so he is not repeated here.
+  const team = teamMembers.filter((member) => !member.isFounder)
+
   return (
     <div className="bg-brand-white text-brand-ink overflow-hidden">
       <section className="bg-brand-black relative isolate flex min-h-[410px] items-center overflow-hidden pt-16 md:min-h-[520px]">
@@ -97,9 +139,7 @@ export default function AboutPage() {
                 Mission
               </p>
               <p className="font-display mt-5 text-xl leading-relaxed md:text-2xl">
-                To foster a community of transformative leaders, committed to personal growth,
-                social responsibility, and collaborative action empowering them to drive
-                meaningful change and improve the lives of those around them.
+                {siteSettings?.missionStatement || fallbackMission}
               </p>
             </article>
             <article className="border-brand-gold bg-brand-card rounded-xl border-l-4 p-7 md:min-h-72 md:p-9">
@@ -153,8 +193,12 @@ export default function AboutPage() {
           <div className="mt-7 grid gap-8 lg:grid-cols-[.74fr_1.26fr] lg:items-start lg:gap-10">
             <div className="bg-brand-card relative aspect-[.78/1] overflow-hidden rounded-md lg:aspect-[.8/1]">
               <Image
-                src="/images/team/Founder.jpeg"
-                alt="Dr. Kolade Adepoju"
+                src={
+                  founder?.photo
+                    ? urlFor(founder.photo).width(800).url()
+                    : '/images/team/Founder.jpeg'
+                }
+                alt={founder?.name ?? 'Dr. Kolade Adepoju'}
                 fill
                 sizes="(min-width: 1024px) 33vw, 100vw"
                 className="object-cover"
@@ -162,30 +206,43 @@ export default function AboutPage() {
             </div>
             <div className="lg:pt-1">
               <h3 className="font-display text-xl font-semibold md:text-2xl">
-                Dr. Kolade Adepoju, FIMC, CMC
+                {founder?.name ?? 'Dr. Kolade Adepoju, FIMC, CMC'}
               </h3>
               <p className="mt-1 text-sm font-semibold md:text-base">
-                Entrepreneur · Mentor · West Africa Youth Ambassador
+                {founder?.role ?? 'Entrepreneur · Mentor · West Africa Youth Ambassador'}
               </p>
               <div className="mt-4 space-y-3 text-sm leading-relaxed md:text-base">
-                <p>
-                  Dr. Kolade Adepoju is a versatile entrepreneur with nearly two decades of
-                  experience. A Fellow of the Institute of Management Consultants (FIMC) and a
-                  Certified Management Consultant (CMC), he is the MD/CEO of Riel Homes,
-                  addressing housing challenges across Nigeria, Africa, and beyond.
-                </p>
-                <p>
-                  His passion for mentoring led him to establish KAMP the non-profit through
-                  which he pours that experience into the next generation. He is happily
-                  married to Damilola Adepoju, and they are blessed with two sons, David and
-                  Jason, and a daughter, Queen Esther.
-                </p>
+                {founderBio.length > 0 ? (
+                  founderBio.map((paragraph) => <p key={paragraph}>{paragraph}</p>)
+                ) : (
+                  <>
+                    <p>
+                      Dr. Kolade Adepoju is a versatile entrepreneur with nearly two decades of
+                      experience. A Fellow of the Institute of Management Consultants (FIMC) and a
+                      Certified Management Consultant (CMC), he is the MD/CEO of Riel Homes,
+                      addressing housing challenges across Nigeria, Africa, and beyond.
+                    </p>
+                    <p>
+                      His passion for mentoring led him to establish KAMP the non-profit through
+                      which he pours that experience into the next generation. He is happily
+                      married to Damilola Adepoju, and they are blessed with two sons, David and
+                      Jason, and a daughter, Queen Esther.
+                    </p>
+                  </>
+                )}
               </div>
+              {founder?.quote && (
+                <blockquote className="border-brand-gold font-display mt-6 border-l-4 py-2 pl-3 text-base leading-relaxed font-semibold">
+                  “{founder.quote}”
+                </blockquote>
+              )}
               <Link
-                href="/events"
+                href={founder?.linkedinUrl ?? '/events'}
+                {...(founder?.linkedinUrl ? { target: '_blank', rel: 'noreferrer' } : {})}
                 className="bg-brand-ink text-brand-white hover:bg-brand-black mt-6 inline-flex items-center gap-3 rounded-full px-5 py-2.5 text-sm transition"
               >
-                Watch on youtube <span className="text-base">▶</span>
+                {founder?.linkedinUrl ? 'Connect on LinkedIn' : 'Watch on youtube'}{' '}
+                {!founder?.linkedinUrl && <span className="text-base">▶</span>}
               </Link>
             </div>
           </div>
@@ -198,6 +255,50 @@ export default function AboutPage() {
           className="pointer-events-none absolute -right-8 bottom-6 z-0 size-28 md:-right-5 md:size-36"
         />
       </section>
+
+      {/* Only rendered once Sanity has team members. The dataset has none today, so
+          this section is absent rather than showing an empty grid. */}
+      {team.length > 0 && (
+        <section className="pb-20 md:pb-24 xl:pb-28">
+          <div className="container max-w-[1200px]">
+            <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
+              Meet the team
+            </h2>
+            <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {team.map((member) => (
+                <article key={member._id} className="bg-brand-card overflow-hidden rounded-lg">
+                  <div className="relative aspect-[.85/1]">
+                    <Image
+                      src={urlFor(member.photo).width(600).url()}
+                      alt={member.name}
+                      fill
+                      sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="p-5">
+                    <h3 className="font-display text-lg font-semibold">{member.name}</h3>
+                    <p className="text-brand-gold mt-1 text-xs font-semibold tracking-[0.12em] uppercase">
+                      {member.role}
+                    </p>
+                    <p className="text-brand-ink/90 mt-3 text-sm leading-relaxed">{member.bio}</p>
+                    {member.linkedinUrl && (
+                      <a
+                        href={member.linkedinUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-brand-ink/70 hover:text-brand-gold mt-4 inline-block text-xs font-semibold transition"
+                      >
+                        LinkedIn →
+                      </a>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="pb-16 md:pb-20">
         <div className="container max-w-[1200px]">

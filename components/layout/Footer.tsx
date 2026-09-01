@@ -1,6 +1,7 @@
 // Site footer with newsletter signup and primary navigation.
 import Image from 'next/image'
 import Link from 'next/link'
+import NewsletterForm from './NewsletterForm'
 
 const links = [
   { href: '/about', label: 'About' },
@@ -19,13 +20,7 @@ export default function Footer() {
           <div>
             <h2 className="font-display text-[26px] font-semibold leading-none lg:text-4xl">Stay Updated</h2>
             <p className="mt-3 text-[15px] leading-[20px] text-brand-white/80 lg:text-sm">Get updates on upcoming conferences and campus projects</p>
-            {/* The field and its button share one row even on the narrowest phone:
-                the button keeps a fixed width and the input takes the rest. */}
-            <form className="mt-5 flex max-w-md gap-1 sm:gap-0">
-              <label className="sr-only" htmlFor="footer-email">Email address</label>
-              <input id="footer-email" type="email" placeholder="Enter your Email Address" className="min-w-0 flex-1 rounded-full bg-brand-white/15 px-5 py-2.5 text-sm text-brand-white outline-none placeholder:text-brand-white/65 focus:ring-2 focus:ring-brand-gold" />
-              <button type="submit" className="w-28 shrink-0 rounded-full bg-brand-gold py-2.5 text-sm text-brand-deep sm:-ml-3 sm:w-auto sm:px-5">Subscribe</button>
-            </form>
+            <NewsletterForm />
             <p className="mt-3 text-[15px] leading-[20px] text-brand-white/75 lg:text-sm">Get updates on upcoming conferences and campus projects</p>
           </div>
 
