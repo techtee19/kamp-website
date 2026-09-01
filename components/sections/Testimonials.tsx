@@ -14,7 +14,7 @@ const testimonials = [
   {
     name: 'Stephen Oladejo',
     role: 'lead photographer at KAMP Global',
-    image: '/images/testimonials/steveman.jpeg',
+    image: '/images/testimonials/steveman.jpg',
     quote:
       'I’m Stephen Oladejo, lead photographer at KAMP Global, and working with KAMP has completely expanded my mindset on what impact truly means. Traveling to different campuses across Nigeria to host conferences and enlighten students has been a game changer for me.Being under the mentorship of Dr. Kolade Adepoju while documenting these powerful moments through my lens and shooting with top-tier gadgets has elevated my craft in ways I could not have imagined.',
   },
