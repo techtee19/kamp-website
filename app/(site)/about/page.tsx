@@ -73,7 +73,7 @@ export default async function AboutPage() {
 
   return (
     <div className="bg-brand-white text-brand-ink overflow-hidden">
-      <section className="bg-brand-black relative isolate flex min-h-[410px] items-center overflow-hidden pt-16 md:min-h-[520px]">
+      <section className="bg-brand-black relative isolate flex min-h-[450px] items-center overflow-hidden pt-16 md:min-h-[620px] md:pt-20">
         <Image
           src="/images/hero/kamp-hero1.png"
           alt="KAMP community members"
@@ -82,8 +82,8 @@ export default async function AboutPage() {
           sizes="100vw"
           className="-z-20 object-cover object-center grayscale"
         />
-        <div className="bg-brand-black/70 absolute inset-0 -z-10" />
-        <h1 className="font-display text-brand-white container pb-4 text-center text-5xl font-semibold tracking-tight sm:text-7xl lg:text-8xl">
+        <div className="from-brand-black/55 via-brand-black/60 to-brand-black/90 absolute inset-0 -z-10 bg-gradient-to-b" />
+        <h1 className="font-display text-brand-white container pb-2 text-center text-5xl font-semibold tracking-tight sm:text-6xl md:text-7xl">
           About{' '}
           <Image
             src="/images/yellow-star.png"
@@ -218,15 +218,15 @@ export default async function AboutPage() {
                   <>
                     <p>
                       Dr. Kolade Adepoju is a versatile entrepreneur with nearly two decades of
-                      experience. A Fellow of the Institute of Management Consultants (FIMC) and a
-                      Certified Management Consultant (CMC), he is the MD/CEO of Riel Homes,
-                      addressing housing challenges across Nigeria, Africa, and beyond.
+                      experience. A Fellow of the Institute of Management Consultants (FIMC)
+                      and a Certified Management Consultant (CMC), he is the MD/CEO of Riel
+                      Homes, addressing housing challenges across Nigeria, Africa, and beyond.
                     </p>
                     <p>
-                      His passion for mentoring led him to establish KAMP the non-profit through
-                      which he pours that experience into the next generation. He is happily
-                      married to Damilola Adepoju, and they are blessed with two sons, David and
-                      Jason, and a daughter, Queen Esther.
+                      His passion for mentoring led him to establish KAMP the non-profit
+                      through which he pours that experience into the next generation. He is
+                      happily married to Damilola Adepoju, and they are blessed with two sons,
+                      David and Jason, and a daughter, Queen Esther.
                     </p>
                   </>
                 )}
@@ -281,7 +281,9 @@ export default async function AboutPage() {
                     <p className="text-brand-gold mt-1 text-xs font-semibold tracking-[0.12em] uppercase">
                       {member.role}
                     </p>
-                    <p className="text-brand-ink/90 mt-3 text-sm leading-relaxed">{member.bio}</p>
+                    <p className="text-brand-ink/90 mt-3 text-sm leading-relaxed">
+                      {member.bio}
+                    </p>
                     {member.linkedinUrl && (
                       <a
                         href={member.linkedinUrl}

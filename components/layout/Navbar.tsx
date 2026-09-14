@@ -12,7 +12,6 @@ const links = [
   { href: '/programs', label: 'Programs' },
   { href: '/events', label: 'Events' },
   { href: '/gallery', label: 'Gallery' },
-  { href: '/get-involved', label: 'Get Involved' },
   { href: '/contact', label: 'Contact' },
 ]
 
@@ -34,9 +33,9 @@ export default function Navbar() {
           <Image src="/kamp_logo.svg" alt="KAMP" width={171} height={81} priority className="h-10 w-auto object-contain lg:h-9" />
         </Link>
 
-        <div className="hidden items-center gap-6 lg:flex">
+        <div className="hidden items-center gap-5 xl:gap-6 lg:flex">
           {links.map((link) => (
-            <Link key={link.href} href={link.href} aria-current={isActive(link.href) ? 'page' : undefined} className={`border-b-2 py-1 text-sm transition hover:border-brand-gold ${isActive(link.href) ? 'border-brand-gold' : 'border-transparent'} ${isHome ? 'text-brand-white' : 'text-brand-black'}`}>
+            <Link key={link.href} href={link.href} aria-current={isActive(link.href) ? 'page' : undefined} className={`py-1 text-sm transition hover:text-brand-gold ${isHome ? 'text-brand-white' : 'text-brand-black'}`}>
               {link.label}
             </Link>
           ))}

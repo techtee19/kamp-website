@@ -40,11 +40,11 @@ const testimonials = [
       'My journey with KAMP began with a re-examination of self, followed by a redefinition of purpose.  Since I joined KAMP’s meetings, the community and mentorship here have consistently challenged my old mindset and strengthened my vision I’m grateful for that growth',
   },
   {
-    name: 'KAMP Volunteer',
-    role: 'Community volunteer',
-    image: '/images/gallery/visit-gallery-5.png',
+    name: 'Akpors oghenetega',
+    role: 'Softwate developer, KAMP Funaab',
+    image: '/images/testimonials/kampT.jpeg',
     quote:
-      'Showing up for students through KAMP is a practical way to help shape leaders who are ready to serve where they are needed most.',
+      'I believe meaningful change starts by investing in people. Through KAMP, students have a platform to learn, connect, and develop the confidence to become leaders who are ready to serve wherever they are needed.',
   },
 ]
 
