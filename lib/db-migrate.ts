@@ -1,8 +1,14 @@
 // Throwaway migration runner — deleted once the schema is in place.
 import { readFileSync } from 'node:fs'
-import { db } from '@/lib/db'
+// This script runs directly in Node rather than through Next.js, so it cannot
+// resolve the app's `@/` alias. Keep this import relative for `pnpm db:migrate`.
+import { db } from './db.ts'
 
-const files = ['migrations/001_init.sql', 'migrations/002_registration_unique.sql']
+const files = [
+  'migrations/001_init.sql',
+  'migrations/002_registration_unique.sql',
+  'migrations/003_registration_ticket_ref.sql',
+]
 
 async function migrate() {
   try {

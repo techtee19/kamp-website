@@ -62,10 +62,10 @@ export const EVENT_SLUGS_QUERY = `
   *[_type == "event" && isPublished == true && defined(slug.current)] { slug }
 `
 
-// Single event by _id — used by /api/register to read capacity, date and location
+// Single event by _id — used by /api/register for capacity and ticket details.
 export const EVENT_BY_ID_QUERY = `
   *[_type == "event" && _id == $id][0] {
-    capacity, date, location
+    capacity, date, location, university, theme
   }
 `
 

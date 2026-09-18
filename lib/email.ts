@@ -34,11 +34,16 @@ export async function sendRegistrationConfirmation(opts: {
   eventDate: string
   eventLocation: string
   university: string
+  ticketRef: string
+  ticketPDF: Buffer | null
 }) {
   return resend().emails.send({
     from: FROM(),
     to: opts.to,
-    subject: `You're registered for ${opts.eventTitle}!`,
+    subject: `Your KAMP ticket for ${opts.eventTitle}`,
+    attachments: opts.ticketPDF
+      ? [{ filename: `KAMP-Ticket-${opts.ticketRef}.pdf`, content: opts.ticketPDF }]
+      : [],
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #1B2A4A; padding: 32px; text-align: center;">
@@ -47,12 +52,16 @@ export async function sendRegistrationConfirmation(opts: {
         </div>
         <div style="padding: 32px; background: #ffffff;">
           <h2 style="color: #1B2A4A;">You're confirmed, ${esc(opts.recipientName)}!</h2>
-          <p style="color: #595959;">You have successfully registered for:</p>
+          <p style="color: #595959;">You have successfully registered for. Your ticket is attached as a PDF.</p>
           <div style="background: #F5F0E8; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #C49A22;">
             <p style="margin: 0; font-size: 18px; font-weight: bold; color: #1B2A4A;">${esc(opts.eventTitle)}</p>
             <p style="margin: 8px 0 0; color: #595959;">📅 ${esc(opts.eventDate)}</p>
             <p style="margin: 4px 0 0; color: #595959;">📍 ${esc(opts.eventLocation)}</p>
             <p style="margin: 4px 0 0; color: #595959;">🎓 ${esc(opts.university)}</p>
+          </div>
+          <div style="background: #1A1A1A; padding: 14px 20px; border-radius: 6px; margin-bottom: 24px;">
+            <p style="margin: 0; font-size: 10px; color: #C49A22; letter-spacing: 2px; text-transform: uppercase;">Ticket Reference</p>
+            <p style="margin: 4px 0 0; font-size: 16px; color: #C49A22; font-weight: bold; letter-spacing: 1px;">${esc(opts.ticketRef)}</p>
           </div>
           <p style="color: #595959;">We look forward to seeing you there. Keep an eye on our Instagram <strong>@wearekamp</strong> for updates and reminders.</p>
           <p style="color: #595959;">See you soon,<br/><strong>The KAMP Team</strong></p>

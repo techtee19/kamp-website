@@ -8,6 +8,7 @@ export interface RegistrationRow {
   university: string
   study_level: string
   status: 'confirmed' | 'waitlisted' | 'cancelled'
+  ticket_ref: string | null
   created_at: string
 }
 
