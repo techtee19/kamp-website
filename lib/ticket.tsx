@@ -25,75 +25,77 @@ export interface TicketData {
 }
 
 const styles = StyleSheet.create({
-  page: { backgroundColor: '#FFFFFF', fontFamily: 'Helvetica' },
-  header: { backgroundColor: '#1A1A1A', padding: 36, paddingBottom: 28 },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 20,
-  },
-  brandName: { color: '#C9A227', fontSize: 28, fontFamily: 'Helvetica-Bold', letterSpacing: 2 },
-  brandTagline: { color: '#FFFFFF', fontSize: 9, marginTop: 3, opacity: 0.7, letterSpacing: 0.5 },
-  ticketLabel: { color: '#FFFFFF', fontSize: 9, letterSpacing: 2, opacity: 0.6, fontFamily: 'Helvetica-Bold' },
-  eventTitle: { color: '#FFFFFF', fontSize: 22, fontFamily: 'Helvetica-Bold', marginTop: 4, lineHeight: 1.3 },
-  eventTheme: { color: '#C9A227', fontSize: 11, marginTop: 6, letterSpacing: 1 },
-  goldStrip: { backgroundColor: '#C9A227', height: 4 },
-  body: { padding: 36 },
-  sectionLabel: { fontSize: 8, color: '#6B6B6B', letterSpacing: 2, fontFamily: 'Helvetica-Bold', marginBottom: 6 },
-  attendeeName: { fontSize: 20, fontFamily: 'Helvetica-Bold', color: '#1A1A1A', marginBottom: 4 },
-  attendeeDetail: { fontSize: 11, color: '#6B6B6B', marginBottom: 2 },
-  divider: { borderBottomWidth: 1, borderBottomColor: '#F0EFEA', marginVertical: 24 },
-  detailsGrid: { flexDirection: 'row', flexWrap: 'wrap' },
-  detailBlock: { width: '50%', marginBottom: 20, paddingRight: 16 },
-  detailLabel: { fontSize: 8, color: '#6B6B6B', letterSpacing: 1.5, fontFamily: 'Helvetica-Bold', marginBottom: 4 },
-  detailValue: { fontSize: 12, color: '#1A1A1A', fontFamily: 'Helvetica-Bold', lineHeight: 1.4 },
-  detailSub: { fontSize: 10, color: '#6B6B6B', marginTop: 2 },
-  noteBox: { backgroundColor: '#F5F4EF', borderLeftWidth: 3, borderLeftColor: '#C9A227', padding: 14, marginTop: 8, borderRadius: 2 },
-  noteTitle: { fontSize: 9, fontFamily: 'Helvetica-Bold', color: '#1A1A1A', marginBottom: 4, letterSpacing: 0.5 },
-  noteText: { fontSize: 9, color: '#6B6B6B', lineHeight: 1.5 },
-  footer: { backgroundColor: '#1A1A1A', padding: 20, paddingHorizontal: 36, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' },
-  footerLeft: { color: '#FFFFFF', fontSize: 9, opacity: 0.6 },
-  footerRef: { color: '#C9A227', fontSize: 9, fontFamily: 'Helvetica-Bold', letterSpacing: 0.5 },
-  refLabel: { color: '#FFFFFF', fontSize: 8, opacity: 0.5, marginBottom: 2, letterSpacing: 1 },
+  page: { backgroundColor: '#EEEDE8', fontFamily: 'Helvetica', padding: 20, justifyContent: 'center' },
+  ticket: { backgroundColor: '#FFFFFF', borderRadius: 14, overflow: 'hidden' },
+  hero: { backgroundColor: '#202020', minHeight: 197, padding: 28, position: 'relative' },
+  goldRail: { position: 'absolute', top: 0, bottom: 0, left: 0, width: 8, backgroundColor: '#EFBC2B' },
+  eyebrowRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  brand: { color: '#FFFFFF', fontSize: 20, fontFamily: 'Helvetica-Bold', letterSpacing: 1.5 },
+  label: { color: '#EFBC2B', fontSize: 8, fontFamily: 'Helvetica-Bold', letterSpacing: 1.8 },
+  theme: { color: '#B5B5B5', fontSize: 9, marginTop: 29, letterSpacing: 0.7 },
+  eventTitle: { color: '#FFFFFF', fontSize: 25, fontFamily: 'Helvetica-Bold', lineHeight: 1.12, marginTop: 7, maxWidth: 300 },
+  ticketMark: { position: 'absolute', right: 28, bottom: 26, color: '#EFBC2B', fontSize: 12, fontFamily: 'Helvetica-Bold', letterSpacing: 1.4 },
+  body: { paddingHorizontal: 28, paddingTop: 24, paddingBottom: 15 },
+  attendeeLabel: { color: '#7D7B74', fontSize: 8, fontFamily: 'Helvetica-Bold', letterSpacing: 1.6 },
+  attendeeName: { color: '#202020', fontSize: 21, fontFamily: 'Helvetica-Bold', marginTop: 6 },
+  attendeeMeta: { color: '#6B6B6B', fontSize: 10, marginTop: 5 },
+  details: { flexDirection: 'row', marginTop: 23, paddingTop: 17, borderTopWidth: 1, borderTopColor: '#E6E4DE' },
+  dateColumn: { width: '50%', paddingRight: 14 },
+  venueColumn: { width: '50%', paddingLeft: 14, borderLeftWidth: 1, borderLeftColor: '#E6E4DE' },
+  detailLabel: { color: '#7D7B74', fontSize: 7, fontFamily: 'Helvetica-Bold', letterSpacing: 1.4 },
+  detailValue: { color: '#202020', fontSize: 11, fontFamily: 'Helvetica-Bold', lineHeight: 1.35, marginTop: 5 },
+  detailSub: { color: '#6B6B6B', fontSize: 9, marginTop: 3, lineHeight: 1.35 },
+  stub: { borderTopWidth: 1, borderTopColor: '#B7B4AA', borderStyle: 'dashed', paddingHorizontal: 28, paddingVertical: 15, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  stubMeta: { color: '#6B6B6B', fontSize: 8, lineHeight: 1.5 },
+  refLabel: { color: '#7D7B74', fontSize: 7, fontFamily: 'Helvetica-Bold', letterSpacing: 1.3, textAlign: 'right' },
+  ref: { color: '#202020', fontSize: 12, fontFamily: 'Helvetica-Bold', letterSpacing: 0.5, marginTop: 4 },
+  footer: { backgroundColor: '#F5F4EF', paddingVertical: 10, paddingHorizontal: 28, flexDirection: 'row', justifyContent: 'space-between' },
+  footerText: { color: '#6B6B6B', fontSize: 7 },
 })
 
 function TicketDocument({ data }: { data: TicketData }) {
   return (
     <Document title={`KAMP Ticket - ${data.eventTitle}`} author="KAMP - Kolade Adepoju Mentoring Program">
       <Page size="A5" style={styles.page}>
-        <View style={styles.header}>
-          <View style={styles.headerTop}>
-            <View>
-              <Text style={styles.brandName}>KAMP</Text>
-              <Text style={styles.brandTagline}>Kolade Adepoju Mentoring Program</Text>
+        <View style={styles.ticket}>
+          <View style={styles.hero}>
+            <View style={styles.goldRail} />
+            <View style={styles.eyebrowRow}>
+              <Text style={styles.brand}>KAMP</Text>
+              <Text style={styles.label}>ADMIT ONE</Text>
             </View>
-            <Text style={styles.ticketLabel}>EVENT TICKET</Text>
+            {data.eventTheme && <Text style={styles.theme}>{data.eventTheme.toUpperCase()}</Text>}
+            <Text style={styles.eventTitle}>{data.eventTitle}</Text>
+            <Text style={styles.ticketMark}>EVENT TICKET</Text>
           </View>
-          {data.eventTheme && <Text style={styles.eventTheme}>{data.eventTheme}</Text>}
-          <Text style={styles.eventTitle}>{data.eventTitle}</Text>
-        </View>
-        <View style={styles.goldStrip} />
-        <View style={styles.body}>
-          <Text style={styles.sectionLabel}>REGISTERED ATTENDEE</Text>
-          <Text style={styles.attendeeName}>{data.attendeeName}</Text>
-          <Text style={styles.attendeeDetail}>{data.attendeeEmail}</Text>
-          <Text style={styles.attendeeDetail}>{data.attendeeUniversity} - {data.studyLevel}</Text>
-          <View style={styles.divider} />
-          <View style={styles.detailsGrid}>
-            <View style={styles.detailBlock}><Text style={styles.detailLabel}>DATE</Text><Text style={styles.detailValue}>{data.eventDate}</Text></View>
-            <View style={styles.detailBlock}><Text style={styles.detailLabel}>TIME</Text><Text style={styles.detailValue}>{data.eventTime}</Text></View>
-            <View style={styles.detailBlock}><Text style={styles.detailLabel}>VENUE</Text><Text style={styles.detailValue}>{data.eventLocation}</Text><Text style={styles.detailSub}>{data.eventUniversity}</Text></View>
-            <View style={styles.detailBlock}><Text style={styles.detailLabel}>ISSUED</Text><Text style={styles.detailValue}>{data.issuedAt}</Text></View>
+          <View style={styles.body}>
+            <Text style={styles.attendeeLabel}>THIS TICKET BELONGS TO</Text>
+            <Text style={styles.attendeeName}>{data.attendeeName}</Text>
+            <Text style={styles.attendeeMeta}>{data.attendeeUniversity} - {data.studyLevel}</Text>
+            <View style={styles.details}>
+              <View style={styles.dateColumn}>
+                <Text style={styles.detailLabel}>DATE + TIME</Text>
+                <Text style={styles.detailValue}>{data.eventDate}</Text>
+                <Text style={styles.detailSub}>{data.eventTime}</Text>
+              </View>
+              <View style={styles.venueColumn}>
+                <Text style={styles.detailLabel}>LOCATION</Text>
+                <Text style={styles.detailValue}>{data.eventLocation}</Text>
+                <Text style={styles.detailSub}>{data.eventUniversity}</Text>
+              </View>
+            </View>
           </View>
-          <View style={styles.noteBox}>
-            <Text style={styles.noteTitle}>IMPORTANT</Text>
-            <Text style={styles.noteText}>Please bring this ticket (printed or on your device) to the event. Your name will be verified against the registration list at the entrance. This ticket is non-transferable.</Text>
+          <View style={styles.stub}>
+            <Text style={styles.stubMeta}>Present this ticket at entry{`\n`}Valid for one attendee</Text>
+            <View>
+              <Text style={styles.refLabel}>TICKET REFERENCE</Text>
+              <Text style={styles.ref}>{data.ticketRef}</Text>
+            </View>
           </View>
-        </View>
-        <View style={styles.footer}>
-          <Text style={styles.footerLeft}>wearekamp.org - @wearekamp</Text>
-          <View style={{ alignItems: 'flex-end' }}><Text style={styles.refLabel}>TICKET REF</Text><Text style={styles.footerRef}>{data.ticketRef}</Text></View>
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>wearekamp.org</Text>
+            <Text style={styles.footerText}>Issued {data.issuedAt}</Text>
+          </View>
         </View>
       </Page>
     </Document>

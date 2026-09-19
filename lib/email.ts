@@ -37,7 +37,7 @@ export async function sendRegistrationConfirmation(opts: {
   ticketRef: string
   ticketPDF: Buffer | null
 }) {
-  return resend().emails.send({
+  const result = await resend().emails.send({
     from: FROM(),
     to: opts.to,
     subject: `Your KAMP ticket for ${opts.eventTitle}`,
@@ -52,7 +52,7 @@ export async function sendRegistrationConfirmation(opts: {
         </div>
         <div style="padding: 32px; background: #ffffff;">
           <h2 style="color: #1B2A4A;">You're confirmed, ${esc(opts.recipientName)}!</h2>
-          <p style="color: #595959;">You have successfully registered for. Your ticket is attached as a PDF.</p>
+          <p style="color: #595959;">Your registration for <strong>${esc(opts.eventTitle)}</strong> is complete. Your ticket is attached as a PDF.</p>
           <div style="background: #F5F0E8; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #C49A22;">
             <p style="margin: 0; font-size: 18px; font-weight: bold; color: #1B2A4A;">${esc(opts.eventTitle)}</p>
             <p style="margin: 8px 0 0; color: #595959;">📅 ${esc(opts.eventDate)}</p>
@@ -72,6 +72,16 @@ export async function sendRegistrationConfirmation(opts: {
       </div>
     `,
   })
+
+  // Resend reports API-level delivery failures in the result instead of throwing.
+  // Surface those failures to the registration route's existing catch handler.
+  if (result.error) {
+    throw new Error(`Resend registration email failed: ${result.error.message}`)
+  }
+
+  console.info(`Registration confirmation email accepted by Resend: ${result.data?.id ?? 'unknown id'}`)
+
+  return result
 }
 
 // ── Donation receipt ──────────────────────────────────────────
