@@ -64,7 +64,8 @@ export const EVENT_SLUGS_QUERY = `
 
 // Single event by _id — used by /api/register for capacity and ticket details.
 export const EVENT_BY_ID_QUERY = `
-  *[_type == "event" && _id == $id][0] {
+  *[_type == "event" && _id == $id && isPublished == true][0] {
+    _id, title, slug, isPublished, registrationClosed, status,
     capacity, date, location, university, theme
   }
 `
