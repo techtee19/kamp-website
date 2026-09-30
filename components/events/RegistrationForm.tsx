@@ -2,7 +2,7 @@
 
 // Inline event registration form with confirmation and capacity states.
 import { FormEvent, useState } from 'react'
-import UniversityCombobox from '@/components/ui/UniversityCombobox'
+import InstitutionCombobox from '@/components/ui/InstitutionCombobox'
 
 const inputClass =
   'mt-2 w-full rounded-lg border border-brand-ink/25 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold'
@@ -127,8 +127,8 @@ export default function RegistrationForm({
         <input name="phone" required type="tel" disabled={submitting} className={inputClass} />
       </label>
       <label className="text-sm font-medium">
-        University
-        <UniversityCombobox name="university" required disabled={submitting} />
+        Tertiary institution
+        <InstitutionCombobox name="university" required disabled={submitting} />
       </label>
       <label className="text-sm font-medium md:col-span-2">
         Level/year of study

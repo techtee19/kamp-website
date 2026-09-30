@@ -1,23 +1,23 @@
 'use client'
 
 /**
- * UniversityCombobox
- * A searchable autocomplete for the 273 NUC-listed Nigerian universities.
+ * Searchable autocomplete for Nigerian universities, polytechnics, and
+ * colleges of education.
  * Works with native <form> — renders a hidden <input name={name} /> that
  * contains the committed value so it appears in FormData on submit.
  */
 import { useEffect, useId, useRef, useState } from 'react'
-import { NIGERIAN_UNIVERSITIES, type NigerianUniversity } from '@/lib/nigerian-universities'
+import { NIGERIAN_INSTITUTIONS, type NigerianInstitution } from '@/lib/nigerian-institutions'
 
 const MAX_SUGGESTIONS = 8
 
-const TYPE_STYLES: Record<NigerianUniversity['type'], string> = {
+const TYPE_STYLES: Record<NigerianInstitution['type'], string> = {
   Federal: 'bg-emerald-100 text-emerald-700',
   State: 'bg-sky-100 text-sky-700',
   Private: 'bg-violet-100 text-violet-700',
 }
 
-interface UniversityComboboxProps {
+interface InstitutionComboboxProps {
   /** The name attribute forwarded to the hidden <input> for FormData. */
   name: string
   required?: boolean
@@ -28,14 +28,14 @@ interface UniversityComboboxProps {
   onValueChange?: (value: string) => void
 }
 
-export default function UniversityCombobox({
+export default function InstitutionCombobox({
   name,
   required = false,
   disabled = false,
   defaultValue = '',
   className = '',
   onValueChange,
-}: UniversityComboboxProps) {
+}: InstitutionComboboxProps) {
   const id = useId()
   const listId = `${id}-list`
 
@@ -50,13 +50,13 @@ export default function UniversityCombobox({
   const listRef = useRef<HTMLUListElement>(null)
 
   // ── Filtering ────────────────────────────────────────────────────────────
-  const suggestions: NigerianUniversity[] = query.trim().length < 1
+  const suggestions: NigerianInstitution[] = query.trim().length < 1
     ? []
-    : NIGERIAN_UNIVERSITIES.filter((u) => {
+    : NIGERIAN_INSTITUTIONS.filter((u) => {
         const q = query.toLowerCase()
         return (
           u.name.toLowerCase().includes(q) ||
-          u.abbreviation.toLowerCase().includes(q) ||
+          (u.abbreviation?.toLowerCase().includes(q) ?? false) ||
           u.state.toLowerCase().includes(q)
         )
       }).slice(0, MAX_SUGGESTIONS)
@@ -164,7 +164,7 @@ export default function UniversityCombobox({
         spellCheck={false}
         required={required}
         disabled={disabled}
-        placeholder="e.g. University of Lagos or UNILAG"
+        placeholder="Search or enter your tertiary institution"
         value={query}
         onChange={(e) => {
           setQuery(e.target.value)
@@ -193,7 +193,7 @@ export default function UniversityCombobox({
             const isActive = i === activeIndex
             return (
               <li
-                key={uni.abbreviation}
+                key={`${uni.institutionType}-${uni.name}`}
                 id={`${id}-opt-${i}`}
                 role="option"
                 aria-selected={isActive}
@@ -209,7 +209,7 @@ export default function UniversityCombobox({
               >
                 <span className="min-w-0">
                   <span className="block truncate font-medium">{uni.name}</span>
-                  <span className="text-xs text-brand-grey">{uni.state} State · {uni.abbreviation}</span>
+                  <span className="text-xs text-brand-grey">{uni.state}{uni.state === 'FCT' ? '' : ' State'} · {uni.institutionType}{uni.abbreviation ? ` · ${uni.abbreviation}` : ''}</span>
                 </span>
                 <span
                   className={`mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${TYPE_STYLES[uni.type]}`}
@@ -225,7 +225,7 @@ export default function UniversityCombobox({
       {/* "No matches" hint — only when user has typed enough and nothing matches */}
       {query.trim().length >= 2 && suggestions.length === 0 && (
         <p className="mt-1 text-xs text-brand-grey">
-          No match found — you can still type your university name directly.
+          No match found — you can still type your institution name directly.
         </p>
       )}
     </div>

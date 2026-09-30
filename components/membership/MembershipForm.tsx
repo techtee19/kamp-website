@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CheckCircle2, LoaderCircle } from 'lucide-react'
-import UniversityCombobox from '@/components/ui/UniversityCombobox'
+import InstitutionCombobox from '@/components/ui/InstitutionCombobox'
 import { membershipSchema, NIGERIAN_STATES, type MembershipInput } from '@/lib/validations'
 
 const studyLevels = ['100L', '200L', '300L', '400L', '500L', 'Postgraduate', 'Other'] as const
@@ -62,7 +62,7 @@ export default function MembershipForm() {
         <label className="block text-sm font-medium">Email address<input type="email" autoComplete="email" className={inputClass} {...register('email')} aria-invalid={!!errors.email} />{errorFor('email')}</label>
         <label className="block text-sm font-medium">Phone number<input type="tel" autoComplete="tel" className={inputClass} {...register('phone')} aria-invalid={!!errors.phone} />{errorFor('phone')}</label>
       </div>
-      <label className="block text-sm font-medium">University<Controller name="university" control={control} render={({ field }) => <UniversityCombobox name="university" defaultValue={field.value} onValueChange={field.onChange} required />} />{errorFor('university')}</label>
+      <label className="block text-sm font-medium">Tertiary institution<Controller name="university" control={control} render={({ field }) => <InstitutionCombobox name="university" defaultValue={field.value} onValueChange={field.onChange} required />} />{errorFor('university')}</label>
       <div className="grid gap-5 sm:grid-cols-3">
         <label className="block text-sm font-medium">Gender<select className={inputClass} defaultValue="" {...register('gender')}><option value="" disabled>Select</option><option>Female</option><option>Male</option></select>{errorFor('gender')}</label>
         <label className="block text-sm font-medium">State of origin<select className={inputClass} defaultValue="" {...register('stateOfOrigin')}><option value="" disabled>Select</option>{NIGERIAN_STATES.map((state) => <option key={state}>{state}</option>)}</select>{errorFor('stateOfOrigin')}</label>

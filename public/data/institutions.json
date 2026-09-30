@@ -1,0 +1,5278 @@
+{
+  "meta": {
+    "total": 752,
+    "universities": 312,
+    "polytechnics": 200,
+    "collegesOfEducation": 240,
+    "source": "reality-farouqk/nigeria-tertiary-institutions-api (compiled using NUC, NBTE, and NCCE sources)",
+    "sourceUrl": "https://github.com/reality-farouqk/nigeria-tertiary-institutions-api",
+    "snapshot": "August 2026",
+    "license": "CC0"
+  },
+  "institutions": [
+    {
+      "name": "A.D. Rufa'i College of Education, Legal and General Studies",
+      "type": "State",
+      "state": "Bauchi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Abdu Gusau Polytechnic, Talata Mafara",
+      "type": "State",
+      "state": "Zamfara",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "AbdulKadir Kure University, Minna",
+      "type": "State",
+      "state": "Niger",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Abdullahi Maikano College of Education, Wase",
+      "type": "Private",
+      "state": "Plateau",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Abdulrasaq Abubakar Toyin University, Oke-Ogba",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Abdulsalam Abubakar University of Agriculture and Climate Action, Mokwa",
+      "type": "State",
+      "state": "Niger",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Abia State Polytechnic, Aba",
+      "type": "State",
+      "state": "Abia",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Abia State University, Uturu",
+      "type": "State",
+      "state": "Abia",
+      "abbreviation": "ABSU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Abraham Adesanya Polytechnic, Ijebu-Igbo",
+      "type": "State",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Abubakar Garba Zagada College of Education, Bajoga",
+      "type": "Private",
+      "state": "Gombe",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Abubakar Tafawa Balewa University, Bauchi",
+      "type": "Federal",
+      "state": "Bauchi",
+      "abbreviation": "ATBU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Abubakar Tatari Ali Polytechnic, Bauchi",
+      "type": "State",
+      "state": "Bauchi",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Achievers University, Owo",
+      "type": "Private",
+      "state": "Ondo",
+      "abbreviation": "AUO",
+      "institutionType": "University"
+    },
+    {
+      "name": "Adamawa State Polytechnic, Yola",
+      "type": "State",
+      "state": "Adamawa",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Adamawa State University, Mubi",
+      "type": "State",
+      "state": "Adamawa",
+      "abbreviation": "ADSU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Adamu Augie College of Education, Argungu",
+      "type": "State",
+      "state": "Kebbi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Adamu Garkuwa College of Education, Toro",
+      "type": "Private",
+      "state": "Bauchi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Adamu Tafawa Balewa College of Education, Kangere",
+      "type": "State",
+      "state": "Bauchi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Adekunle Ajasin University, Akungba",
+      "type": "State",
+      "state": "Ondo",
+      "abbreviation": "AAUA",
+      "institutionType": "University"
+    },
+    {
+      "name": "Adeleke University, Ede",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": "AU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Adeseun Ogundoyin Polytechnic, Eruwa",
+      "type": "State",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Adesina College of Education, Share",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Adeyemi Federal University of Education, Ondo",
+      "type": "Federal",
+      "state": "Ondo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Adigrace College of Education, Byepyi",
+      "type": "Private",
+      "state": "Taraba",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Admiralty University, Ibusa",
+      "type": "Federal",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Afe Babalola University, Ado-Ekiti",
+      "type": "Private",
+      "state": "Ekiti",
+      "abbreviation": "ABUAD",
+      "institutionType": "University"
+    },
+    {
+      "name": "African Aviation and Aerospace University",
+      "type": "Federal",
+      "state": "FCT",
+      "abbreviation": "AAAU",
+      "institutionType": "University"
+    },
+    {
+      "name": "African Thinkers Community of Inquiry College of Education, Enugu",
+      "type": "Private",
+      "state": "Enugu",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "African University of Economics, FCT Abuja",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "African University of Science and Technology, Abuja",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Ahlus-Suffah College of Education, Ira",
+      "type": "Private",
+      "state": "Kaduna",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Ahmadu Bello University, Zaria",
+      "type": "Federal",
+      "state": "Kaduna",
+      "abbreviation": "ABU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Ahman Pategi University",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Air Force Institute of Technology (AFIT), Kaduna",
+      "type": "Federal",
+      "state": "Kaduna",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Air Force Institute of Technology, Kaduna",
+      "type": "Federal",
+      "state": "Kaduna",
+      "abbreviation": "AFIT",
+      "institutionType": "University"
+    },
+    {
+      "name": "Ajayi Crowther University, Ibadan",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": "ACU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Ajayi Polytechnic, Ara-Ekiti",
+      "type": "Private",
+      "state": "Ekiti",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Ajetumobi College of Education, Ira",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Akanu Ibiam Federal Polytechnic, Unwana-Afikpo",
+      "type": "Federal",
+      "state": "Ebonyi",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Akperan Orshi Polytechnic, Yandev",
+      "type": "State",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Akwa Ibom State College of Arts & Science, Nung Ukim",
+      "type": "State",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Akwa Ibom State College of Education, Afahansit",
+      "type": "State",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Akwa Ibom State Polytechnic, Ikot Osurua",
+      "type": "State",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Akwa Ibom State University, Ikot Akpaden",
+      "type": "State",
+      "state": "Akwa Ibom",
+      "abbreviation": "AKSU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Al Hikma College Of Education, Ankpa",
+      "type": "Private",
+      "state": "Kogi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Al-Ansar University, Maiduguri",
+      "type": "Private",
+      "state": "Borno",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Al-Bayan University, Ankpa",
+      "type": "Private",
+      "state": "Kogi",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Al-fajr College of Education, Kano",
+      "type": "Private",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Al-Hikma Polytechnic, Karu",
+      "type": "Private",
+      "state": "Nasarawa",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Al-Hikmah University, Ilorin",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": "AL-HIKMAH",
+      "institutionType": "University"
+    },
+    {
+      "name": "Al-Ibadan College of Education",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Al-Iman College of Education",
+      "type": "Private",
+      "state": "Plateau",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Al-Istiqama University, Sumaila",
+      "type": "Private",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Al-Madinah College of Education Oshogbo",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Al-Muhibbah Open University, Abuja",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": "AMOU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Al-Mustafa College of Education, Kano",
+      "type": "Private",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Al-Qalam University, Katsina",
+      "type": "Private",
+      "state": "Katsina",
+      "abbreviation": "AQU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Al-Ummah College of Education (UMCOED)",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Aletheia University, Ago-Iwoye",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Alex Ekwueme University, Ndufu-Alike",
+      "type": "Federal",
+      "state": "Ebonyi",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Aliko Dangote University of Science & Technology, Wudil",
+      "type": "State",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Allover Central Polytechnic, Sango-Ota",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Alvan Ikoku Federal University of Education, Owerri",
+      "type": "Federal",
+      "state": "Imo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Amadeus University, Amizi",
+      "type": "Private",
+      "state": "Abia",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Amaj University, Kwali",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Ambrose Alli University, Ekpoma",
+      "type": "State",
+      "state": "Edo",
+      "abbreviation": "AAU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Ameenuddeen College of Education",
+      "type": "Private",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Ameer Shehu Idris College of Advanced Studies, Zaria",
+      "type": "Private",
+      "state": "Kaduna",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "American Open University, Abeokuta",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "American Polytechnic, Wasimi",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "American University of Nigeria, Yola",
+      "type": "Private",
+      "state": "Adamawa",
+      "abbreviation": "AUN",
+      "institutionType": "University"
+    },
+    {
+      "name": "Aminu Kano College of Education",
+      "type": "Private",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Aminu Sale College of Education, Azare",
+      "type": "State",
+      "state": "Bauchi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Anambra State Polytechnic, Mgbakwu",
+      "type": "State",
+      "state": "Anambra",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Anan University, Kwall",
+      "type": "Private",
+      "state": "Plateau",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Anchor University, Ayobo",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Angel Crown College of Education",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Annur College of Education Kano",
+      "type": "Private",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Ansar-Ud-Deen College of Education, Isolo",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Apa College of Education, Aido",
+      "type": "Private",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Archbishop Alexander Ibezim College of Education, Anambra",
+      "type": "Private",
+      "state": "Anambra",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Arthur Jarvis University, Akpoyubo",
+      "type": "Private",
+      "state": "Cross River",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Ashi Polytechnic, Anyiin",
+      "type": "Private",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Assanusiya College of Education, Odeomu, Osun",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Atiba University, Oyo",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": "ATIBA",
+      "institutionType": "University"
+    },
+    {
+      "name": "Auchi Polytechnic, Auchi",
+      "type": "Federal",
+      "state": "Edo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Augustine University",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Ave Maria University, Piyanko",
+      "type": "Private",
+      "state": "Nasarawa",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Awori District College of Education",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Azione Verde University, Amaigbo",
+      "type": "Private",
+      "state": "Imo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Azman University",
+      "type": "Private",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Baba Ahmed University",
+      "type": "Private",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Babcock University, Ilishan-Remo",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": "BABCOCK",
+      "institutionType": "University"
+    },
+    {
+      "name": "Bamidele Olumilua University of Science and Technology, Ikere",
+      "type": "State",
+      "state": "Ekiti",
+      "abbreviation": "BOUSTI",
+      "institutionType": "University"
+    },
+    {
+      "name": "Bauchi State University, Gadau",
+      "type": "State",
+      "state": "Bauchi",
+      "abbreviation": "BASUG",
+      "institutionType": "University"
+    },
+    {
+      "name": "Bayelsa Medical University",
+      "type": "State",
+      "state": "Bayelsa",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Bayelsa State Polytechnic, Aleibiri, Yenagoa",
+      "type": "State",
+      "state": "Bayelsa",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Bayero University, Kano",
+      "type": "Federal",
+      "state": "Kano",
+      "abbreviation": "BUK",
+      "institutionType": "University"
+    },
+    {
+      "name": "Bayo Tijani College of Education, Lagos",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Baze University",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Bellarks Polytechnic, Kwale",
+      "type": "Private",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Bells University of Technology, Otta",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": "BELLSTECH",
+      "institutionType": "University"
+    },
+    {
+      "name": "Benjamin Uwajumogu (State) College of Education, Ihitte Uboma",
+      "type": "State",
+      "state": "Imo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Benson Idahosa University, Benin City",
+      "type": "Private",
+      "state": "Edo",
+      "abbreviation": "BIU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Benue State Polytechnic, Ugbokolo",
+      "type": "State",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Benue State University of Agriculture Science and Technology, Ihugh",
+      "type": "State",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Best Legacy College of Education Ogbomoso",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Best Solution Polytechnic, Akure",
+      "type": "Private",
+      "state": "Ondo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Bethel Coe Ijare, Ondo",
+      "type": "Private",
+      "state": "Ondo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Biga College of Education",
+      "type": "Private",
+      "state": "Sokoto",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Bingham University, New Karu",
+      "type": "Private",
+      "state": "Nasarawa",
+      "abbreviation": "BU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Binyaminu Usman Polytechnic, Hadejia",
+      "type": "State",
+      "state": "Jigawa",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Bogoro College of Education",
+      "type": "Private",
+      "state": "Bauchi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Bolmor Polytechnic, Ibadan",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Bowen University, Iwo",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": "BOWEN",
+      "institutionType": "University"
+    },
+    {
+      "name": "Brainfill Polytechnic, Ikot Ekpene",
+      "type": "Private",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Bridget University Mbaise",
+      "type": "Private",
+      "state": "Imo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Bright College of Education, Kachia",
+      "type": "Private",
+      "state": "Kaduna",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "British Canadian University, Obufu",
+      "type": "Private",
+      "state": "Cross River",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "British Transatlantic Polytechnic, Akure",
+      "type": "Private",
+      "state": "Ondo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Caleb University, Lagos",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": "CALEB",
+      "institutionType": "University"
+    },
+    {
+      "name": "Calvary Polytechnic, Owa-Oyibu",
+      "type": "Private",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Calvin Foundation College of Education",
+      "type": "Private",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Canadian University of Nigeria, Abuja",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": "CUN",
+      "institutionType": "University"
+    },
+    {
+      "name": "Capital City University",
+      "type": "Private",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Caritas University, Enugu",
+      "type": "Private",
+      "state": "Enugu",
+      "abbreviation": "CARITAS",
+      "institutionType": "University"
+    },
+    {
+      "name": "Chrisland University",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Christian Chukwuma Onoh College of Education",
+      "type": "Private",
+      "state": "Enugu",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Christian College of Education, Gombe",
+      "type": "Private",
+      "state": "Gombe",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Christopher University, Mowe",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": "CU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Chukwuemeka Odumegwu Ojukwu University, Uli",
+      "type": "State",
+      "state": "Anambra",
+      "abbreviation": "COOU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Citi Polytechnic, Dutsen-Dawaki, Abuja",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "City College of Education, Mararaba",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Claretian University of Nigeria, Nekede",
+      "type": "Private",
+      "state": "Imo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Clifford University, Owerrinta",
+      "type": "Private",
+      "state": "Abia",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Climax College of Education, Bauchi",
+      "type": "Private",
+      "state": "Bauchi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Coal City University",
+      "type": "Private",
+      "state": "Enugu",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Coastal Polytechnic, Badagry, Lagos",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Coastline College Of Education",
+      "type": "Private",
+      "state": "Ondo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Cokwills College Of Education",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Administration and Management Technology, Potiskum",
+      "type": "State",
+      "state": "Yobe",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "College of Agriculture, Science and Technology, Jalingo",
+      "type": "State",
+      "state": "Taraba",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "College of Agriculture, Science and Technology, Lafia",
+      "type": "State",
+      "state": "Nasarawa",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "College of Education (Technical), Dass",
+      "type": "State",
+      "state": "Bauchi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Education Akwanga",
+      "type": "State",
+      "state": "Nasarawa",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Education and Entrepreneurship Studies, Lessel",
+      "type": "Private",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Education and Legal Studies, Nguru",
+      "type": "State",
+      "state": "Yobe",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Education Ilemona",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Education Kura",
+      "type": "Private",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Education Oju",
+      "type": "State",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Education Oro",
+      "type": "State",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Education, Arochukwu, Abia",
+      "type": "State",
+      "state": "Abia",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Education, Billiri",
+      "type": "State",
+      "state": "Gombe",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Education, Darazo",
+      "type": "Private",
+      "state": "Bauchi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Education, Dutsen Tanshi",
+      "type": "Private",
+      "state": "Bauchi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Education, Gindiri",
+      "type": "State",
+      "state": "Plateau",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Education, Hong",
+      "type": "State",
+      "state": "Adamawa",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Education, Ila-Orangun, Osun State",
+      "type": "State",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Education, katsina-Ala",
+      "type": "State",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Education, Moro, Ife-North",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Education, Waka BIU",
+      "type": "State",
+      "state": "Borno",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Education, Warri",
+      "type": "State",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Education, Zing",
+      "type": "State",
+      "state": "Taraba",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "College of Petroleum and Energy Studies",
+      "type": "Private",
+      "state": "Kaduna",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Community College of Education, Kano",
+      "type": "Private",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Confluence University of Science and Technology, Osara",
+      "type": "State",
+      "state": "Kogi",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Corner Stone College of Education, Ikeja",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Corona College of Education Lekki",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Cosmopolitan University, Abuja",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": "CU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Covenant College of Education (CCOE)",
+      "type": "Private",
+      "state": "Abia",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Covenant Polytechnic, Aba",
+      "type": "Private",
+      "state": "Abia",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Covenant University, Ota",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": "CU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Crawford University, Igbesa",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": "CRAWFORD",
+      "institutionType": "University"
+    },
+    {
+      "name": "Crescent Pearls Technical College of Education, Abuja",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Crescent University",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Crestfield College Of Education",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Cross River Institute of Technology and Management, Ugep",
+      "type": "State",
+      "state": "Cross River",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Cross River University of Education and Entrepreneurship, Akampa",
+      "type": "State",
+      "state": "Cross River",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Crown Polytechnic, Ado-Ekiti",
+      "type": "Private",
+      "state": "Ekiti",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "D.S. Adegbenro ICT Polytechnic, Itori-Ewekoro",
+      "type": "State",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Daboss Polytechnic, Idominasi",
+      "type": "Private",
+      "state": "Edo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Dala College of Education, Kano",
+      "type": "Private",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Danyaya College of Education, Ningi",
+      "type": "Private",
+      "state": "Bauchi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "David Nweze Umahi Federal University of Medical Sciences, Uburu",
+      "type": "Federal",
+      "state": "Ebonyi",
+      "abbreviation": "DNUFUMS",
+      "institutionType": "University"
+    },
+    {
+      "name": "Dee-Perfect Class College of Education, Ifon-Osun, Osun State",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Delar College of Education",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Delta State College of Education, Mosogar",
+      "type": "State",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Delta State Polytechnic, Burutu",
+      "type": "State",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Delta State Polytechnic, Ogwashi-Uku",
+      "type": "State",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Delta State Polytechnic, Otefe-Oghara",
+      "type": "State",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Delta State University, Abraka",
+      "type": "State",
+      "state": "Delta",
+      "abbreviation": "DELSU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Delta University of Science and Technology, Ozoro",
+      "type": "State",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Dennis Osadebe University, Asaba",
+      "type": "State",
+      "state": "Delta",
+      "abbreviation": "DOU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Diamond College Of Education, Aba",
+      "type": "Private",
+      "state": "Abia",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Distinct Polytechnic, Ekosin",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Dominican University, Ibadan",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Dominion University, Ibadan",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Dorben Polytechnic, Bwari, Abuja",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Doviana College of Education, Gboko",
+      "type": "Private",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Eagle Mountain College of Education Abo Mbaise",
+      "type": "Private",
+      "state": "Imo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Eastern Polytechnic, Port Harcourt",
+      "type": "Private",
+      "state": "Rivers",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Ebenezer College of Education Amangwu",
+      "type": "Private",
+      "state": "Ebonyi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Ebonyi State College of Education, (T) Ikwo",
+      "type": "State",
+      "state": "Ebonyi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Ebonyi State University of ICT, Science and Technology, Oferekpe",
+      "type": "State",
+      "state": "Ebonyi",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Ebonyi State University, Abakaliki",
+      "type": "State",
+      "state": "Ebonyi",
+      "abbreviation": "EBSU",
+      "institutionType": "University"
+    },
+    {
+      "name": "ECWA College of Education Igbaja",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "ECWA College of Education, Bayara",
+      "type": "Private",
+      "state": "Bauchi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "ECWA College of Education, Jos (ECOEJ)",
+      "type": "Private",
+      "state": "Plateau",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Edexcel College of Education",
+      "type": "Private",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Edo State College of Education, Igueben",
+      "type": "State",
+      "state": "Edo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Edo State Polytechnic, Usen",
+      "type": "State",
+      "state": "Edo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Edo State University, Iyamho",
+      "type": "State",
+      "state": "Edo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Edusoko University, Bida",
+      "type": "Private",
+      "state": "Niger",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Edward Olaseni Polytechnic, Ajowa Akoko",
+      "type": "Private",
+      "state": "Ondo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Edwin Clark University, Kaigbodo",
+      "type": "Private",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Ekiti City Polytechnic, Omuo-Oke",
+      "type": "Private",
+      "state": "Ekiti",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Ekiti State Polytechnic, Isan-Ekiti",
+      "type": "State",
+      "state": "Ekiti",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Ekiti State University",
+      "type": "State",
+      "state": "Ekiti",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Eko University of Medical and Health Sciences, Ijanikin",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": "EKOUNIMED",
+      "institutionType": "University"
+    },
+    {
+      "name": "El-Amin University, Minna",
+      "type": "Private",
+      "state": "Niger",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "El-Thomp Polytechnic, Abak",
+      "type": "Private",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Elder Oyama Memorial College of Education, Ofat",
+      "type": "Private",
+      "state": "Cross River",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Elibest College of Education",
+      "type": "Private",
+      "state": "Ondo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Elizabeth Memorial College of Education Nsukka",
+      "type": "Private",
+      "state": "Enugu",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Elizade University, Ilara-Mokin",
+      "type": "Private",
+      "state": "Ondo",
+      "abbreviation": "EU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Elrazi Medical University, Yargaya",
+      "type": "Private",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Emamor College of Education",
+      "type": "Private",
+      "state": "Rivers",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Emanuel Alayande University of Education, Oyo",
+      "type": "State",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Emirate College of Education",
+      "type": "Private",
+      "state": "Bauchi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Emmanuel Ebije Ikwue College Of Education",
+      "type": "Private",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Enugu State Coll. of Education (T), Enugu",
+      "type": "State",
+      "state": "Enugu",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Enugu State Polytechnic, Iwollo",
+      "type": "State",
+      "state": "Enugu",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Enugu State University of Science and Technology",
+      "type": "State",
+      "state": "Enugu",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Enville Institute of Management and Technology, Iganke",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Eranova University, Abuja",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "European University of Nigeria, Duboyi",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Evangel University, Akaeze",
+      "type": "Private",
+      "state": "Ebonyi",
+      "abbreviation": "EVANG",
+      "institutionType": "University"
+    },
+    {
+      "name": "FCT College of Education, Zuba",
+      "type": "Federal",
+      "state": "FCT",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education (FCE) Gwoza",
+      "type": "Federal",
+      "state": "Borno",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education (Special), Oyo",
+      "type": "Federal",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education (T), ISU Ebonyi State",
+      "type": "Federal",
+      "state": "Ebonyi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education (T), Umunze",
+      "type": "Federal",
+      "state": "Anambra",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education (Tech), Potiskum",
+      "type": "Federal",
+      "state": "Yobe",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education (Technical) in Yauri",
+      "type": "Federal",
+      "state": "Kebbi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education (Technical), Akoka",
+      "type": "Federal",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education (Technical), Asaba",
+      "type": "Federal",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education (Technical), Bichi",
+      "type": "Federal",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education (Technical), Gombe",
+      "type": "Federal",
+      "state": "Gombe",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education (Technical), Gusau",
+      "type": "Federal",
+      "state": "Zamfara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education (Technical), Omoku",
+      "type": "Federal",
+      "state": "Rivers",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education Bauchi",
+      "type": "Federal",
+      "state": "Bauchi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education Edo",
+      "type": "Federal",
+      "state": "Edo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education Ilawe-Ekiti",
+      "type": "Federal",
+      "state": "Ekiti",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education Ofeme-Ohuhu",
+      "type": "Federal",
+      "state": "Abia",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education Osun",
+      "type": "Federal",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education Sokoto",
+      "type": "Federal",
+      "state": "Sokoto",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education, Abeokuta",
+      "type": "Federal",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education, Eha-Amufu",
+      "type": "Federal",
+      "state": "Enugu",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education, Ididep",
+      "type": "Federal",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education, Katsina",
+      "type": "Federal",
+      "state": "Katsina",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education, Obudu",
+      "type": "Federal",
+      "state": "Cross River",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education, Odugbo, Benue State",
+      "type": "Federal",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education, Okene",
+      "type": "Federal",
+      "state": "Kogi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College of Education, Yola",
+      "type": "Federal",
+      "state": "Adamawa",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal College Of Education(Technical), Keana",
+      "type": "Federal",
+      "state": "Nasarawa",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Federal Polytechnic of Oil and Gas, Bonny",
+      "type": "Federal",
+      "state": "Rivers",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Ado-Ekiti",
+      "type": "Federal",
+      "state": "Ekiti",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Ayede",
+      "type": "Federal",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Bali",
+      "type": "Federal",
+      "state": "Taraba",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Bauchi",
+      "type": "Federal",
+      "state": "Bauchi",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Bida",
+      "type": "Federal",
+      "state": "Niger",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Damaturu",
+      "type": "Federal",
+      "state": "Yobe",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Daura",
+      "type": "Federal",
+      "state": "Katsina",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Ede",
+      "type": "Federal",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Ekowe",
+      "type": "Federal",
+      "state": "Bayelsa",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Idah",
+      "type": "Federal",
+      "state": "Kogi",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Ilaro",
+      "type": "Federal",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Ile-Oluji",
+      "type": "Federal",
+      "state": "Ondo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Isuochi",
+      "type": "Federal",
+      "state": "Abia",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Kabo",
+      "type": "Federal",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Kaltungo",
+      "type": "Federal",
+      "state": "Gombe",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Kaura Namoda",
+      "type": "Federal",
+      "state": "Zamfara",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Monguno",
+      "type": "Federal",
+      "state": "Borno",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Mubi",
+      "type": "Federal",
+      "state": "Adamawa",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Nasarawa",
+      "type": "Federal",
+      "state": "Nasarawa",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Nekede, Owerri",
+      "type": "Federal",
+      "state": "Imo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Nyak, Shendam",
+      "type": "Federal",
+      "state": "Plateau",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Offa",
+      "type": "Federal",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Ohodo",
+      "type": "Federal",
+      "state": "Enugu",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Oko",
+      "type": "Federal",
+      "state": "Anambra",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Orogun",
+      "type": "Federal",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Ukana",
+      "type": "Federal",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal Polytechnic, Wannune",
+      "type": "Federal",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Federal University Gashua",
+      "type": "Federal",
+      "state": "Yobe",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Agriculture and Developmental Studies, Iragbuji",
+      "type": "Federal",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Agriculture and Technology, Obio-Akpa",
+      "type": "Federal",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Agriculture and Technology, Okeho",
+      "type": "Federal",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Agriculture, Abeokuta",
+      "type": "Federal",
+      "state": "Ogun",
+      "abbreviation": "FUNAAB",
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Agriculture, Bassam-Biri",
+      "type": "Federal",
+      "state": "Bayelsa",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Agriculture, Mubi",
+      "type": "Federal",
+      "state": "Adamawa",
+      "abbreviation": "FUAM",
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Agriculture, Zuru",
+      "type": "Federal",
+      "state": "Kebbi",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Allied Health Sciences, Enugu",
+      "type": "Federal",
+      "state": "Enugu",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Applied Sciences, Kachia",
+      "type": "Federal",
+      "state": "Kaduna",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Education, Kontagora",
+      "type": "Federal",
+      "state": "Niger",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Education, Pankshin",
+      "type": "Federal",
+      "state": "Plateau",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Education, Zaria",
+      "type": "Federal",
+      "state": "Kaduna",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Environment and Technology, Tai Town",
+      "type": "Federal",
+      "state": "Rivers",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Health Science and Technology, Tsafe",
+      "type": "Federal",
+      "state": "Zamfara",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Health Sciences, Azare",
+      "type": "Federal",
+      "state": "Bauchi",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Health Sciences, Ila Orangun",
+      "type": "Federal",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Health Sciences, Katsina",
+      "type": "Federal",
+      "state": "Katsina",
+      "abbreviation": "FUHSKAT",
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Health Sciences, Kwale",
+      "type": "Federal",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Health Sciences, Otukpo",
+      "type": "Federal",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Medicine and Medical Sciences, Abeokuta",
+      "type": "Federal",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Petroleum Resources, Effurun",
+      "type": "Federal",
+      "state": "Delta",
+      "abbreviation": "FUPRE",
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Science and Technology, Epe",
+      "type": "Federal",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Science and Technology, Kabo",
+      "type": "Federal",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Technology and Environmental Studies, Iyin-Ekiti",
+      "type": "Federal",
+      "state": "Ekiti",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Technology, Akure",
+      "type": "Federal",
+      "state": "Ondo",
+      "abbreviation": "FUTA",
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Technology, Babura",
+      "type": "Federal",
+      "state": "Jigawa",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Technology, Ikot Abasi",
+      "type": "Federal",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Technology, Minna",
+      "type": "Federal",
+      "state": "Niger",
+      "abbreviation": "FUTMINNA",
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Technology, Owerri",
+      "type": "Federal",
+      "state": "Imo",
+      "abbreviation": "FUTO",
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University of Transportation, Daura",
+      "type": "Federal",
+      "state": "Katsina",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University, Birnin Kebbi",
+      "type": "Federal",
+      "state": "Kebbi",
+      "abbreviation": "FUBK",
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University, Dutse",
+      "type": "Federal",
+      "state": "Jigawa",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University, Dutsin-Ma",
+      "type": "Federal",
+      "state": "Katsina",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University, Gusau",
+      "type": "Federal",
+      "state": "Zamfara",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University, Kashere",
+      "type": "Federal",
+      "state": "Gombe",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University, Lafia",
+      "type": "Federal",
+      "state": "Nasarawa",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University, Lokoja",
+      "type": "Federal",
+      "state": "Kogi",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University, Otuoke",
+      "type": "Federal",
+      "state": "Bayelsa",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University, Oye-Ekiti",
+      "type": "Federal",
+      "state": "Ekiti",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Federal University, Wukari",
+      "type": "Federal",
+      "state": "Taraba",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Festmed College Of Education, Ondo State",
+      "type": "Private",
+      "state": "Ondo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Fidei Polytechnic, Gboko",
+      "type": "Private",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "First De-Wise College of Education, Ilorin",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "First Technical University, Ibadan",
+      "type": "State",
+      "state": "Oyo",
+      "abbreviation": "TECH-U",
+      "institutionType": "University"
+    },
+    {
+      "name": "Folrac Fortified College of Education",
+      "type": "Private",
+      "state": "Ondo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Foundation Polytechnic, Ikot Idem",
+      "type": "Private",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Fountain University, Oshogbo",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Franco British International University",
+      "type": "Private",
+      "state": "Kaduna",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Gand-Plus College of Education",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Gateway ICT Polytechnic, Saapade",
+      "type": "State",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Gboko College of Education Benue State",
+      "type": "Private",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Gboko Polytechnic, Gboko",
+      "type": "Private",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Gerar University of Medical Science, Imope Ijebu",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Gestric Polytechnic, Uyo",
+      "type": "Private",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Global College of Education, Bukuru",
+      "type": "Private",
+      "state": "Plateau",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Global Polytechnic, Benin",
+      "type": "Private",
+      "state": "Edo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Glorious Vision University, Ogwa",
+      "type": "Private",
+      "state": "Edo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Gloryland Polytechnic, Ankpa",
+      "type": "Private",
+      "state": "Kogi",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Godfrey Okoye University, Ugwuomu-Nike",
+      "type": "Private",
+      "state": "Enugu",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Gombe State College of Education, NAFADA",
+      "type": "State",
+      "state": "Gombe",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Gombe State Polytechnic, Bajoga",
+      "type": "State",
+      "state": "Gombe",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Gombe State University",
+      "type": "State",
+      "state": "Gombe",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Good Shepperd College of Education",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Gozie Anyachebelu Oragram Polytechnic, Oraukwu",
+      "type": "Private",
+      "state": "Anambra",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Grace City College of Education",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Grace College Of Education",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Grace Polytechnic, Surulere, Lagos",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Graceland Polytechnic, Offa",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Greenfield University, Kaduna",
+      "type": "Private",
+      "state": "Kaduna",
+      "abbreviation": "GU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Greenland University, Jalingo",
+      "type": "Private",
+      "state": "Taraba",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Gregory University, Uturu",
+      "type": "Private",
+      "state": "Abia",
+      "abbreviation": "GUU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Grundtvig Polytechnic, Oba",
+      "type": "Private",
+      "state": "Anambra",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Hallmark University, Ijebi Itele",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Hamzainab College of Education, Oshogbo",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Harry Pass Polytechnic, Mkar, Gboko",
+      "type": "Private",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Harvard Polytechnic, Ilorin",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Hassan Usman Katsina Polytechnic, Katsina",
+      "type": "State",
+      "state": "Katsina",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Havard Wilson College of Education, Aba",
+      "type": "Private",
+      "state": "Abia",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Havilla University, Nde-Ikom",
+      "type": "Private",
+      "state": "Cross River",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Hensard University, Toru-Orua",
+      "type": "Private",
+      "state": "Bayelsa",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Heritage Polytechnic, Ikot Udota, Eket",
+      "type": "Private",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Hezekiah University, Umudi",
+      "type": "Private",
+      "state": "Imo",
+      "abbreviation": "HEZEKIAH",
+      "institutionType": "University"
+    },
+    {
+      "name": "Hill College of Education, Gwanje, Akwanga",
+      "type": "Private",
+      "state": "Nasarawa",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Hillside University of Science and Technology, Okemisi",
+      "type": "Private",
+      "state": "Ekiti",
+      "abbreviation": "HUST",
+      "institutionType": "University"
+    },
+    {
+      "name": "His Grace College of Education, Ilorin",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Hope and Anchor College of Education",
+      "type": "Private",
+      "state": "Niger",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Hope Polytechnic, Ikono",
+      "type": "Private",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Huda University, Gusau",
+      "type": "Private",
+      "state": "Zamfara",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Hussaini Adamu Federal Polytechnic, Kazaure",
+      "type": "Federal",
+      "state": "Jigawa",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Ibadan City Polytechnic, Ibadan",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Ibom Metropolitan Polytechnic, Oruk Anam",
+      "type": "Private",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Ibrahim Badamasi Babangida University, Lapai",
+      "type": "State",
+      "state": "Niger",
+      "abbreviation": "IBBU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Icon-Universal Polytechnic, Osogbo",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Iconic Open University, Sokoto",
+      "type": "Private",
+      "state": "Sokoto",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Ife College of Education, Abejukolo, Omala",
+      "type": "Private",
+      "state": "Kogi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Igbajo Polytechnic, Igbajo",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Igbinedion University, Okada",
+      "type": "Private",
+      "state": "Edo",
+      "abbreviation": "IUO",
+      "institutionType": "University"
+    },
+    {
+      "name": "Ignatius Ajuru University of Education, Rumuolumeni",
+      "type": "State",
+      "state": "Rivers",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Ihechukwu Madubuike Institute of Technology, Isuochi",
+      "type": "Private",
+      "state": "Abia",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Ikeduru College of Education",
+      "type": "Private",
+      "state": "Imo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Imam Hamzat College of Education, Ilorin",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Imam Saidu College of Education, Funtua",
+      "type": "Private",
+      "state": "Katsina",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Imo State Polytechnic, Omuma",
+      "type": "State",
+      "state": "Imo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Imo State University, Owerri",
+      "type": "State",
+      "state": "Imo",
+      "abbreviation": "IMSU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Innovative College of Education, Karu",
+      "type": "Private",
+      "state": "Nasarawa",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Inspire Polytechnic, Egbeda, Lagos",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Institute of Management and Technology (IMT), Enugu",
+      "type": "State",
+      "state": "Enugu",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Intercontinental College of Technology, Makurdi",
+      "type": "Private",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "International College of Education, Langtang",
+      "type": "Private",
+      "state": "Plateau",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Isa Kaita College of Education, Dutsin-Ma",
+      "type": "State",
+      "state": "Katsina",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Isa Mustapha Agwai I Polytechnic, Lafia",
+      "type": "State",
+      "state": "Nasarawa",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Isaac Balami University of Aeronautics and Management",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Isaac Jasper Boro College of Education, Sagbama",
+      "type": "Federal",
+      "state": "Bayelsa",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Islamic College of Education, Potiskum",
+      "type": "Private",
+      "state": "Yobe",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Iwo City Polytechnic, Iwo",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "James Hope University, Lagos",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "JEFAP University, Suleja",
+      "type": "Private",
+      "state": "Niger",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Jewel University",
+      "type": "Private",
+      "state": "Gombe",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "JIBWIS College of Education",
+      "type": "Private",
+      "state": "Nasarawa",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "JIBWIS College of Education Gombe",
+      "type": "Private",
+      "state": "Gombe",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "JIBWIS College of Education Jos",
+      "type": "Private",
+      "state": "Plateau",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Jibwis College of Education, Gumau",
+      "type": "Private",
+      "state": "Bauchi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "JIBWIS College of Education, Jama'are",
+      "type": "Private",
+      "state": "Bauchi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "JIBWIS College of Education, Jega, Kebbi",
+      "type": "Private",
+      "state": "Kebbi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Jibwis College of Education, Zuru, Kebbi State",
+      "type": "Private",
+      "state": "Kebbi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Jigawa State College Of Education And Legal Studies, Ringim",
+      "type": "State",
+      "state": "Jigawa",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Jigawa State College of Education, Gumel",
+      "type": "State",
+      "state": "Jigawa",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Jigawa State Polytechnic, Dutse",
+      "type": "State",
+      "state": "Jigawa",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Jimoh Babalola University, Ilorin",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Job College of Education, Ila-Orangun",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Jornato College of Education",
+      "type": "Private",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Joseph Ayo Babalola University, Ikeji-Arakeji",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": "JABU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Joseph Sarwuan Tarka University, Makurdi",
+      "type": "Federal",
+      "state": "Benue",
+      "abbreviation": "JOSTUM",
+      "institutionType": "University"
+    },
+    {
+      "name": "Kaduna Polytechnic, Kaduna",
+      "type": "Federal",
+      "state": "Kaduna",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Kaduna State College of Education, Gidan-Waya, Kafanchan",
+      "type": "State",
+      "state": "Kaduna",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Kaduna State University",
+      "type": "State",
+      "state": "Kaduna",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Kalac Crystal Polytechnic, Lekki",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Kanmi-Alo Interlink Polytechnic, Ijebu-Jesa",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Kano State College of Education and Preliminary Studies (KASCEPTS)",
+      "type": "State",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Kano State Polytechnic, Kano",
+      "type": "State",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Karl-Kumm University, Vom",
+      "type": "Private",
+      "state": "Plateau",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Kashim Ibrahim College of Education",
+      "type": "State",
+      "state": "Borno",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Kashim Ibrahim University (formerly Borno State University), Maiduguri",
+      "type": "State",
+      "state": "Borno",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Katsina State Institute of Technology and Management, Katsina",
+      "type": "State",
+      "state": "Katsina",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Kazaure College of Education",
+      "type": "Private",
+      "state": "Jigawa",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Kebbi State University of Science and Technology, Aliero",
+      "type": "State",
+      "state": "Kebbi",
+      "abbreviation": "KSUSTA",
+      "institutionType": "University"
+    },
+    {
+      "name": "Kenule Beeson Saro-Wiwa Polytechnic, Bori",
+      "type": "State",
+      "state": "Rivers",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Kevin Eze University, Mgbowo",
+      "type": "Private",
+      "state": "Enugu",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Khadija University, Majia",
+      "type": "Private",
+      "state": "Jigawa",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Khalifa Isiyaku Rabiu University, Kano",
+      "type": "Private",
+      "state": "Kano",
+      "abbreviation": "KIRU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Kings Polytechnic, Ubiaja",
+      "type": "Private",
+      "state": "Edo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Kings University, Ode Omu",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Kingsley Ozumba Mbadiwe University, Ogboko",
+      "type": "State",
+      "state": "Imo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Kogi East College of Education",
+      "type": "Private",
+      "state": "Kogi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Kogi State College of Education, Ankpa",
+      "type": "State",
+      "state": "Kogi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Kogi State College of Education, Kabba",
+      "type": "State",
+      "state": "Kogi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Kogi State Polytechnic, Lokoja",
+      "type": "State",
+      "state": "Kogi",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Kogi State University, Kabba",
+      "type": "State",
+      "state": "Kogi",
+      "abbreviation": "KSU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Kola Daisi University, Ibadan",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Kwaine College of Education, Gombe",
+      "type": "Private",
+      "state": "Gombe",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Kwara State College of Education (Technical), Lafiagi",
+      "type": "State",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Kwara State Polytechnic, Ilorin",
+      "type": "State",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Kwara State University of Education, Ilorin",
+      "type": "State",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Kwara State University, Ilorin",
+      "type": "State",
+      "state": "Kwara",
+      "abbreviation": "KWASU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Kwararafa College of Education, Otukpo",
+      "type": "Private",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Kwararafa University, Wukari",
+      "type": "Private",
+      "state": "Taraba",
+      "abbreviation": "KUW",
+      "institutionType": "University"
+    },
+    {
+      "name": "Ladoke Akintola University of Technology, Ogbomoso",
+      "type": "State",
+      "state": "Oyo",
+      "abbreviation": "LAUTECH",
+      "institutionType": "University"
+    },
+    {
+      "name": "Lagos City Polytechnic, Ikeja",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Lagos State University of Education, Ijanikin",
+      "type": "State",
+      "state": "Lagos",
+      "abbreviation": "LASUED",
+      "institutionType": "University"
+    },
+    {
+      "name": "Lagos State University of Science and Technology, Ikorodu",
+      "type": "State",
+      "state": "Lagos",
+      "abbreviation": "LASUSTECH",
+      "institutionType": "University"
+    },
+    {
+      "name": "Lagos State University, Ojo",
+      "type": "State",
+      "state": "Lagos",
+      "abbreviation": "LASU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Lakeview College of Education, Jalingo",
+      "type": "Private",
+      "state": "Taraba",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Landmark Polytechnic, Ayetoro",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Landmark University, Omu-Aran",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": "LMU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Lasting Glory College of Education, Erunmu Egbeda",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Lead City University, Ibadan",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": "LCU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Leadership University, Abuja",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Legacy University, Okija",
+      "type": "Private",
+      "state": "Anambra",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Lens Polytechnic, Offa",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Lens University, Ilemona",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Lessel College of Education Gboko",
+      "type": "Private",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Lifegate College of Education, Asa",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Lighthouse Polytechnic, Evbuobanosa, Benin City",
+      "type": "Private",
+      "state": "Edo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Lighthouse University, Evbobanosa",
+      "type": "Private",
+      "state": "Edo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Lux Mundi University, Umuahia",
+      "type": "Private",
+      "state": "Abia",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Madonna University, Okija",
+      "type": "Private",
+      "state": "Anambra",
+      "abbreviation": "MADONNA",
+      "institutionType": "University"
+    },
+    {
+      "name": "Maduka University, Ekwegbe",
+      "type": "Private",
+      "state": "Enugu",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Mai Idris Aloma Polytechnic, Geidam",
+      "type": "State",
+      "state": "Yobe",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Maranatha University, Lagos",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Margaret Lawrence University, Umunede",
+      "type": "Private",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Marist Polytechnic, Emene, Enugu",
+      "type": "Private",
+      "state": "Enugu",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Maritime Academy of Nigeria, Oron",
+      "type": "Federal",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Maryam Abacha American University of Nigeria",
+      "type": "Private",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Maryam Idris Umar College Of Education Limited",
+      "type": "Private",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Mater Dei Polytechnic, Egwuoba",
+      "type": "Private",
+      "state": "Anambra",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "MCF College of Education Agbarha-Otor, Delta",
+      "type": "Private",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "McPherson University, Seriki Sotayo",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Meadow Hall College of Education",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Mercy Medical University, Iwo",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Metro College of Education, Adogi-Lafia",
+      "type": "Private",
+      "state": "Nasarawa",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Mewar International University, Masaka",
+      "type": "Private",
+      "state": "Nasarawa",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Michael & Cecilia Ibru University",
+      "type": "Private",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Michael Okpara University of Agriculture, Umudike",
+      "type": "Federal",
+      "state": "Abia",
+      "abbreviation": "MOUAU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Minaret University, Ikirun",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Miva Open University, Abuja",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Modibbo Adama University of Technology, Yola",
+      "type": "Federal",
+      "state": "Adamawa",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Moje College of Education, Erin-Ile",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Monarch University, Iyesi-Ota",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Moshood Abiola Polytechnic, Abeokuta",
+      "type": "State",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Moshood Abiola University of Science and Technology, Abeokuta",
+      "type": "State",
+      "state": "Ogun",
+      "abbreviation": "MAUSTECH",
+      "institutionType": "University"
+    },
+    {
+      "name": "Mountain Top University",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Mudiame University, Irrua",
+      "type": "Private",
+      "state": "Edo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Muftau Olanihun College of Education, Ibadan",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Muhammad Kamalud University",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Muhyideen College of Education, Ilorin",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Muritadha College of Education, Olodo",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Mus'ab Bn Umair College of Education Bajoga",
+      "type": "Private",
+      "state": "Gombe",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "NACABS Polytechnic, Akwanga",
+      "type": "Private",
+      "state": "Nasarawa",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Nana Aishat Memorial College of Education",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Nasarawa State College of Agriculture, Science and Technology, Lafia",
+      "type": "State",
+      "state": "Nasarawa",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Nasarawa State University, Keffi",
+      "type": "State",
+      "state": "Nasarawa",
+      "abbreviation": "NSUK",
+      "institutionType": "University"
+    },
+    {
+      "name": "Nation Builders Polytechnic, Asaba",
+      "type": "Private",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "National Institute of Construction Technology and Management, Uromi",
+      "type": "Federal",
+      "state": "Edo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "National Open University of Nigeria, Abuja",
+      "type": "Federal",
+      "state": "FCT",
+      "abbreviation": "NOUN",
+      "institutionType": "University"
+    },
+    {
+      "name": "National University of Science and Technology, Abuja",
+      "type": "Federal",
+      "state": "FCT",
+      "abbreviation": "NUST",
+      "institutionType": "University"
+    },
+    {
+      "name": "New City University, Ayetoro",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Newgate University, Minna",
+      "type": "Private",
+      "state": "Niger",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Newland Polytechnic, Idofian, Ilorin",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Niger Delta University, Yenagoa",
+      "type": "State",
+      "state": "Bayelsa",
+      "abbreviation": "NDU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Niger State Polytechnic, Zungeru",
+      "type": "State",
+      "state": "Niger",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Nigeria Police Academy, Wudil",
+      "type": "Federal",
+      "state": "Kano",
+      "abbreviation": "POLAC",
+      "institutionType": "University"
+    },
+    {
+      "name": "Nigerian Army College of Education (NACOE), Ilorin",
+      "type": "Federal",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Nigerian Army College of Environmental Science and Technology (NACEST), Makurdi",
+      "type": "Federal",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Nigerian Army University, Biu",
+      "type": "Federal",
+      "state": "Borno",
+      "abbreviation": "NAUB",
+      "institutionType": "University"
+    },
+    {
+      "name": "Nigerian British University, Asa",
+      "type": "Private",
+      "state": "Abia",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Nigerian College of Aviation Technology (NCAT), Zaria",
+      "type": "Federal",
+      "state": "Kaduna",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Nigerian Defence Academy, Kaduna",
+      "type": "Federal",
+      "state": "Kaduna",
+      "abbreviation": "NDA",
+      "institutionType": "University"
+    },
+    {
+      "name": "Nigerian Institute of Transport & Technology, Zaria",
+      "type": "Federal",
+      "state": "Kaduna",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Nigerian Maritime University, Okerenkoko",
+      "type": "Federal",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Nigerian University of Technology and Management, Apapa",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": "NUTM",
+      "institutionType": "University"
+    },
+    {
+      "name": "Nile University of Nigeria, Abuja",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": "NILE",
+      "institutionType": "University"
+    },
+    {
+      "name": "Nnamdi Azikiwe University, Awka",
+      "type": "Federal",
+      "state": "Anambra",
+      "abbreviation": "UNIZIK",
+      "institutionType": "University"
+    },
+    {
+      "name": "NOGAK Polytechnic, Ikom",
+      "type": "Private",
+      "state": "Cross River",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "North Eastern University, Gombe",
+      "type": "Private",
+      "state": "Gombe",
+      "abbreviation": "NEU",
+      "institutionType": "University"
+    },
+    {
+      "name": "NorthWest University Sokoto State",
+      "type": "Private",
+      "state": "Sokoto",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Northwest University, Kano",
+      "type": "State",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Nosakhare College of Education, Benin City",
+      "type": "Private",
+      "state": "Edo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Novelty Polytechnic, Kishi",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Novena University, Ogume",
+      "type": "Private",
+      "state": "Delta",
+      "abbreviation": "NU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Nuhu Bamalli Polytechnic, Zaria",
+      "type": "State",
+      "state": "Kaduna",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Nwafor Orizu College of Education, Nsugbe",
+      "type": "State",
+      "state": "Anambra",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Obafemi Awolowo University, Ile-Ife",
+      "type": "Federal",
+      "state": "Osun",
+      "abbreviation": "OAU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Obong University, Obong Ntak",
+      "type": "Private",
+      "state": "Akwa Ibom",
+      "abbreviation": "OU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Odaji Agbo Polytechnic, Ayeko-Yala",
+      "type": "Private",
+      "state": "Cross River",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Oduduwa Polytechnic",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Oduduwa University, Ipetumodu",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Ogun State Institute of Technology, Igbesa",
+      "type": "State",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Ogun State Polytechnic of Health and Allied Sciences, Ijebu Ilese",
+      "type": "State",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Ogun State Polytechnic, Ipokia",
+      "type": "State",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Ojaja University, Eiyenkorin",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Olabisi Onabanjo University, Ago Iwoye",
+      "type": "State",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Olekamba College of Education",
+      "type": "Private",
+      "state": "Ondo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Olusegun Agagu University of Science & Technology, Okitipupa",
+      "type": "State",
+      "state": "Ondo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Omaga aejigbo College of education Ajiolo-Ojiaji",
+      "type": "Private",
+      "state": "Kogi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "ONIT College of Education, Abagana",
+      "type": "Private",
+      "state": "Anambra",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Osan Ekiti College of Education, Ekiti State",
+      "type": "Private",
+      "state": "Ekiti",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Osi College of Education",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Osisa Tech. College of Education, Enugu",
+      "type": "Private",
+      "state": "Enugu",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Osun State College of Technology, Esa-Oke",
+      "type": "State",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Osun State Polytechnic, Iree",
+      "type": "State",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Osun State University, Osogbo",
+      "type": "State",
+      "state": "Osun",
+      "abbreviation": "UNIOSUN",
+      "institutionType": "University"
+    },
+    {
+      "name": "Oswald Waller College of Education Shendam",
+      "type": "Private",
+      "state": "Plateau",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Our Saviour Institute of Science, Agriculture & Technology (OSISATECH), Enugu",
+      "type": "Private",
+      "state": "Enugu",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Owu College of Education",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Oyo State College of Agriculture and Technology, Igbo-Ora",
+      "type": "State",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Oyo State College of Education, Lanlate",
+      "type": "State",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "PAMO University of Medical Sciences, Port Harcourt",
+      "type": "Private",
+      "state": "Rivers",
+      "abbreviation": "PAMO",
+      "institutionType": "University"
+    },
+    {
+      "name": "Pan Africa Entrepreneurship and Vocational College of Education",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "PAN African College of Education Offa",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Pan-Atlantic University, Lagos",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": "PAU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Paramount Polytechnic, Ejigbo, Lagos",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Paul University, Awka",
+      "type": "Private",
+      "state": "Anambra",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Peace College Of Education Ankpa",
+      "type": "Private",
+      "state": "Kogi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "PeaceLand University",
+      "type": "Private",
+      "state": "Enugu",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Peacock College of Education Jalingo",
+      "type": "Private",
+      "state": "Taraba",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Peter Oyeleye Fasua College of Education",
+      "type": "Private",
+      "state": "Ondo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Peter University, Achina-Onneh",
+      "type": "Private",
+      "state": "Anambra",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Petriot College of Education",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Petroleum Training Institute, Effurun",
+      "type": "Federal",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Philomath University, Kuje",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Phoenix University, Agwada",
+      "type": "Private",
+      "state": "Nasarawa",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Piaget College of Education",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Pineville College of Education",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Plateau State Polytechnic, Barkin Ladi",
+      "type": "State",
+      "state": "Plateau",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Plateau State University, Bokkos",
+      "type": "State",
+      "state": "Plateau",
+      "abbreviation": "PLASU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Polytechnic, Ojoku",
+      "type": "State",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Port-Harcourt Polytechnic, Rumuola",
+      "type": "State",
+      "state": "Rivers",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Precious Cornerstone University, Oyo",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": "PCU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Premier College of Education, Osun",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Prime Polytechnic, Ajaokuta",
+      "type": "Private",
+      "state": "Kogi",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Prime University, Kuje",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Prince Abubakar Audu University, Anyigba",
+      "type": "State",
+      "state": "Kogi",
+      "abbreviation": "PAAU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Pristine College of Education",
+      "type": "Private",
+      "state": "Imo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Providence International College of Education, Ibadan",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Raindrops Institute of Management and Technology, Orsu",
+      "type": "Private",
+      "state": "Imo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Ramat Polytechnic, Maiduguri",
+      "type": "State",
+      "state": "Borno",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Raphat College of Education",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Rayhaan University",
+      "type": "Private",
+      "state": "Kebbi",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Redeemer's University, Ede",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": "RUN",
+      "institutionType": "University"
+    },
+    {
+      "name": "Redeemers College of Technology and Management, Mowe",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Renaissance Modern Polytechnic, Mbaukwu",
+      "type": "Private",
+      "state": "Anambra",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Renaissance University, Enugu",
+      "type": "Private",
+      "state": "Enugu",
+      "abbreviation": "RENUNI",
+      "institutionType": "University"
+    },
+    {
+      "name": "Rev. Fr. Moses Orshio Adasu University (formerly Benue State University), Makurdi",
+      "type": "State",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Rhema University, Obeama-Asa",
+      "type": "Private",
+      "state": "Rivers",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Ritman University, Ikot Ekpene",
+      "type": "Private",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Rivers State University",
+      "type": "State",
+      "state": "Rivers",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Ronik Polytechnic, Ejigbo, Lagos",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Royal City College of Education, Iyesi-Ota",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Royal College of Education, Ikeja, Lagos State",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Royal College of Education, Ogun State",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Rufus Giwa Polytechnic, Owo",
+      "type": "State",
+      "state": "Ondo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "S. Light College of Education, Kano",
+      "type": "Private",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Sa'adatu Rimi College of Education, Kumbotso, Kano",
+      "type": "State",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "SAF Polytechnic, Iseyin",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Saisa University of Medical Sciences and Technology, Sokoto",
+      "type": "Private",
+      "state": "Sokoto",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Salem University, Lokoja",
+      "type": "Private",
+      "state": "Kogi",
+      "abbreviation": "SU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Sam Ale College of Education",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Sam Maris University",
+      "type": "Private",
+      "state": "Ondo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Sarkin Yama Community College of Education",
+      "type": "Private",
+      "state": "Bauchi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Shaka Polytechnic, Benin City",
+      "type": "Private",
+      "state": "Edo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Shanahan University, Onitsha",
+      "type": "Private",
+      "state": "Anambra",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Sharifat Institute of Professional and Islamic Legal Studies",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Shehu Shagari University of Education, Sokoto",
+      "type": "State",
+      "state": "Sokoto",
+      "abbreviation": "SSUED",
+      "institutionType": "University"
+    },
+    {
+      "name": "Sikiru Adetona College of Education, Science and Technology, Omu-Ajose",
+      "type": "State",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Sinai College of Education & Ent. Studies Gboko, Benue",
+      "type": "Private",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Skyline University, Kano",
+      "type": "Private",
+      "state": "Kano",
+      "abbreviation": "SUN",
+      "institutionType": "University"
+    },
+    {
+      "name": "Sokoto State University",
+      "type": "State",
+      "state": "Sokoto",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Southern Atlantic Polytechnic, Uyo",
+      "type": "Private",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Southern Atlantic University, Uyo",
+      "type": "Private",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Southwestern University, Oku Owa",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Speedway Polytechnic, Osoba",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Spiritan University, Nneochi",
+      "type": "Private",
+      "state": "Abia",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Sports University, Idumuje-Ugboko",
+      "type": "Private",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "St. Augustine College of Education Akoka, Lagos",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "St. Frances Asissi College of Education, Zaria",
+      "type": "Private",
+      "state": "Kaduna",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "St. Mary's Polytechnic, Kwamba, Suleja",
+      "type": "Private",
+      "state": "Niger",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "St. Paul's College of Education NNewi",
+      "type": "Private",
+      "state": "Anambra",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Stars Polytechnic, Ado-Odo, Ota",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "State University of Medical and Applied Sciences, Igbo-Eno",
+      "type": "State",
+      "state": "Enugu",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Steady Flow Coe, Ikom",
+      "type": "Private",
+      "state": "Cross River",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Sule Lamido University, Kafin Hausa",
+      "type": "State",
+      "state": "Jigawa",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Summit University, Offa",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": "SUMMIT",
+      "institutionType": "University"
+    },
+    {
+      "name": "Sure Foundation Polytechnic, Ikot-Akai",
+      "type": "Private",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Tai Solarin Federal University of Education, Ijagun",
+      "type": "Federal",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Talent Finders College of Education, Ilala, Kwara State",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Tamic College of Education, Lagos",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Tansian University, Umunya",
+      "type": "Private",
+      "state": "Anambra",
+      "abbreviation": "TANSIAN",
+      "institutionType": "University"
+    },
+    {
+      "name": "Taraba State Polytechnic, Suntai",
+      "type": "State",
+      "state": "Taraba",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Taraba State University, Jalingo",
+      "type": "State",
+      "state": "Taraba",
+      "abbreviation": "TSU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Tazkiyah University, Kaduna",
+      "type": "Private",
+      "state": "Kaduna",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "TCNN College of Education, Bukuru",
+      "type": "Private",
+      "state": "Plateau",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Teedek Polytechnic, Ilogbo-Ekiti",
+      "type": "Private",
+      "state": "Ekiti",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Temple Gate Polytechnic, Aba",
+      "type": "Private",
+      "state": "Abia",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "The College of Education Iseyin",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "The College of Education, Nsukka",
+      "type": "Private",
+      "state": "Enugu",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "The Duke Medical University, Calabar",
+      "type": "Private",
+      "state": "Cross River",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "The Ekiti City Polytechnic, Ilasa-Ekiti",
+      "type": "Private",
+      "state": "Ekiti",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "The Heritage College of Education",
+      "type": "Private",
+      "state": "Ondo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "The Loam Polytechnic, Ikono",
+      "type": "Private",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "The Oke-Ogun Polytechnic, Saki (TOPS)",
+      "type": "State",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "The Polytechnic, Adoka",
+      "type": "Private",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "The Polytechnic, Aran-Orin",
+      "type": "State",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "The Polytechnic, Ibadan",
+      "type": "State",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "The Polytechnic, Igbo-Owu",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "The Polytechnic, Ile-Ife",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "The Polytechnic, Iresi",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "The Polytechnic, Omuo-Ekiti",
+      "type": "State",
+      "state": "Ekiti",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Thomas Adewumi University, Oko-Irese",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Thomas Mac Getric Polytechnic, Ogoja",
+      "type": "Private",
+      "state": "Cross River",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Tijjani Ibrahim College of Education",
+      "type": "Private",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Timeon Kairos Polytechnic, Lagos",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Tonine Iredia University of Communication, Benin City",
+      "type": "Private",
+      "state": "Edo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Tony G Erewa College of Education",
+      "type": "Private",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Top Sprout Coe, Ilorin",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Top-Most College of Education, Ipaja-Agbado",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Topfaith University, Mkpatak",
+      "type": "Private",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Tower Polytechnic, Ibadan",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Trinity Polytechnic, Uyo",
+      "type": "Private",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Trinity University",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Turath College of Education, Kano",
+      "type": "Private",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Uli College of Education, Uli",
+      "type": "Private",
+      "state": "Anambra",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Ultra Excellence Polytechnic, Uyo",
+      "type": "Private",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Uma Ukpai Polytechnic, Ohafia",
+      "type": "Private",
+      "state": "Abia",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Umar Bun Khatab College of Education, Tudun Nupawa, Kaduna",
+      "type": "Private",
+      "state": "Kaduna",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Umar Ibn Ibrahim El-Kanemi College of Education, Science and Technology, Bama",
+      "type": "State",
+      "state": "Borno",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Umar Musa Yar'Adua University, Katsina",
+      "type": "State",
+      "state": "Katsina",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Umar Suleiman College of Education Gashua",
+      "type": "State",
+      "state": "Yobe",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Umaru Ali Shinkafi Polytechnic, Sokoto",
+      "type": "State",
+      "state": "Sokoto",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Unique College of Management and Technology, Lagos",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Unique Open University, Ojo",
+      "type": "Private",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "United Polytechnic, Jos",
+      "type": "Private",
+      "state": "Plateau",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Unity College of Education, Aukpa Adoka, Benue",
+      "type": "Private",
+      "state": "Benue",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "University of Abuja, Gwagwalada",
+      "type": "Federal",
+      "state": "FCT",
+      "abbreviation": "UNIABUJA",
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Aeronautics and Aerospace Engineering, Ezza",
+      "type": "State",
+      "state": "Ebonyi",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Africa, Toru Orua",
+      "type": "State",
+      "state": "Bayelsa",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Agriculture and Environmental Sciences, Umuagwo",
+      "type": "State",
+      "state": "Imo",
+      "abbreviation": "UAES",
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Benin",
+      "type": "Federal",
+      "state": "Edo",
+      "abbreviation": "UNIBEN",
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Calabar",
+      "type": "Federal",
+      "state": "Cross River",
+      "abbreviation": "UNICAL",
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Cross River State, Calabar",
+      "type": "State",
+      "state": "Cross River",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Delta, Agbor",
+      "type": "State",
+      "state": "Delta",
+      "abbreviation": "UNIDEL",
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Fortune, Igbotako",
+      "type": "Private",
+      "state": "Ondo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Ibadan",
+      "type": "Federal",
+      "state": "Oyo",
+      "abbreviation": "UI",
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Ilesa",
+      "type": "State",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Ilorin",
+      "type": "Federal",
+      "state": "Kwara",
+      "abbreviation": "UNILORIN",
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Innovation, Science and Technology, Omuma",
+      "type": "State",
+      "state": "Imo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Jos",
+      "type": "Federal",
+      "state": "Plateau",
+      "abbreviation": "UNIJOS",
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Lagos",
+      "type": "Federal",
+      "state": "Lagos",
+      "abbreviation": "UNILAG",
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Maiduguri",
+      "type": "Federal",
+      "state": "Borno",
+      "abbreviation": "UNIMAID",
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Maritime Studies, Oron",
+      "type": "Federal",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Medical Sciences, Ondo City",
+      "type": "State",
+      "state": "Ondo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Mkar, Mkar",
+      "type": "Private",
+      "state": "Benue",
+      "abbreviation": "UMK",
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Nigeria, Nsukka",
+      "type": "Federal",
+      "state": "Enugu",
+      "abbreviation": "UNN",
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Offa",
+      "type": "Private",
+      "state": "Kwara",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Port-Harcourt",
+      "type": "Federal",
+      "state": "Rivers",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "University of Uyo",
+      "type": "Federal",
+      "state": "Akwa Ibom",
+      "abbreviation": "UNIUYO",
+      "institutionType": "University"
+    },
+    {
+      "name": "University on the Niger, Umunya",
+      "type": "Private",
+      "state": "Anambra",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Upland College of Education, Science and Technology",
+      "type": "Private",
+      "state": "Ondo",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Usmanu Danfodiyo University, Sokoto",
+      "type": "Federal",
+      "state": "Sokoto",
+      "abbreviation": "UDUSOK",
+      "institutionType": "University"
+    },
+    {
+      "name": "Uyo City Polytechnic, Uyo",
+      "type": "Private",
+      "state": "Akwa Ibom",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Valley View Polytechnic, Ohafia",
+      "type": "Private",
+      "state": "Abia",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Venite University, Iloro-Ekiti",
+      "type": "Private",
+      "state": "Ekiti",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Veritas University, Abuja",
+      "type": "Private",
+      "state": "FCT",
+      "abbreviation": "VERITAS",
+      "institutionType": "University"
+    },
+    {
+      "name": "Victory Belt College of Education,Iyale",
+      "type": "Private",
+      "state": "Kogi",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Villanova Polytechnic, Imesi-Ile",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Vineyard Polytechnic, Kuchikau",
+      "type": "Private",
+      "state": "Nasarawa",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Vision University, Ikogbo",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Waterside College Of Education",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Waziri Umaru Federal Polytechnic, Birnin-Kebbi",
+      "type": "Federal",
+      "state": "Kebbi",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Wellspring University, Evbuobanosa",
+      "type": "Private",
+      "state": "Edo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Wesley University, Ondo",
+      "type": "Private",
+      "state": "Ondo",
+      "abbreviation": "WESLEYUNI",
+      "institutionType": "University"
+    },
+    {
+      "name": "West African Polytechnic, Iseyin",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "West Midlands Open University, Ibadan",
+      "type": "Private",
+      "state": "Oyo",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Western Delta University, Oghara",
+      "type": "Private",
+      "state": "Delta",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Westland Polytechnic, Ilobu",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Westland University, Iwo",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Wigwe University, Isiokpo",
+      "type": "Private",
+      "state": "Rivers",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Wolex Polytechnic, Iwo",
+      "type": "Private",
+      "state": "Osun",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Yaba College of Technology (YABATECH), Lagos",
+      "type": "Federal",
+      "state": "Lagos",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Yenagoa Polytechnic, Yenagoa",
+      "type": "State",
+      "state": "Bayelsa",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Yewa Central College of Education, Ayetoro, Abeokuta",
+      "type": "Private",
+      "state": "Ogun",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Yobe State College of Agriculture, Science and Management Technology, Gujba",
+      "type": "State",
+      "state": "Yobe",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Yobe State University, Damaturu",
+      "type": "State",
+      "state": "Yobe",
+      "abbreviation": "YSU",
+      "institutionType": "University"
+    },
+    {
+      "name": "Yusuf Bala Usman College of Education and Legal Studies, Daura",
+      "type": "State",
+      "state": "Katsina",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Yusuf Maitama Sule College of Education and Legal Studies, Ghari",
+      "type": "State",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Yusuf Maitama Sule Federal University of Education, Kano",
+      "type": "Federal",
+      "state": "Kano",
+      "abbreviation": null,
+      "institutionType": "University"
+    },
+    {
+      "name": "Zamfara State College of Arts and Science, Gusau",
+      "type": "State",
+      "state": "Zamfara",
+      "abbreviation": null,
+      "institutionType": "Polytechnic"
+    },
+    {
+      "name": "Zamfara State College of Education, Maru",
+      "type": "State",
+      "state": "Zamfara",
+      "abbreviation": null,
+      "institutionType": "College of Education"
+    },
+    {
+      "name": "Zamfara State University",
+      "type": "State",
+      "state": "Zamfara",
+      "abbreviation": "ZSU",
+      "institutionType": "University"
+    }
+  ]
+}
