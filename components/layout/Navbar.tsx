@@ -12,6 +12,8 @@ const links = [
   { href: '/programs', label: 'Programs' },
   { href: '/events', label: 'Events' },
   { href: '/gallery', label: 'Gallery' },
+  { href: '/get-involved', label: 'Get Involved' },
+  { href: '/membership', label: 'Membership' },
   { href: '/contact', label: 'Contact' },
 ]
 

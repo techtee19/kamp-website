@@ -84,6 +84,27 @@ export async function sendRegistrationConfirmation(opts: {
   return result
 }
 
+export async function sendMembershipWelcome(opts: {
+  to: string
+  firstName: string
+  memberId: string
+  cardPDF: Buffer
+}) {
+  const rawLink = process.env.WHATSAPP_COMMUNITY_LINK ?? 'https://chat.whatsapp.com/PLACEHOLDER_LINK'
+  const whatsappLink = /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9_-]+$/.test(rawLink)
+    ? rawLink
+    : 'https://chat.whatsapp.com/PLACEHOLDER_LINK'
+  const result = await resend().emails.send({
+    from: FROM(),
+    to: opts.to,
+    subject: 'Welcome to KAMP — your membership ID card',
+    attachments: [{ filename: `KAMP-Member-${opts.memberId.replace(/[^A-Z0-9-]/gi, '')}.pdf`, content: opts.cardPDF }],
+    html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#202020"><div style="background:#1B2A4A;padding:28px;text-align:center;color:white"><h1 style="color:#C49A22;margin:0">KAMP</h1><p>Kolade Adepoju Mentoring Program</p></div><div style="padding:30px"><h2>Welcome, ${esc(opts.firstName)}!</h2><p>Your KAMP membership is active. Your member ID is <strong>${esc(opts.memberId)}</strong>.</p><p>Your member ID card is attached to this email. Keep it safe and use this ID when contacting KAMP.</p><p><a href="${esc(whatsappLink)}" style="display:inline-block;background:#1B2A4A;color:white;padding:12px 20px;border-radius:24px;text-decoration:none">Join the KAMP WhatsApp community</a></p><p>We are glad you are here.<br/><strong>The KAMP Team</strong></p></div></div>`,
+  })
+  if (result.error) throw new Error(`Resend membership email failed: ${result.error.message}`)
+  return result
+}
+
 // ── Donation receipt ──────────────────────────────────────────
 export async function sendDonationReceipt(opts: {
   to: string

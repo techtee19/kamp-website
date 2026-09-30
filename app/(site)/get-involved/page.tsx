@@ -68,6 +68,7 @@ export default function GetInvolvedPage() {
       </section>
 
       <section className="bg-brand-gold py-14 md:py-16"><div className="container flex max-w-[1200px] flex-col gap-6 md:flex-row md:items-center md:justify-between"><div><p className="font-display text-3xl font-semibold text-brand-black md:text-4xl">Not sure where to begin?</p><p className="mt-2 text-sm text-brand-black/75 md:text-base">Tell us what you&apos;re looking for and we&apos;ll help you find the right way in.</p></div><Link href="/contact" className="w-fit rounded-full bg-brand-ink px-6 py-3 text-sm font-semibold text-brand-white transition hover:bg-brand-black">Talk to KAMP</Link></div></section>
+      <section className="bg-brand-black py-16 text-brand-white md:py-20"><div className="container flex max-w-[1200px] flex-col items-start justify-between gap-6 md:flex-row md:items-center"><div><p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-gold">Find your community</p><h2 className="mt-2 font-display text-3xl font-semibold md:text-4xl">Grow with KAMP.</h2><p className="mt-2 max-w-xl text-sm leading-relaxed text-brand-white/75 md:text-base">Join a community of students and young leaders growing through mentorship, connection, and meaningful opportunities.</p></div><Link href="/membership" className="inline-flex shrink-0 items-center gap-2 rounded-full bg-brand-gold px-6 py-3 text-sm font-semibold text-brand-black">Become a member <span aria-hidden="true">→</span></Link></div></section>
     </div>
   )
 }

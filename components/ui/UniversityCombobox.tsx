@@ -25,6 +25,7 @@ interface UniversityComboboxProps {
   /** Pre-fill the input (e.g. when editing an existing form). */
   defaultValue?: string
   className?: string
+  onValueChange?: (value: string) => void
 }
 
 export default function UniversityCombobox({
@@ -33,6 +34,7 @@ export default function UniversityCombobox({
   disabled = false,
   defaultValue = '',
   className = '',
+  onValueChange,
 }: UniversityComboboxProps) {
   const id = useId()
   const listId = `${id}-list`
@@ -100,6 +102,7 @@ export default function UniversityCombobox({
         } else {
           // No active suggestion — commit whatever was typed directly.
           setCommitted(query)
+          onValueChange?.(query)
           setOpen(false)
         }
         break
@@ -112,6 +115,7 @@ export default function UniversityCombobox({
     setCommitted(value)
     setOpen(false)
     setActiveIndex(-1)
+    onValueChange?.(value)
     inputRef.current?.blur()
   }
 
@@ -130,22 +134,14 @@ export default function UniversityCombobox({
         setActiveIndex(-1)
         // If the user typed something not in the list, keep what they typed.
         setCommitted(query)
+        onValueChange?.(query)
       }
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [query])
 
-  // ── Sync open state with suggestions ─────────────────────────────────────
-  useEffect(() => {
-    if (suggestions.length > 0) {
-      setOpen(true)
-      setActiveIndex(-1)
-    } else {
-      setOpen(false)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query])
+  const hasSuggestions = open && suggestions.length > 0
 
   const baseInput =
     'mt-2 w-full rounded-lg border border-brand-ink/25 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold disabled:opacity-50 disabled:cursor-not-allowed'
@@ -175,6 +171,7 @@ export default function UniversityCombobox({
           // Reset committed whenever the user changes what's typed so the
           // hidden input doesn't silently hold a stale selection.
           setCommitted(e.target.value)
+          onValueChange?.(e.target.value)
         }}
         onKeyDown={handleKeyDown}
         onFocus={() => {
@@ -184,7 +181,7 @@ export default function UniversityCombobox({
       />
 
       {/* Dropdown */}
-      {open && suggestions.length > 0 && (
+        {hasSuggestions && (
         <ul
           ref={listRef}
           id={listId}
