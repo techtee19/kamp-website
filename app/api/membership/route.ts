@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from 'next-sanity'
 import { db } from '@/lib/db'
 import { membershipSchema } from '@/lib/validations'
 import { rateLimit, getClientIp } from '@/lib/ratelimit'
@@ -46,28 +45,6 @@ export async function POST(req: NextRequest) {
       return created
     })
 
-    const doc = {
-      _type: 'member', memberId: member.member_id, firstName: member.first_name,
-      lastName: member.last_name, email: member.email, phone: member.phone,
-      university: member.university, gender: member.gender,
-      stateOfOrigin: member.state_of_origin, studyLevel: member.study_level,
-      whyJoin: member.why_join, status: member.status, yearJoined: member.year_joined,
-      joinedAt: new Date(member.joined_at).toISOString(),
-    }
-    let sanitySynced = false
-    const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
-    const privateDataset = process.env.NEXT_PUBLIC_SANITY_MEMBERS_DATASET
-    const token = process.env.SANITY_API_TOKEN
-    if (projectId && privateDataset && privateDataset !== process.env.NEXT_PUBLIC_SANITY_DATASET && token) {
-      try {
-        const sanity = createClient({ projectId, dataset: privateDataset, apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION ?? '2026-08-15', token, useCdn: false })
-        await sanity.create(doc)
-        sanitySynced = true
-      } catch (error) { console.error('Membership Sanity sync failed:', error) }
-    } else {
-      console.error('Membership Sanity sync skipped: private members dataset configuration is missing or points to the public dataset.')
-    }
-
     let emailSent = false
     try {
       const cardPDF = await generateMemberCardPDF({ firstName: member.first_name, lastName: member.last_name, memberId: member.member_id, university: member.university, yearJoined: member.year_joined })
@@ -75,7 +52,7 @@ export async function POST(req: NextRequest) {
       emailSent = true
     } catch (error) { console.error('Membership welcome email failed:', error) }
 
-    return NextResponse.json({ success: true, memberId: member.member_id, sanitySynced, emailSent }, { status: 201 })
+    return NextResponse.json({ success: true, memberId: member.member_id, emailSent }, { status: 201 })
   } catch (error) {
     if (typeof error === 'object' && error !== null && 'code' in error && error.code === '23505') {
       return NextResponse.json({ error: 'An account with this email already exists. Check your inbox for your original member ID card.' }, { status: 409 })
