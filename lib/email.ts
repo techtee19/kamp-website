@@ -90,10 +90,12 @@ export async function sendMembershipWelcome(opts: {
   memberId: string
   cardPDF: Buffer
 }) {
-  const rawLink = process.env.WHATSAPP_COMMUNITY_LINK ?? 'https://chat.whatsapp.com/PLACEHOLDER_LINK'
-  const whatsappLink = /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9_-]+$/.test(rawLink)
-    ? rawLink
-    : 'https://chat.whatsapp.com/PLACEHOLDER_LINK'
+  // Keep the invite in the email even when a deployment has not loaded its env
+  // configuration yet. WHATSAPP_COMMUNITY_LINK can override this default.
+  const configuredLink = process.env.WHATSAPP_COMMUNITY_LINK?.trim()
+  const whatsappLink = configuredLink && /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9_-]+$/.test(configuredLink)
+    ? configuredLink
+    : 'https://chat.whatsapp.com/I7tSURUiRsW2n0bch1vza8'
   const result = await resend().emails.send({
     from: FROM(),
     to: opts.to,

@@ -10,6 +10,7 @@ const files = [
   { name: '003_registration_ticket_ref.sql', path: 'migrations/003_registration_ticket_ref.sql' },
   { name: '004_event_tables_registry.sql', path: 'migrations/004_event_tables_registry.sql' },
   { name: '005_members.sql', path: 'migrations/005_members.sql' },
+  { name: '006_reset_2026_member_counter.sql', path: 'migrations/006_reset_2026_member_counter.sql' },
 ]
 
 async function migrate() {

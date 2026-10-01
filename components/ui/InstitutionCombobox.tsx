@@ -7,7 +7,7 @@
  * contains the committed value so it appears in FormData on submit.
  */
 import { useEffect, useId, useRef, useState } from 'react'
-import { NIGERIAN_INSTITUTIONS, type NigerianInstitution } from '@/lib/nigerian-institutions'
+import type { NigerianInstitution } from '@/lib/nigerian-institutions'
 
 const MAX_SUGGESTIONS = 8
 
@@ -44,22 +44,49 @@ export default function InstitutionCombobox({
   const [committed, setCommitted] = useState(defaultValue)
   const [open, setOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
+  const [suggestions, setSuggestions] = useState<NigerianInstitution[]>([])
+  const [loading, setLoading] = useState(false)
+  const [searchFailed, setSearchFailed] = useState(false)
 
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
 
-  // ── Filtering ────────────────────────────────────────────────────────────
-  const suggestions: NigerianInstitution[] = query.trim().length < 1
-    ? []
-    : NIGERIAN_INSTITUTIONS.filter((u) => {
-        const q = query.toLowerCase()
-        return (
-          u.name.toLowerCase().includes(q) ||
-          (u.abbreviation?.toLowerCase().includes(q) ?? false) ||
-          u.state.toLowerCase().includes(q)
-        )
-      }).slice(0, MAX_SUGGESTIONS)
+  // Search on the server so the full 145 KB institutions list stays out of the
+  // initial client bundle. Debouncing and aborting keep fast typing responsive.
+  useEffect(() => {
+    const q = query.trim()
+    if (q.length < 3) {
+      setSuggestions([])
+      setLoading(false)
+      setSearchFailed(false)
+      return
+    }
+
+    const controller = new AbortController()
+    const timer = window.setTimeout(async () => {
+      setLoading(true)
+      setSearchFailed(false)
+      try {
+        const response = await fetch(`/api/institutions?q=${encodeURIComponent(q)}`, { signal: controller.signal })
+        if (!response.ok) throw new Error('Institution search failed')
+        const result = await response.json() as { institutions: NigerianInstitution[] }
+        setSuggestions(result.institutions.slice(0, MAX_SUGGESTIONS))
+      } catch {
+        if (!controller.signal.aborted) {
+          setSuggestions([])
+          setSearchFailed(true)
+        }
+      } finally {
+        if (!controller.signal.aborted) setLoading(false)
+      }
+    }, 100)
+
+    return () => {
+      window.clearTimeout(timer)
+      controller.abort()
+    }
+  }, [query])
 
   // ── Keyboard navigation ───────────────────────────────────────────────────
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -141,7 +168,7 @@ export default function InstitutionCombobox({
     return () => document.removeEventListener('mousedown', handleClick)
   }, [query])
 
-  const hasSuggestions = open && suggestions.length > 0
+  const hasSuggestions = open && (suggestions.length > 0 || loading)
 
   const baseInput =
     'mt-2 w-full rounded-lg border border-brand-ink/25 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold disabled:opacity-50 disabled:cursor-not-allowed'
@@ -160,6 +187,7 @@ export default function InstitutionCombobox({
         aria-controls={listId}
         aria-activedescendant={activeIndex >= 0 ? `${id}-opt-${activeIndex}` : undefined}
         aria-autocomplete="list"
+        aria-busy={loading}
         autoComplete="off"
         spellCheck={false}
         required={required}
@@ -167,15 +195,19 @@ export default function InstitutionCombobox({
         placeholder="Search or enter your tertiary institution"
         value={query}
         onChange={(e) => {
-          setQuery(e.target.value)
+          const value = e.target.value
+          setQuery(value)
           // Reset committed whenever the user changes what's typed so the
           // hidden input doesn't silently hold a stale selection.
-          setCommitted(e.target.value)
-          onValueChange?.(e.target.value)
+          setCommitted(value)
+          setSuggestions([])
+          setOpen(value.trim().length >= 3)
+          setLoading(value.trim().length >= 3)
+          onValueChange?.(value)
         }}
         onKeyDown={handleKeyDown}
         onFocus={() => {
-          if (suggestions.length > 0) setOpen(true)
+          if (query.trim().length >= 3) setOpen(true)
         }}
         className={baseInput}
       />
@@ -186,9 +218,15 @@ export default function InstitutionCombobox({
           ref={listRef}
           id={listId}
           role="listbox"
-          aria-label="Nigerian universities"
+          aria-label="Nigerian tertiary institutions"
           className="absolute left-0 right-0 z-50 mt-1 max-h-64 overflow-y-auto rounded-xl border border-brand-ink/15 bg-brand-white shadow-xl"
         >
+          {loading && suggestions.length === 0 && Array.from({ length: 4 }, (_, index) => (
+            <li key={`loading-${index}`} aria-hidden="true" className="flex items-center gap-3 px-4 py-3">
+              <span className="h-4 flex-1 animate-pulse rounded bg-brand-card" />
+              <span className="h-4 w-14 animate-pulse rounded-full bg-brand-card" />
+            </li>
+          ))}
           {suggestions.map((uni, i) => {
             const isActive = i === activeIndex
             return (
@@ -223,10 +261,18 @@ export default function InstitutionCombobox({
       )}
 
       {/* "No matches" hint — only when user has typed enough and nothing matches */}
-      {query.trim().length >= 2 && suggestions.length === 0 && (
+      {query.trim().length >= 3 && !loading && searchFailed && (
+        <p className="mt-1 text-xs text-brand-grey" role="status">
+          Institution search is unavailable — you can still type your institution name.
+        </p>
+      )}
+      {query.trim().length >= 3 && !loading && !searchFailed && suggestions.length === 0 && (
         <p className="mt-1 text-xs text-brand-grey">
           No match found — you can still type your institution name directly.
         </p>
+      )}
+      {query.trim().length > 0 && query.trim().length < 3 && (
+        <p className="mt-1 text-xs text-brand-grey">Type at least 3 characters to search institutions.</p>
       )}
     </div>
   )

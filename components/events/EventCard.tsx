@@ -16,12 +16,13 @@ export default function EventCard({ event }: EventCardProps) {
 
   return (
     <article className="group overflow-hidden rounded-xl bg-brand-card">
-      <div className="relative aspect-[1.35/1] overflow-hidden">
+      <div className={`relative aspect-[1.35/1] overflow-hidden bg-brand-card ${event.coverImage?.asset?.url ? 'animate-pulse' : ''}`}>
         {event.coverImage?.asset?.url && (
           <Image
             src={event.coverImage.asset.url}
             alt={event.coverImage.alt ?? event.title}
             fill
+            loading="lazy"
             sizes="(min-width: 768px) 33vw, 100vw"
             className="object-cover transition duration-500 hover:scale-105"
           />

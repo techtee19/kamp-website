@@ -13,6 +13,8 @@ const inputClass = 'mt-2 w-full rounded-lg border border-brand-ink/20 bg-white p
 export default function MembershipForm() {
   const [success, setSuccess] = useState<{ memberId: string; emailSent: boolean } | null>(null)
   const [serverError, setServerError] = useState('')
+  const [passportPhoto, setPassportPhoto] = useState<File | null>(null)
+  const [photoError, setPhotoError] = useState('')
   const { register, control, handleSubmit, watch, setError, formState: { errors, isSubmitting } } = useForm<MembershipInput>({
     resolver: zodResolver(membershipSchema), mode: 'onBlur',
     defaultValues: { firstName: '', lastName: '', email: '', phone: '', university: '', gender: undefined, stateOfOrigin: undefined, studyLevel: undefined, whyJoin: '' },
@@ -21,8 +23,16 @@ export default function MembershipForm() {
 
   async function submit(values: MembershipInput) {
     setServerError('')
+    if (!passportPhoto || photoError || passportPhoto.size > 2 * 1024 * 1024) {
+      if (!passportPhoto) setPhotoError('Please add a passport-style photo.')
+      else if (passportPhoto.size > 2 * 1024 * 1024) setPhotoError('Photo must be 2 MB or smaller.')
+      return
+    }
     try {
-      const response = await fetch('/api/membership', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(values) })
+      const formData = new FormData()
+      formData.set('data', JSON.stringify(values))
+      formData.set('passportPhoto', passportPhoto)
+      const response = await fetch('/api/membership', { method: 'POST', body: formData })
       const result = await response.json()
       if (!response.ok) {
         if (result.details) {
@@ -68,6 +78,7 @@ export default function MembershipForm() {
         <label className="block text-sm font-medium">State of origin<select className={inputClass} defaultValue="" {...register('stateOfOrigin')}><option value="" disabled>Select</option>{NIGERIAN_STATES.map((state) => <option key={state}>{state}</option>)}</select>{errorFor('stateOfOrigin')}</label>
         <label className="block text-sm font-medium">Study level<select className={inputClass} defaultValue="" {...register('studyLevel')}><option value="" disabled>Select</option>{studyLevels.map((level) => <option key={level}>{level}</option>)}</select>{errorFor('studyLevel')}</label>
       </div>
+      <label className="block text-sm font-medium">Passport-style photo <span className="font-normal text-brand-grey">(JPG or PNG, up to 2 MB)</span><input type="file" accept="image/jpeg,image/png" required className={`${inputClass} file:mr-4 file:rounded-full file:border-0 file:bg-brand-ink file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white`} onChange={(event) => { const file = event.target.files?.[0] ?? null; setPassportPhoto(file); setPhotoError(file && file.size > 2 * 1024 * 1024 ? 'Photo must be 2 MB or smaller.' : ''); }} aria-invalid={!!photoError} />{passportPhoto && !photoError && <span className="mt-1 block text-xs text-brand-grey">Selected: {passportPhoto.name}</span>}{photoError && <p className="mt-1 text-sm text-red-700" role="alert">{photoError}</p>}</label>
       <label className="block text-sm font-medium">Why do you want to join KAMP?<textarea rows={4} maxLength={500} className={`${inputClass} resize-y`} {...register('whyJoin')} aria-invalid={!!errors.whyJoin} /><span className="mt-1 block text-right text-xs text-brand-grey">{whyJoin.length}/500</span>{errorFor('whyJoin')}</label>
       {serverError && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-800" role="alert">{serverError}</p>}
       <button type="submit" disabled={isSubmitting} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-ink px-6 py-3.5 font-semibold text-white transition hover:bg-brand-black disabled:cursor-wait disabled:opacity-60 sm:w-auto">

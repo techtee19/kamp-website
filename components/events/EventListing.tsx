@@ -32,8 +32,8 @@ export default function EventListing({ events }: { events: KampEvent[] }) {
       <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {visibleEvents.map((event) => (
           <article key={event.slug} className="group overflow-hidden rounded-xl bg-brand-card">
-            <div className="relative aspect-[1.35/1] overflow-hidden">
-              <Image src={event.image} alt={event.title} fill sizes="(min-width: 1280px) 31vw, (min-width: 768px) 48vw, 100vw" className="object-cover transition duration-500 group-hover:scale-105" />
+            <div className="relative aspect-[1.35/1] animate-pulse overflow-hidden bg-brand-card">
+              <Image src={event.image} alt={event.title} fill loading="lazy" sizes="(min-width: 1280px) 31vw, (min-width: 768px) 48vw, 100vw" className="object-cover transition duration-500 group-hover:scale-105" />
               <span className={`absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold capitalize ${event.status === 'upcoming' ? 'bg-brand-gold text-brand-black' : 'bg-brand-white text-brand-ink'}`}>{event.status}</span>
             </div>
             <div className="border-l-4 border-brand-gold p-6">

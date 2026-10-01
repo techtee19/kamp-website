@@ -68,8 +68,8 @@ type Row = 'top' | 'bottom'
 
 function Tile({ src, ratio, className = 'w-(--tile) shrink-0', sizes = TILE_SIZES }: { src: string; ratio: number; className?: string; sizes?: string }) {
   return (
-    <div className={`relative overflow-hidden rounded-lg ${className}`} style={{ aspectRatio: `1 / ${ratio}` }}>
-      <Image src={src} alt="KAMP gallery moment" fill sizes={sizes} className="object-cover" />
+    <div className={`relative animate-pulse overflow-hidden rounded-lg bg-brand-card ${className}`} style={{ aspectRatio: `1 / ${ratio}` }}>
+      <Image src={src} alt="KAMP gallery moment" fill loading="lazy" sizes={sizes} className="object-cover" />
     </div>
   )
 }

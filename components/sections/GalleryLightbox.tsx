@@ -30,7 +30,7 @@ export default function GalleryLightbox({ images, hiddenCount, title, backdropUr
     <>
       <button type="button" onClick={() => setIsOpen(true)} className="group relative col-span-4 row-span-2 grid overflow-hidden rounded-2xl bg-brand-black text-left md:col-span-4 md:row-span-2" aria-label={`View all ${images.length} gallery photos`}>
         {backdropUrl && (
-          <Image src={backdropUrl} alt="" fill sizes="(min-width: 768px) 24vw, 100vw" className="object-cover opacity-45 grayscale transition duration-500 group-hover:scale-105" />
+          <Image src={backdropUrl} alt="" fill loading="lazy" sizes="(min-width: 768px) 24vw, 100vw" className="object-cover opacity-45 grayscale transition duration-500 group-hover:scale-105" />
         )}
         <span className="relative z-10 grid place-items-center font-display text-5xl font-bold text-brand-white md:text-6xl">+{hiddenCount}</span>
       </button>
@@ -50,8 +50,8 @@ export default function GalleryLightbox({ images, hiddenCount, title, backdropUr
                 // An image field an editor added but never uploaded to projects as a
                 // null asset, so skip the tile rather than passing next/image undefined.
                 image.asset?.url ? (
-                  <figure key={`${index}-${image.asset.url}`} className="relative aspect-[.82/1] overflow-hidden rounded-xl bg-brand-card">
-                    <Image src={image.asset.url} alt={image.alt ?? title} fill sizes="(min-width: 1280px) 20vw, (min-width: 768px) 33vw, 50vw" className="object-cover" />
+                  <figure key={`${index}-${image.asset.url}`} className="relative aspect-[.82/1] animate-pulse overflow-hidden rounded-xl bg-brand-card">
+                    <Image src={image.asset.url} alt={image.alt ?? title} fill loading="lazy" sizes="(min-width: 1280px) 20vw, (min-width: 768px) 33vw, 50vw" className="object-cover" />
                   </figure>
                 ) : null
               )}

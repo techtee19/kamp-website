@@ -84,7 +84,7 @@ export default function GalleryAlbum({
                 null asset, so that slot keeps the card tint instead of handing
                 next/image an undefined src. */}
             {photo.asset?.url && (
-              <Image src={photo.asset.url} alt={photo.alt ?? event.title} fill sizes="(min-width: 768px) 20vw, 48vw" className="object-cover transition duration-500 hover:scale-105" />
+              <Image src={photo.asset.url} alt={photo.alt ?? event.title} fill loading="lazy" sizes="(min-width: 768px) 20vw, 48vw" className="object-cover transition duration-500 hover:scale-105" />
             )}
           </figure>
         ))}
