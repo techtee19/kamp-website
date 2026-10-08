@@ -7,14 +7,13 @@ import type { SanityGalleryImage } from '@/types/sanity'
 
 type GalleryLightboxProps = {
   images: SanityGalleryImage[]
-  hiddenCount: number
   // The album's own title and cover, so the tile and modal label themselves from
   // Sanity instead of naming one hardcoded event.
   title: string
   backdropUrl?: string
 }
 
-export default function GalleryLightbox({ images, hiddenCount, title, backdropUrl }: GalleryLightboxProps) {
+export default function GalleryLightbox({ images, title, backdropUrl }: GalleryLightboxProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
@@ -28,11 +27,14 @@ export default function GalleryLightbox({ images, hiddenCount, title, backdropUr
 
   return (
     <>
-      <button type="button" onClick={() => setIsOpen(true)} className="group relative col-span-4 row-span-2 grid overflow-hidden rounded-2xl bg-brand-black text-left md:col-span-4 md:row-span-2" aria-label={`View all ${images.length} gallery photos`}>
+      <button type="button" onClick={() => setIsOpen(true)} className="group relative col-span-4 row-span-2 grid overflow-hidden rounded-2xl bg-brand-black text-left md:col-span-4 md:row-span-2" aria-label={`Open ${title} gallery, ${images.length} photos`}>
         {backdropUrl && (
-          <Image src={backdropUrl} alt="" fill loading="lazy" sizes="(min-width: 768px) 24vw, 100vw" className="object-cover opacity-45 grayscale transition duration-500 group-hover:scale-105" />
+          <Image src={backdropUrl} alt="" fill loading="lazy" sizes="(min-width: 768px) 24vw, 100vw" className="object-cover opacity-70 transition duration-500 group-hover:scale-105" />
         )}
-        <span className="relative z-10 grid place-items-center font-display text-5xl font-bold text-brand-white md:text-6xl">+{hiddenCount}</span>
+        <span className="relative z-10 flex flex-col items-center justify-center gap-2 text-brand-white drop-shadow-lg">
+          <span className="font-display text-3xl font-semibold md:text-4xl">{title}</span>
+          <span className="text-sm font-medium uppercase tracking-[0.18em]">View {images.length} photos <span aria-hidden="true">↗</span></span>
+        </span>
       </button>
 
       {isOpen && (

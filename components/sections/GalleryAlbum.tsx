@@ -45,8 +45,19 @@ export default function GalleryAlbum({
   onNext,
 }: GalleryAlbumProps) {
   const photos = event.photos ?? []
-  const visible = photos.slice(0, slots.length)
-  const hiddenCount = photos.length - visible.length
+  // The cover is the album's front door; keep it in the visible mosaic even when
+  // editors haven't also added it to the photo list. Avoid showing it twice when
+  // they have used that same asset as the first photo.
+  const cover = event.coverImage?.asset?.url
+    ? { asset: event.coverImage.asset, alt: event.coverImage.alt ?? event.title }
+    : null
+  const albumPhotos = cover && photos[0]?.asset?.url === cover.asset.url
+    ? photos
+    : cover
+      ? [cover, ...photos]
+      : photos
+  const visible = albumPhotos.slice(0, slots.length)
+  const hiddenCount = albumPhotos.length - visible.length
 
   // One album means the arrows have nowhere to go.
   const showArrows = (position?.total ?? 1) > 1
@@ -90,8 +101,8 @@ export default function GalleryAlbum({
         ))}
         {/* With every photo already on screen there is nothing behind the tile, and a
             "+0" tile reads as broken. */}
-        {hiddenCount > 0 && (
-          <GalleryLightbox images={photos} hiddenCount={hiddenCount} title={event.title} backdropUrl={event.coverImage?.asset?.url} />
+        {visible.length > 0 && (
+          <GalleryLightbox images={albumPhotos} title={event.title} backdropUrl={event.coverImage?.asset?.url} />
         )}
       </div>
     </div>
