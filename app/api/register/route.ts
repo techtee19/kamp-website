@@ -111,8 +111,10 @@ export async function POST(req: NextRequest) {
       throw err
     }
 
-    // 5. Generate the ticket and send the confirmation email without delaying
-    //    the registration response. A PDF failure must never block registration.
+    // 5. Generate the ticket and await the email API result. On serverless hosts,
+    //    fire-and-forget work may be terminated as soon as the response is sent.
+    //    Email failure must never undo a registration already saved to the database.
+    let emailSent = false
     if (event) {
       const eventDate = new Date(event.date)
       const formattedDate = eventDate.toLocaleDateString('en-NG', {
@@ -152,20 +154,31 @@ export async function POST(req: NextRequest) {
         console.error('Ticket generation failed:', err)
       }
 
-      sendRegistrationConfirmation({
-        to: email,
-        recipientName: fullName,
-        eventTitle,
-        eventDate: formattedDate,
-        eventLocation: event.location,
-        university,
-        ticketRef,
-        ticketPDF,
-      }).catch((err) => console.error('Failed to send registration email:', err))
+      try {
+        await sendRegistrationConfirmation({
+          to: normalisedEmail,
+          recipientName: fullName,
+          eventTitle,
+          eventDate: formattedDate,
+          eventLocation: event.location,
+          university,
+          ticketRef,
+          ticketPDF,
+        })
+        emailSent = true
+      } catch (err) {
+        console.error('Failed to send registration email:', err)
+      }
     }
 
     return NextResponse.json(
-      { success: true, message: 'Registration confirmed! Check your email for your ticket.' },
+      {
+        success: true,
+        emailSent,
+        message: emailSent
+          ? 'Registration confirmed! Check your email for your ticket.'
+          : 'Registration confirmed, but the confirmation email could not be sent. Please contact KAMP for your ticket.',
+      },
       { status: 201 }
     )
   } catch (err) {

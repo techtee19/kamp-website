@@ -31,6 +31,7 @@ export default function RegistrationForm({
     'idle'
   )
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [emailSent, setEmailSent] = useState<boolean | null>(null)
 
   if (registrationClosed)
     return (
@@ -54,7 +55,9 @@ export default function RegistrationForm({
   if (status === 'success')
     return (
       <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
-        You&apos;re registered! Check your email for confirmation details.
+        {emailSent
+          ? 'You’re registered! Check your email for confirmation details.'
+          : 'You’re registered, but we could not send the confirmation email. Please contact KAMP for your ticket.'}
         {eventDate && eventLocation ? ` We'll see you on ${eventDate} at ${eventLocation}.` : null}
       </div>
     )
@@ -97,6 +100,7 @@ export default function RegistrationForm({
         return
       }
 
+      setEmailSent(payload?.emailSent === true)
       setStatus('success')
     } catch {
       setStatus('error')
