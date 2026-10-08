@@ -8,7 +8,7 @@ import HeroImageRotator from '@/components/sections/HeroImageRotator'
 import QuickStory from '@/components/sections/QuickStory'
 import StatCounter from '@/components/sections/StatCounter'
 import Testimonials from '@/components/sections/Testimonials'
-import { client } from '@/sanity/lib/client'
+import { client, freshClient } from '@/sanity/lib/client'
 import {
   FEATURED_EVENT_QUERY,
   GALLERY_EVENTS_QUERY,
@@ -17,7 +17,7 @@ import {
 } from '@/sanity/lib/queries'
 import type { EventDocument, GalleryEventDocument, SiteSettings } from '@/types/sanity'
 
-export const revalidate = 3600 // re-fetch from Sanity every 1 hour
+export const revalidate = 300 // webhook invalidation is immediate; this is a 5-minute fallback
 
 // Used until a siteSettings document exists in Sanity. The dataset has no
 // siteSettings yet, so dropping these would blank the strip out entirely.
@@ -63,12 +63,12 @@ export default async function HomePage() {
   // The client is null until the Sanity env vars are set, which keeps builds green
   // before the CMS exists; treat it as "nothing published yet". This mirrors the
   // guard the events and gallery pages already use.
-  const [siteSettings] = client
+  const [siteSettings] = client && freshClient
     ? await Promise.all([
         client.fetch<SiteSettings | null>(SITE_SETTINGS_QUERY),
-        client.fetch<EventDocument | null>(FEATURED_EVENT_QUERY),
+        freshClient.fetch<EventDocument | null>(FEATURED_EVENT_QUERY),
         client.fetch<GalleryEventDocument[]>(GALLERY_EVENTS_QUERY),
-        client.fetch<EventDocument[]>(UPCOMING_EVENTS_QUERY),
+        freshClient.fetch<EventDocument[]>(UPCOMING_EVENTS_QUERY),
       ])
     : [null]
 

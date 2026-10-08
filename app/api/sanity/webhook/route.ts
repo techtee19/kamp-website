@@ -1,15 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { parseBody } from 'next-sanity/webhook'
 import { createEventRegistrationTable } from '@/lib/event-tables'
 
 export const runtime = 'nodejs'
 
-type EventWebhookPayload = {
-  _id?: unknown
+type EventSnapshot = {
   _type?: unknown
+  _id?: unknown
   title?: unknown
   slug?: { current?: unknown }
   isPublished?: unknown
+}
+
+type EventWebhookPayload = EventSnapshot & {
+  before?: EventSnapshot | null
+  after?: EventSnapshot | null
 }
 
 export async function POST(req: NextRequest) {
@@ -20,7 +26,9 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { body, isValidSignature } = await parseBody<EventWebhookPayload>(req, secret, false)
+    // Wait for Sanity's Content Lake to become consistent before the next page
+    // request refreshes its cached event data.
+    const { body, isValidSignature } = await parseBody<EventWebhookPayload>(req, secret, true)
 
     if (isValidSignature !== true) {
       console.warn('[sanity/webhook] Invalid or missing signature — request rejected')
@@ -28,23 +36,41 @@ export async function POST(req: NextRequest) {
     }
 
     if (!body) return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
-    if (body._type !== 'event' || body.isPublished !== true) {
+    const snapshots = [body.before, body.after, body].filter((value): value is EventSnapshot => value !== null && typeof value === 'object')
+    if (!snapshots.some((snapshot) => snapshot._type === 'event')) {
       return NextResponse.json({ received: true }, { status: 200 })
     }
 
-    if (
-      typeof body._id !== 'string' ||
-      body._id.length === 0 ||
-      typeof body.slug?.current !== 'string' ||
-      body.slug.current.length === 0 ||
-      typeof body.title !== 'string' ||
-      body.title.length === 0
-    ) {
-      return NextResponse.json({ error: 'Event payload is missing required fields' }, { status: 400 })
+    const slugs = new Set<string>()
+    for (const snapshot of snapshots) {
+      const slug = snapshot.slug?.current
+      if (typeof slug === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) slugs.add(slug)
     }
 
-    const result = await createEventRegistrationTable(body._id, body.slug.current, body.title)
-    return NextResponse.json({ received: true, ...result }, { status: 200 })
+    const paths = ['/', '/events', '/events/[slug]']
+    for (const slug of slugs) paths.push(`/events/${slug}`)
+    revalidatePath('/')
+    revalidatePath('/events')
+    revalidatePath('/events/[slug]', 'page')
+    for (const slug of slugs) revalidatePath(`/events/${slug}`)
+
+    // Keep the existing registration-table provisioning for published events.
+    // Unpublishing and deleting still revalidate the website above.
+    const current = body.after ?? body
+    let registrationTable: Awaited<ReturnType<typeof createEventRegistrationTable>> | undefined
+    if (current.isPublished === true) {
+      if (
+        typeof current._id !== 'string' || current._id.length === 0 ||
+        typeof current.slug?.current !== 'string' || current.slug.current.length === 0 ||
+        typeof current.title !== 'string' || current.title.length === 0
+      ) {
+        return NextResponse.json({ error: 'Published event payload is missing required fields' }, { status: 400 })
+      }
+      registrationTable = await createEventRegistrationTable(current._id, current.slug.current, current.title)
+    }
+
+    console.info(`[sanity/webhook] Revalidated event paths: ${paths.join(', ')}`)
+    return NextResponse.json({ received: true, revalidated: paths, ...(registrationTable ?? {}) }, { status: 200 })
   } catch (err) {
     console.error('[sanity/webhook] Error:', err instanceof Error ? err.message : err)
     return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 })

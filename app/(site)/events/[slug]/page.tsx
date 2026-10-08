@@ -5,11 +5,11 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import RegistrationForm from '@/components/events/RegistrationForm'
-import { client } from '@/sanity/lib/client'
+import { freshClient } from '@/sanity/lib/client'
 import { EVENT_BY_SLUG_QUERY, EVENT_SLUGS_QUERY } from '@/sanity/lib/queries'
 import type { EventDocument } from '@/types/sanity'
 
-export const revalidate = 3600
+export const revalidate = 300
 
 // The description is Portable Text, so paragraphs need explicit styling to keep
 // the large editorial look the hardcoded copy used to have.
@@ -39,9 +39,9 @@ const formatTime = (value: string) =>
 
 // Pre-generate pages for all known published events.
 export async function generateStaticParams() {
-  if (!client) return []
+  if (!freshClient) return []
 
-  const events = await client.fetch<{ slug: { current: string } }[]>(
+  const events = await freshClient.fetch<{ slug: { current: string } }[]>(
     EVENT_SLUGS_QUERY
   )
 
@@ -55,8 +55,8 @@ export default async function EventDetailPage({
 
   // Without Sanity configured there is nothing to look up, so the route 404s
   // rather than throwing during a build.
-  const event = client
-    ? await client.fetch<EventDocument | null>(EVENT_BY_SLUG_QUERY, { slug })
+  const event = freshClient
+    ? await freshClient.fetch<EventDocument | null>(EVENT_BY_SLUG_QUERY, { slug })
     : null
 
   if (!event) notFound()

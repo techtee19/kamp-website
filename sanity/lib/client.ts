@@ -11,3 +11,8 @@ export const client = projectId
       useCdn: process.env.NODE_ENV === 'production',
     })
   : null
+
+// Use the Content Lake API for event reads that must reflect an editor's latest
+// publish immediately. The CDN can serve a recently cached event after Next has
+// regenerated a page.
+export const freshClient = client?.withConfig({ useCdn: false }) ?? null

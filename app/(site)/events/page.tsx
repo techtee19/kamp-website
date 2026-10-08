@@ -3,11 +3,11 @@
 import { Play } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { client } from '@/sanity/lib/client'
+import { freshClient } from '@/sanity/lib/client'
 import { PAST_EVENTS_QUERY, UPCOMING_EVENTS_QUERY } from '@/sanity/lib/queries'
 import type { EventDocument } from '@/types/sanity'
 
-export const revalidate = 3600
+export const revalidate = 300
 
 // Shown in the row's paragraph slot when an event has no theme of its own yet.
 const introduction =
@@ -61,10 +61,10 @@ function EventRow({
 export default async function EventsPage() {
   // The client is null until the Sanity env vars are set, which keeps builds
   // green before the CMS exists; treat it as "nothing published yet".
-  const [upcomingEvents, pastEvents] = client
+  const [upcomingEvents, pastEvents] = freshClient
     ? await Promise.all([
-        client.fetch<EventDocument[]>(UPCOMING_EVENTS_QUERY),
-        client.fetch<EventDocument[]>(PAST_EVENTS_QUERY),
+        freshClient.fetch<EventDocument[]>(UPCOMING_EVENTS_QUERY),
+        freshClient.fetch<EventDocument[]>(PAST_EVENTS_QUERY),
       ])
     : [[], []]
 

@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     const normalisedEmail = email.toLowerCase()
 
     // 2. Check capacity if the event has a limit
-    const event = await client.fetch<{
+    const event = await client.withConfig({ useCdn: false }).fetch<{
       title: string
       slug: { current: string }
       registrationClosed?: boolean
