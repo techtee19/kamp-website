@@ -63,14 +63,15 @@ export default async function HomePage() {
   // The client is null until the Sanity env vars are set, which keeps builds green
   // before the CMS exists; treat it as "nothing published yet". This mirrors the
   // guard the events and gallery pages already use.
-  const [siteSettings] = client && freshClient
-    ? await Promise.all([
-        client.fetch<SiteSettings | null>(SITE_SETTINGS_QUERY),
-        freshClient.fetch<EventDocument | null>(FEATURED_EVENT_QUERY),
-        client.fetch<GalleryEventDocument[]>(GALLERY_EVENTS_QUERY),
-        freshClient.fetch<EventDocument[]>(UPCOMING_EVENTS_QUERY),
-      ])
-    : [null]
+  const [siteSettings] =
+    client && freshClient
+      ? await Promise.all([
+          client.fetch<SiteSettings | null>(SITE_SETTINGS_QUERY),
+          freshClient.fetch<EventDocument | null>(FEATURED_EVENT_QUERY),
+          client.fetch<GalleryEventDocument[]>(GALLERY_EVENTS_QUERY),
+          freshClient.fetch<EventDocument[]>(UPCOMING_EVENTS_QUERY),
+        ])
+      : [null]
 
   // impactStats is the only fetched field this page has a section for today. The
   // featured event, gallery and upcoming-event queries are fetched above so the
@@ -250,7 +251,7 @@ export default async function HomePage() {
       <section className="bg-brand-white py-10 lg:py-9">
         <div className="container flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-center lg:gap-9">
           <p className="font-display text-brand-ink text-2xl font-semibold lg:text-3xl">
-            Partnered with:
+            Campus Presence:
           </p>
           <div className="grid grid-cols-2 items-center gap-x-4 gap-y-5 lg:flex lg:flex-nowrap lg:gap-x-6 lg:gap-y-4">
             {partners.map((partner, index) => (
@@ -260,7 +261,7 @@ export default async function HomePage() {
                 alt={`KAMP partner ${index + 1}`}
                 width={156}
                 height={40}
-                className="h-7 w-auto object-contain opacity-90 grayscale lg:h-9 lg:opacity-70"
+                className="h-9 w-auto object-contain opacity-90 grayscale lg:h-12 lg:opacity-70"
               />
             ))}
           </div>
