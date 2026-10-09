@@ -107,6 +107,26 @@ export async function sendMembershipWelcome(opts: {
   return result
 }
 
+export async function sendEventReminder(opts: {
+  to: string
+  recipientName: string
+  eventTitle: string
+  eventDate: string
+  eventTime: string
+  eventLocation: string
+  university: string
+  ticketRef: string
+}) {
+  const result = await resend().emails.send({
+    from: FROM(),
+    to: opts.to,
+    subject: `Reminder: ${opts.eventTitle} is coming up`,
+    html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#202020"><div style="background:#1B2A4A;padding:28px;text-align:center;color:white"><h1 style="color:#C49A22;margin:0">KAMP</h1><p>Kolade Adepoju Mentoring Program</p></div><div style="height:4px;background:#C49A22"></div><div style="padding:30px"><h2 style="color:#1B2A4A">Hello, ${esc(opts.recipientName)}!</h2><p>This is a reminder that <strong>${esc(opts.eventTitle)}</strong> is coming up. We look forward to seeing you there.</p><div style="background:#F5F0E8;padding:20px;border-left:4px solid #C49A22"><p><strong>Date:</strong> ${esc(opts.eventDate)}</p>${opts.eventTime ? `<p><strong>Time:</strong> ${esc(opts.eventTime)}</p>` : ''}<p><strong>Venue:</strong> ${esc(opts.eventLocation)}</p>${opts.university ? `<p><strong>Institution:</strong> ${esc(opts.university)}</p>` : ''}</div><div style="margin-top:20px;padding:16px;background:#1B2A4A;color:#C49A22"><small>YOUR TICKET REFERENCE</small><p style="margin:4px 0;font-weight:bold">${esc(opts.ticketRef)}</p></div><p style="color:#595959">Please bring your ticket reference with you. See you soon,<br/><strong>The KAMP Team</strong></p></div><div style="padding:16px;text-align:center;font-size:12px;color:#6B6B6B">© KAMP — Kolade Adepoju Mentoring Program</div></div>`,
+  })
+  if (result.error) throw new Error(`Resend reminder email failed: ${result.error.message}`)
+  return result
+}
+
 // ── Donation receipt ──────────────────────────────────────────
 export async function sendDonationReceipt(opts: {
   to: string

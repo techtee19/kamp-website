@@ -12,6 +12,8 @@ const files = [
   { name: '005_members.sql', path: 'migrations/005_members.sql' },
   { name: '006_reset_2026_member_counter.sql', path: 'migrations/006_reset_2026_member_counter.sql' },
   { name: '007_security_rate_limits.sql', path: 'migrations/007_security_rate_limits.sql' },
+  { name: '008_event_checkin.sql', path: 'migrations/008_event_checkin.sql' },
+  { name: '009_member_passport_photo.sql', path: 'migrations/009_member_passport_photo.sql' },
 ]
 
 async function migrate() {

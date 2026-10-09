@@ -79,9 +79,12 @@ export async function createEventRegistrationTable(
         status      TEXT NOT NULL DEFAULT 'confirmed'
                     CHECK (status IN ('confirmed', 'waitlisted', 'cancelled')),
         ticket_ref  TEXT UNIQUE,
+        checked_in  BOOLEAN NOT NULL DEFAULT FALSE,
+        checked_in_at TIMESTAMPTZ,
         created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )
     `)
+    await tx.unsafe(`ALTER TABLE ${quotedTable} ENABLE ROW LEVEL SECURITY`)
 
     await tx`
       INSERT INTO event_tables_registry (event_id, event_slug, event_title, table_name)

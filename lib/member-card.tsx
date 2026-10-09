@@ -8,7 +8,7 @@ export interface MemberCardData {
   memberId: string
   university: string
   yearJoined: number
-  passportDataUri: string
+  passportDataUri?: string
 }
 
 const CARD = { width: 153.07, height: 242.65 }
@@ -22,6 +22,8 @@ const styles = StyleSheet.create({
   frontBody: { flex: 1, paddingHorizontal: 12, paddingTop: 9, alignItems: 'center' },
   photoFrame: { width: 66, height: 78, padding: 2, borderWidth: 1.5, borderColor: '#C59A2A', borderRadius: 7, backgroundColor: '#fff' },
   photo: { width: '100%', height: '100%', objectFit: 'cover', borderRadius: 4 },
+  photoPlaceholder: { width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', backgroundColor: '#EAE6DD', borderRadius: 4 },
+  photoInitials: { color: '#1B2A4A', fontFamily: 'Helvetica-Bold', fontSize: 17, letterSpacing: 1 },
   name: { marginTop: 7, color: '#17233B', fontFamily: 'Helvetica-Bold', fontSize: 12, textAlign: 'center' },
   memberType: { marginTop: 3, color: '#8A6A20', fontSize: 6, fontFamily: 'Helvetica-Bold', letterSpacing: 1.1, textAlign: 'center' },
   institution: { marginTop: 4, color: '#606979', fontSize: 6.5, textAlign: 'center' },
@@ -47,7 +49,7 @@ function MemberCard({ data }: { data: MemberCardData }) {
             <View><Text style={styles.brandText}>KOLADE ADEPOJU</Text><Text style={styles.brandText}>MENTORING PROGRAM</Text></View>
           </View>
           <View style={styles.frontBody}>
-            <View style={styles.photoFrame}><Image src={data.passportDataUri} style={styles.photo} /></View>
+            <View style={styles.photoFrame}>{data.passportDataUri ? <Image src={data.passportDataUri} style={styles.photo} /> : <View style={styles.photoPlaceholder}><Text style={styles.photoInitials}>{`${data.firstName[0] ?? ''}${data.lastName[0] ?? ''}`.toUpperCase()}</Text></View>}</View>
             <Text style={styles.name}>{fullName}</Text>
             <Text style={styles.memberType}>KAMP MEMBER</Text>
             <Text style={styles.institution}>{data.university}</Text>
