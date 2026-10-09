@@ -28,6 +28,7 @@ const paymentMethods: { id: PaymentMethod; label: string; icon: typeof CreditCar
 ]
 
 const MINIMUM_NGN = 100
+const MAX_DONATION_NGN = 21_474_836.47
 
 export default function DonateForm() {
   const [amount, setAmount] = useState('10000')
@@ -44,9 +45,9 @@ export default function DonateForm() {
 
     // Zod enforces the same floor server-side; this saves a round trip and gives
     // the donor the message next to the field they need to change.
-    if (!Number.isFinite(amountNgn) || amountNgn < MINIMUM_NGN) {
+    if (!Number.isFinite(amountNgn) || amountNgn < MINIMUM_NGN || amountNgn > MAX_DONATION_NGN) {
       setStatus('error')
-      setErrorMessage(`Minimum donation is ₦${MINIMUM_NGN.toLocaleString('en-NG')}.`)
+      setErrorMessage(amountNgn > MAX_DONATION_NGN ? 'That donation amount is too large.' : `Minimum donation is ₦${MINIMUM_NGN.toLocaleString('en-NG')}.`)
       return
     }
 
@@ -97,8 +98,8 @@ export default function DonateForm() {
 
       <div className="mt-7"><AmountSelector amount={amount} onAmountChange={setAmount} disabled={submitting} /></div>
       <fieldset className="mt-8" disabled={submitting}><legend className="text-sm font-semibold">Your details</legend><div className="mt-3 grid gap-4 md:grid-cols-2">
-        <label className="text-sm font-medium">Full name<input required name="name" className="mt-2 w-full rounded-xl border border-brand-ink/20 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold" /></label>
-        <label className="text-sm font-medium">Email address<input required name="email" type="email" className="mt-2 w-full rounded-xl border border-brand-ink/20 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold" /></label>
+        <label className="text-sm font-medium">Full name<input required name="name" maxLength={120} className="mt-2 w-full rounded-xl border border-brand-ink/20 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold" /></label>
+        <label className="text-sm font-medium">Email address<input required name="email" type="email" maxLength={254} className="mt-2 w-full rounded-xl border border-brand-ink/20 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold" /></label>
         <label className="text-sm font-medium md:col-span-2">A message of support <span className="font-normal text-brand-grey">(optional)</span><textarea name="message" rows={3} maxLength={500} className="mt-2 w-full resize-none rounded-xl border border-brand-ink/20 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold" placeholder="Tell us why this work matters to you" /></label>
       </div></fieldset>
 
@@ -106,7 +107,7 @@ export default function DonateForm() {
         {paymentMethods.map(({ id, label, icon: Icon }) => <button key={id} type="button" onClick={() => setPaymentMethod(id)} className={`flex items-center gap-3 rounded-xl border p-4 text-left text-sm font-semibold transition disabled:opacity-60 ${paymentMethod === id ? 'border-brand-gold bg-brand-white' : 'border-brand-ink/15 bg-brand-white/60 hover:border-brand-gold'}`}><Icon className="size-5 text-brand-gold" strokeWidth={1.8} />{label}</button>)}
       </div></fieldset>
 
-      <button type="submit" disabled={submitting || !amount || Number(amount) < MINIMUM_NGN} className="mt-8 w-full rounded-full bg-brand-gold px-6 py-3.5 text-sm font-semibold text-brand-black transition hover:bg-brand-gold/85 disabled:cursor-not-allowed disabled:opacity-50">
+      <button type="submit" disabled={submitting || !amount || Number(amount) < MINIMUM_NGN || Number(amount) > MAX_DONATION_NGN} className="mt-8 w-full rounded-full bg-brand-gold px-6 py-3.5 text-sm font-semibold text-brand-black transition hover:bg-brand-gold/85 disabled:cursor-not-allowed disabled:opacity-50">
         {submitting ? <span className="inline-flex items-center gap-2"><span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />Processing...</span> : 'Continue to secure checkout'}
       </button>
       <p className="mt-4 flex items-center justify-center gap-2 text-center text-xs text-brand-grey"><ShieldCheck className="size-4 text-brand-gold" />Your payment is securely processed by our Nigerian payment partner.</p>

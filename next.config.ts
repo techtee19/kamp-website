@@ -16,6 +16,7 @@ const csp = [
   "base-uri 'self'",
   "form-action 'self'",
   "object-src 'none'",
+  'frame-ancestors \'none\'',
 ].join('; ')
 
 const nextConfig: NextConfig = {

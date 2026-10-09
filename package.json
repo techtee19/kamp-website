@@ -10,7 +10,8 @@
     "db:check": "node --env-file=.env.local scripts/db-check.mjs",
     "db:migrate": "node --env-file=.env.local --experimental-strip-types lib/db-migrate.ts",
     "migrate:events": "node --env-file=.env.local --experimental-strip-types scripts/migrate-events.mjs",
-    "migrate:gallery": "node --env-file=.env.local --experimental-strip-types scripts/migrate-gallery.mjs"
+    "migrate:gallery": "node --env-file=.env.local --experimental-strip-types scripts/migrate-gallery.mjs",
+    "admin:hash-password": "node scripts/hash-admin-password.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",

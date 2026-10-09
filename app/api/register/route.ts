@@ -4,6 +4,7 @@ import { client } from '@/sanity/lib/client'
 import { EVENT_BY_ID_QUERY } from '@/sanity/lib/queries'
 import { sendRegistrationConfirmation } from '@/lib/email'
 import { rateLimit, getClientIp } from '@/lib/ratelimit'
+import { readJsonRequest, requestBodyErrorResponse } from '@/lib/request-body'
 import { generateTicketPDF, generateTicketRef, type TicketData } from '@/lib/ticket'
 import {
   createEventRegistrationTable,
@@ -14,6 +15,7 @@ import {
 } from '@/lib/event-tables'
 
 export const runtime = 'nodejs'
+const MAX_REQUEST_BYTES = 8 * 1024
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,7 +28,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 0. Rate limit by client IP (backend.md §8)
-    if (!rateLimit(getClientIp(req))) {
+    if (!(await rateLimit(`event-register:${getClientIp(req)}`, 5, 60_000))) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
         { status: 429 }
@@ -34,7 +36,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Parse and validate body
-    const body = await req.json()
+    const body = await readJsonRequest(req, MAX_REQUEST_BYTES)
     const parsed = registrationSchema.safeParse(body)
 
     if (!parsed.success) {
@@ -182,6 +184,8 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     )
   } catch (err) {
+    const bodyError = requestBodyErrorResponse(err)
+    if (bodyError) return NextResponse.json({ error: bodyError.message }, { status: bodyError.status })
     console.error('[/api/register] Error:', err)
     return NextResponse.json(
       { error: 'Something went wrong. Please try again.' },

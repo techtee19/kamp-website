@@ -2,7 +2,7 @@ import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
 import { cookies } from 'next/headers'
 
 const SESSION_COOKIE = 'kamp_admin_session'
-const MAX_AGE_SECONDS = 60 * 60 * 8
+const MAX_AGE_SECONDS = 60 * 60 * 2
 
 function getSecret(): string | null {
   const secret = process.env.ADMIN_SESSION_SECRET

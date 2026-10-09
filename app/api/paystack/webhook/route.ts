@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { verifyWebhookSignature } from '@/lib/paystack'
 import { sendDonationReceipt } from '@/lib/email'
+import { parseJsonBytes, readRequestBytes, RequestBodyTooLargeError } from '@/lib/request-body'
 
 // Runs on the Node.js runtime — `crypto` (signature verification) and the
 // `postgres` driver are both unavailable on the Edge runtime.
 export const runtime = 'nodejs'
+const MAX_WEBHOOK_BYTES = 256 * 1024
 
 // NOTE: backend.md shows `export const config = { api: { bodyParser: false } }`
 // here. That is a Pages Router API-route option and has no effect in the App
@@ -14,35 +16,53 @@ export const runtime = 'nodejs'
 // deliberately rather than skipped by accident.
 
 export async function POST(req: NextRequest) {
+  let rawBody: Buffer
   try {
-    // 1. Read the raw body as text
-    const rawBody = await req.text()
-
-    // 2. Verify the Paystack signature
-    const signature = req.headers.get('x-paystack-signature') ?? ''
-    const isValid = verifyWebhookSignature(rawBody, signature)
-
-    if (!isValid) {
-      console.warn('[webhook] Invalid Paystack signature — rejected')
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+    rawBody = await readRequestBytes(req, MAX_WEBHOOK_BYTES)
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return NextResponse.json({ error: 'Webhook request is too large.' }, { status: 413 })
     }
+    return NextResponse.json({ error: 'Invalid webhook request.' }, { status: 400 })
+  }
 
-    // 3. Parse the event
-    const event = JSON.parse(rawBody)
+  // Verify the signature against the exact request bytes before parsing JSON.
+  const signature = req.headers.get('x-paystack-signature') ?? ''
+  if (!verifyWebhookSignature(rawBody, signature)) {
+    console.warn('[paystack/webhook] Invalid signature — rejected')
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+  }
 
-    // 4. Only handle charge.success events
-    if (event.event !== 'charge.success') {
-      // Acknowledge other events so Paystack doesn't retry
-      return NextResponse.json({ received: true }, { status: 200 })
-    }
+  let event: unknown
+  try {
+    event = parseJsonBytes(rawBody)
+  } catch {
+    return NextResponse.json({ error: 'Invalid webhook JSON.' }, { status: 400 })
+  }
 
-    const data = event.data
-    const reference = data.reference as string
+  if (typeof event !== 'object' || event === null || !('event' in event) || typeof event.event !== 'string') {
+    return NextResponse.json({ error: 'Invalid webhook payload.' }, { status: 400 })
+  }
 
-    // 5. Idempotency fast-path — fully processed already, nothing left to do.
-    //    Note this only skips when the receipt also went out; a row that is
-    //    'success' but never got its receipt (e.g. Resend was down) still falls
-    //    through so a Paystack retry can deliver it.
+  // Acknowledge event types that this endpoint does not process.
+  if (event.event !== 'charge.success') return NextResponse.json({ received: true }, { status: 200 })
+
+  if (!('data' in event) || typeof event.data !== 'object' || event.data === null) {
+    return NextResponse.json({ error: 'Invalid charge payload.' }, { status: 400 })
+  }
+  const data = event.data
+  if (
+    !('reference' in data) || typeof data.reference !== 'string' ||
+    !/^[A-Za-z0-9_-]{1,100}$/.test(data.reference) ||
+    !('status' in data) || data.status !== 'success' ||
+    !('currency' in data) || data.currency !== 'NGN' ||
+    !('amount' in data) || typeof data.amount !== 'number' || !Number.isSafeInteger(data.amount) || data.amount < 1
+  ) {
+    return NextResponse.json({ error: 'Invalid charge details.' }, { status: 400 })
+  }
+  const reference = data.reference
+
+  try {
     const existing = await db`
       SELECT id, status, receipt_sent, amount_kobo
       FROM donations
@@ -63,17 +83,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ received: true }, { status: 200 })
     }
 
-    // Cross-check the charged amount against what we initialised the
-    // transaction with. Mismatches are logged, not fatal — the receipt is
-    // always built from our own record, never from webhook input.
-    if (typeof data.amount === 'number' && data.amount !== existing[0].amount_kobo) {
+    // Never mark an underpaid or otherwise mismatched transaction successful.
+    if (data.amount !== existing[0].amount_kobo) {
       console.warn(
         `[webhook] Amount mismatch for ${reference}: charged ${data.amount} kobo, recorded ${existing[0].amount_kobo} kobo`
       )
+      return NextResponse.json({ received: true, ignored: true }, { status: 200 })
     }
 
-    // 6. Update the donation record
-    const paidAt = data.paid_at ?? new Date().toISOString()
+    const paidAt = 'paid_at' in data && typeof data.paid_at === 'string' && Number.isFinite(Date.parse(data.paid_at))
+      ? data.paid_at
+      : new Date().toISOString()
 
     await db`
       UPDATE donations
@@ -123,14 +143,13 @@ export async function POST(req: NextRequest) {
         await db`
           UPDATE donations SET receipt_sent = FALSE WHERE paystack_ref = ${reference}
         `.catch((dbErr) => console.error('[webhook] Failed to release receipt claim:', dbErr))
+        return NextResponse.json({ error: 'Receipt delivery failed; retry requested.' }, { status: 500 })
       }
     }
 
-    // 8. Always return 200 — Paystack retries on non-200
     return NextResponse.json({ received: true }, { status: 200 })
   } catch (err) {
-    console.error('[/api/paystack/webhook] Error:', err)
-    // Still return 200 to prevent Paystack retrying a bad request
-    return NextResponse.json({ received: true }, { status: 200 })
+    console.error('[/api/paystack/webhook] Processing failed:', err instanceof Error ? err.message : 'Unknown error')
+    return NextResponse.json({ error: 'Webhook processing failed; retry requested.' }, { status: 500 })
   }
 }

@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { parseBody } from 'next-sanity/webhook'
 import { createEventRegistrationTable } from '@/lib/event-tables'
+import { readRequestBytes, RequestBodyTooLargeError } from '@/lib/request-body'
 
 export const runtime = 'nodejs'
+const MAX_WEBHOOK_BYTES = 128 * 1024
 
 type EventSnapshot = {
   _type?: unknown
@@ -26,9 +28,15 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const rawBody = await readRequestBytes(req, MAX_WEBHOOK_BYTES)
+    const boundedHeaders = new Headers(req.headers)
+    boundedHeaders.delete('content-length')
+    boundedHeaders.delete('transfer-encoding')
+    const boundedRequest = new NextRequest(req.url, { method: 'POST', headers: boundedHeaders, body: new Uint8Array(rawBody) })
+
     // Wait for Sanity's Content Lake to become consistent before the next page
     // request refreshes its cached event data.
-    const { body, isValidSignature } = await parseBody<EventWebhookPayload>(req, secret, true)
+    const { body, isValidSignature } = await parseBody<EventWebhookPayload>(boundedRequest, secret, true)
 
     if (isValidSignature !== true) {
       console.warn('[sanity/webhook] Invalid or missing signature — request rejected')
@@ -72,6 +80,9 @@ export async function POST(req: NextRequest) {
     console.info(`[sanity/webhook] Revalidated event paths: ${paths.join(', ')}`)
     return NextResponse.json({ received: true, revalidated: paths, ...(registrationTable ?? {}) }, { status: 200 })
   } catch (err) {
+    if (err instanceof RequestBodyTooLargeError) {
+      return NextResponse.json({ error: 'Webhook request is too large.' }, { status: 413 })
+    }
     console.error('[sanity/webhook] Error:', err instanceof Error ? err.message : err)
     return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 })
   }

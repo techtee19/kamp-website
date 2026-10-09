@@ -8,7 +8,10 @@ const globalForDb = globalThis as unknown as { db: ReturnType<typeof postgres> }
 export const db =
   globalForDb.db ??
   postgres(connectionString, {
-    // Supabase requires SSL on all connections, including local dev.
+    // Supabase's database pooler may present a certificate chain Node does not
+    // trust locally. Keep the connection encrypted while matching the existing
+    // db-check configuration. For certificate verification, configure the
+    // provider's CA certificate and set rejectUnauthorized to true.
     ssl: { rejectUnauthorized: false },
     max: 10,
     idle_timeout: 20,

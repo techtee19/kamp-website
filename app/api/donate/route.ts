@@ -2,11 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { donationSchema } from '@/lib/validations'
 import { initializeTransaction, generateReference } from '@/lib/paystack'
+import { getClientIp, rateLimit } from '@/lib/ratelimit'
+import { readJsonRequest, requestBodyErrorResponse } from '@/lib/request-body'
+
+const MAX_REQUEST_BYTES = 4 * 1024
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Parse and validate body
-    const body = await req.json()
+    if (!(await rateLimit(`donate:${getClientIp(req)}`, 5, 60_000))) {
+      return NextResponse.json({ error: 'Too many attempts. Please try again shortly.' }, { status: 429 })
+    }
+
+    // 1. Parse and validate bounded request data
+    const body = await readJsonRequest(req, MAX_REQUEST_BYTES)
     const parsed = donationSchema.safeParse(body)
 
     if (!parsed.success) {
@@ -68,6 +76,8 @@ export async function POST(req: NextRequest) {
     // 5. Return the Paystack checkout URL to the client
     return NextResponse.json({ authorizationUrl }, { status: 200 })
   } catch (err) {
+    const bodyError = requestBodyErrorResponse(err)
+    if (bodyError) return NextResponse.json({ error: bodyError.message }, { status: bodyError.status })
     console.error('[/api/donate] Error:', err)
     return NextResponse.json(
       { error: 'Failed to initialise payment. Please try again.' },

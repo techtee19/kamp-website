@@ -12,7 +12,6 @@ const studyLevels = ['100L', '200L', '300L', '400L', '500L', 'Postgrad', 'Other'
 
 type RegistrationFormProps = {
   eventId: string
-  eventTitle: string
   eventDate?: string
   eventLocation?: string
   capacity?: number
@@ -21,7 +20,6 @@ type RegistrationFormProps = {
 
 export default function RegistrationForm({
   eventId,
-  eventTitle,
   eventDate,
   eventLocation,
   capacity,
@@ -75,7 +73,6 @@ export default function RegistrationForm({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           eventId,
-          eventTitle,
           fullName: form.get('fullName'),
           email: form.get('email'),
           phone: form.get('phone'),
@@ -120,15 +117,15 @@ export default function RegistrationForm({
 
       <label className="text-sm font-medium">
         Full name
-        <input name="fullName" required disabled={submitting} className={inputClass} />
+        <input name="fullName" required maxLength={120} disabled={submitting} className={inputClass} />
       </label>
       <label className="text-sm font-medium">
         Email address
-        <input name="email" required type="email" disabled={submitting} className={inputClass} />
+        <input name="email" required type="email" maxLength={254} disabled={submitting} className={inputClass} />
       </label>
       <label className="text-sm font-medium">
         Phone number
-        <input name="phone" required type="tel" disabled={submitting} className={inputClass} />
+        <input name="phone" required type="tel" maxLength={24} disabled={submitting} className={inputClass} />
       </label>
       <label className="text-sm font-medium">
         Tertiary institution

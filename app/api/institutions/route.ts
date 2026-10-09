@@ -8,7 +8,11 @@ function normalize(value: string) {
 }
 
 export async function GET(request: NextRequest) {
-  const query = normalize(request.nextUrl.searchParams.get('q') ?? '')
+  const rawQuery = request.nextUrl.searchParams.get('q') ?? ''
+  if (rawQuery.length > 100) {
+    return NextResponse.json({ error: 'Search query is too long.' }, { status: 400 })
+  }
+  const query = normalize(rawQuery)
   if (query.length < 3) {
     return NextResponse.json({ institutions: [] }, { headers: { 'Cache-Control': 'public, max-age=60' } })
   }

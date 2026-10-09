@@ -4,29 +4,64 @@ import { membershipSchema } from '@/lib/validations'
 import { rateLimit, getClientIp } from '@/lib/ratelimit'
 import { generateMemberCardPDF } from '@/lib/member-card'
 import { sendMembershipWelcome } from '@/lib/email'
+import { readRequestBytes, RequestBodyTooLargeError } from '@/lib/request-body'
 
 export const runtime = 'nodejs'
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024
+const MAX_REQUEST_BYTES = MAX_PHOTO_BYTES + 32_768
+const MAX_IMAGE_DIMENSION = 8_000
+const MAX_IMAGE_PIXELS = 25_000_000
+
+function readImageDimensions(buffer: Buffer, mimeType: string): { width: number; height: number } | null {
+  if (mimeType === 'image/png') {
+    if (buffer.length < 24 || buffer.toString('ascii', 12, 16) !== 'IHDR') return null
+    return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) }
+  }
+
+  if (mimeType !== 'image/jpeg' || buffer.length < 4) return null
+  const startOfFrameMarkers = new Set([0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf])
+  let offset = 2
+  while (offset + 4 < buffer.length) {
+    if (buffer[offset] !== 0xff) return null
+    while (buffer[offset] === 0xff) offset++
+    const marker = buffer[offset++]
+    if (marker === 0xd9 || marker === 0xda) break
+    if (marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) continue
+    if (offset + 2 > buffer.length) return null
+    const segmentLength = buffer.readUInt16BE(offset)
+    if (segmentLength < 2 || offset + segmentLength > buffer.length) return null
+    if (startOfFrameMarkers.has(marker)) {
+      if (segmentLength < 7) return null
+      return { height: buffer.readUInt16BE(offset + 3), width: buffer.readUInt16BE(offset + 5) }
+    }
+    offset += segmentLength
+  }
+  return null
+}
 
 function currentLagosYear() {
   return Number(new Intl.DateTimeFormat('en', { timeZone: 'Africa/Lagos', year: 'numeric' }).format(new Date()))
 }
 
 export async function POST(req: NextRequest) {
-  if (!rateLimit(getClientIp(req), 3, 60_000)) {
+  if (!(await rateLimit(`membership:${getClientIp(req)}`, 3, 60_000))) {
     return NextResponse.json({ error: 'Too many attempts. Please try again shortly.' }, { status: 429 })
   }
 
   try {
-    if (!req.headers.get('content-type')?.includes('multipart/form-data')) {
+    if (req.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() !== 'multipart/form-data') {
       return NextResponse.json({ error: 'Invalid request.' }, { status: 415 })
     }
-    const contentLength = Number(req.headers.get('content-length') ?? 0)
-    if (contentLength > MAX_PHOTO_BYTES + 32_768) return NextResponse.json({ error: 'Photo must be 2 MB or smaller.' }, { status: 413 })
-    const formData = await req.formData()
+    const requestBytes = await readRequestBytes(req, MAX_REQUEST_BYTES)
+    const requestHeaders = new Headers(req.headers)
+    requestHeaders.delete('content-length')
+    requestHeaders.delete('transfer-encoding')
+    const boundedRequest = new Request(req.url, { method: 'POST', headers: requestHeaders, body: new Uint8Array(requestBytes) })
+    const formData = await boundedRequest.formData()
     const raw = formData.get('data')
     const photo = formData.get('passportPhoto')
     if (typeof raw !== 'string') return NextResponse.json({ error: 'Invalid registration data.' }, { status: 400 })
+    if (Buffer.byteLength(raw, 'utf8') > 16 * 1024) return NextResponse.json({ error: 'Registration details are too large.' }, { status: 413 })
     let body: unknown
     try { body = JSON.parse(raw) } catch { return NextResponse.json({ error: 'Invalid registration data.' }, { status: 400 }) }
     const parsed = membershipSchema.safeParse(body)
@@ -43,6 +78,15 @@ export async function POST(req: NextRequest) {
     const isPng = photoBuffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
     if (!(photo.type === 'image/jpeg' ? isJpeg : isPng)) {
       return NextResponse.json({ error: 'The selected file is not a valid JPG or PNG image.' }, { status: 400 })
+    }
+    const dimensions = readImageDimensions(photoBuffer, photo.type)
+    if (
+      !dimensions ||
+      dimensions.width < 1 || dimensions.height < 1 ||
+      dimensions.width > MAX_IMAGE_DIMENSION || dimensions.height > MAX_IMAGE_DIMENSION ||
+      dimensions.width * dimensions.height > MAX_IMAGE_PIXELS
+    ) {
+      return NextResponse.json({ error: 'The image is invalid or its dimensions are too large.' }, { status: 400 })
     }
     const photoDataUri = `data:${photo.type};base64,${photoBuffer.toString('base64')}`
 
@@ -74,6 +118,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, memberId: member.member_id, emailSent }, { status: 201 })
   } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return NextResponse.json({ error: 'The upload must be 2 MB or smaller.' }, { status: 413 })
+    }
     if (typeof error === 'object' && error !== null && 'code' in error && error.code === '23505') {
       return NextResponse.json({ error: 'An account with this email already exists. Check your inbox for your original member ID card.' }, { status: 409 })
     }

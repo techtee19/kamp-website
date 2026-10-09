@@ -78,7 +78,7 @@ export async function verifyTransaction(
 // Generate a unique transaction reference
 export function generateReference(prefix = 'kamp'): string {
   const timestamp = Date.now()
-  const random = Math.random().toString(36).substring(2, 8).toUpperCase()
+  const random = crypto.randomBytes(6).toString('hex').toUpperCase()
   return `${prefix}_${timestamp}_${random}`
 }
 
@@ -86,7 +86,7 @@ export function generateReference(prefix = 'kamp'): string {
 // Returns true if the request is genuinely from Paystack.
 // Uses a constant-time comparison so an attacker cannot recover the expected
 // digest byte-by-byte by measuring response timing.
-export function verifyWebhookSignature(rawBody: string, signature: string): boolean {
+export function verifyWebhookSignature(rawBody: string | Uint8Array, signature: string): boolean {
   const hash = crypto.createHmac('sha512', SECRET_KEY).update(rawBody).digest('hex')
 
   // timingSafeEqual throws if the buffers differ in length, so guard first.

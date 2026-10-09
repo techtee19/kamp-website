@@ -31,7 +31,7 @@ export default function AmountSelector({ amount, onAmountChange, disabled = fals
       </div>
       {!isPreset && (
         <label className="mt-4 block text-sm font-medium">Custom amount
-          <div className="mt-2 flex items-center rounded-xl border border-brand-ink/20 bg-brand-white px-4 focus-within:border-brand-gold"><span className="text-brand-grey">₦</span><input type="number" min="100" inputMode="numeric" autoFocus value={amount} disabled={disabled} onChange={(event) => onAmountChange(event.target.value)} placeholder="Enter an amount" className="w-full bg-transparent px-2 py-3 outline-none" /></div>
+          <div className="mt-2 flex items-center rounded-xl border border-brand-ink/20 bg-brand-white px-4 focus-within:border-brand-gold"><span className="text-brand-grey">₦</span><input type="number" min="100" max="21474836.47" step="0.01" inputMode="numeric" autoFocus value={amount} disabled={disabled} onChange={(event) => onAmountChange(event.target.value)} placeholder="Enter an amount" className="w-full bg-transparent px-2 py-3 outline-none" /></div>
         </label>
       )}
     </div>

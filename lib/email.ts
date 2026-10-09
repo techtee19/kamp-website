@@ -163,7 +163,7 @@ export async function sendContactNotification(opts: {
         <h2 style="color: #1B2A4A;">New Contact Form Submission</h2>
         <table style="width: 100%; border-collapse: collapse;">
           <tr><td style="padding: 8px 0; color: #6B6B6B; width: 100px;"><strong>From:</strong></td><td>${esc(opts.senderName)}</td></tr>
-          <tr><td style="padding: 8px 0; color: #6B6B6B;"><strong>Email:</strong></td><td><a href="mailto:${encodeURI(opts.senderEmail)}">${esc(opts.senderEmail)}</a></td></tr>
+          <tr><td style="padding: 8px 0; color: #6B6B6B;"><strong>Email:</strong></td><td><a href="mailto:${esc(encodeURI(opts.senderEmail))}">${esc(opts.senderEmail)}</a></td></tr>
           <tr><td style="padding: 8px 0; color: #6B6B6B;"><strong>Subject:</strong></td><td>${esc(opts.subject)}</td></tr>
         </table>
         <div style="background: #F5F0E8; padding: 20px; border-radius: 8px; margin: 20px 0;">

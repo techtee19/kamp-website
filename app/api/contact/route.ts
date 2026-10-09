@@ -3,11 +3,14 @@ import { db } from '@/lib/db'
 import { contactSchema } from '@/lib/validations'
 import { sendContactNotification } from '@/lib/email'
 import { rateLimit, getClientIp } from '@/lib/ratelimit'
+import { readJsonRequest, requestBodyErrorResponse } from '@/lib/request-body'
+
+const MAX_REQUEST_BYTES = 12 * 1024
 
 export async function POST(req: NextRequest) {
   try {
     // 0. Rate limit by client IP (backend.md §8)
-    if (!rateLimit(getClientIp(req))) {
+    if (!(await rateLimit(`contact:${getClientIp(req)}`, 5, 60_000))) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
         { status: 429 }
@@ -15,7 +18,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Parse and validate
-    const body = await req.json()
+    const body = await readJsonRequest(req, MAX_REQUEST_BYTES)
     const parsed = contactSchema.safeParse(body)
 
     if (!parsed.success) {
@@ -43,10 +46,12 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     )
   } catch (err) {
-    console.error('[/api/contact] Error:', err)
+    const bodyError = requestBodyErrorResponse(err)
+    if (bodyError) return NextResponse.json({ error: bodyError.message }, { status: bodyError.status })
+    console.error('[/api/contact] Error:', err instanceof Error ? err.message : 'Unknown error')
     return NextResponse.json(
-      { error: 'Something went wrong. Please try again.' },
-      { status: 500 }
+      { error: 'The service is temporarily unavailable. Please try again.' },
+      { status: 503 }
     )
   }
 }
