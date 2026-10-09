@@ -21,8 +21,15 @@ function EventRow({
   concluded?: boolean
 }) {
   return (
-    <article className="grid items-center gap-7 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:gap-10 xl:gap-14">
-      <div className="bg-brand-card relative aspect-[1.62/1] overflow-hidden rounded-2xl">
+    <article className={`grid items-center gap-7 md:gap-10 xl:gap-14 ${concluded ? 'md:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)]' : 'md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]'}`}>
+      <div
+        className={`bg-brand-card relative overflow-hidden rounded-2xl ${concluded ? 'mx-auto aspect-[3/4] w-full max-w-[390px]' : 'aspect-[1.62/1]'}`}
+        style={
+          concluded && event.coverImage?.asset?.dimensions?.aspectRatio
+            ? { aspectRatio: String(event.coverImage.asset.dimensions.aspectRatio) }
+            : undefined
+        }
+      >
         {/* No placeholder asset exists, so a cover-less event just shows the
             card tint rather than requesting a file that would 404. */}
         {event.coverImage?.asset?.url && (
@@ -31,7 +38,7 @@ function EventRow({
             alt={event.coverImage.alt ?? event.title}
             fill
             sizes="(min-width: 768px) 42vw, 100vw"
-            className="object-cover"
+            className={concluded ? 'object-contain' : 'object-cover'}
           />
         )}
       </div>

@@ -7,7 +7,7 @@ export interface SanityImage {
 // An image after the event queries have dereferenced its asset to a CDN url.
 // `asset` is nullable because a projection over a missing image yields null.
 export interface SanityResolvedImage {
-  asset: { url: string } | null
+  asset: { url: string; dimensions?: { aspectRatio?: number } } | null
   alt?: string
 }
 

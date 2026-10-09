@@ -14,7 +14,7 @@ export const urlFor = (source: unknown) =>
 // pages can hand it straight to next/image. `_type` and `isPublished` are
 // projected even though the filters already imply them, so the shape actually
 // matches EventDocument rather than leaving those two fields undefined at runtime.
-const eventImage = `{ asset->{ url }, alt }`
+const eventImage = `{ asset->{ url, "dimensions": metadata.dimensions }, alt }`
 
 // Every published event that has not concluded, ordered by date.
 // Filtering on `status != "past"` rather than `status == "upcoming"` is deliberate:
