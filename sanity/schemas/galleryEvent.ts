@@ -18,7 +18,7 @@ export const galleryEventSchema = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'university / Location',
+      name: 'university',
       title: 'University',
       type: 'string',
       validation: (Rule) => Rule.required(),
