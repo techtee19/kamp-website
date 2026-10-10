@@ -5,6 +5,25 @@ export type SignupMonth = { month: string; count: number }
 export type UniversityCount = { university: string; fullName: string; count: number }
 export type CategoryCount = { label: string; count: number; percentage: number }
 export type GenderCount = CategoryCount & { gender: string }
+export type EventRegistrationCount = { count: number; available: boolean }
+
+function isMissingTableError(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && 'code' in error && error.code === '42P01'
+}
+
+export async function getEventRegistrationCount(tableName: unknown): Promise<EventRegistrationCount> {
+  const table = quoteEventTableName(tableName)
+
+  try {
+    const [row] = await db.unsafe(`SELECT COUNT(*)::int AS count FROM ${table} WHERE status <> 'cancelled'`)
+    return { count: Number(row?.count ?? 0), available: true }
+  } catch (error) {
+    if (!isMissingTableError(error)) throw error
+
+    console.warn(`[admin] Registration table ${table} is missing; skipping its count.`)
+    return { count: 0, available: false }
+  }
+}
 
 export async function getMonthlySignups(): Promise<SignupMonth[]> {
   const rows = await db`
@@ -138,13 +157,14 @@ export async function getYearOnYearGrowth() {
   }
 }
 
-export async function getTotalEventRegistrations(): Promise<number> {
+export async function getTotalEventRegistrations(): Promise<{ count: number; unavailableTables: number }> {
   const registry = await db`SELECT table_name FROM event_tables_registry`
   const counts = await Promise.all(registry.map(async (event) => {
-    const table = quoteEventTableName(event.table_name)
-    const [row] = await db.unsafe(`SELECT COUNT(*)::int AS count FROM ${table} WHERE status <> 'cancelled'`)
-    return Number(row?.count ?? 0)
+    return getEventRegistrationCount(event.table_name)
   }))
 
-  return counts.reduce((sum, count) => sum + count, 0)
+  return {
+    count: counts.reduce((sum, result) => sum + result.count, 0),
+    unavailableTables: counts.filter((result) => !result.available).length,
+  }
 }
