@@ -5,6 +5,7 @@ import { rateLimit, getClientIp } from '@/lib/ratelimit'
 import { generateMemberCardPDF } from '@/lib/member-card'
 import { sendMembershipWelcome } from '@/lib/email'
 import { readRequestBytes, RequestBodyTooLargeError } from '@/lib/request-body'
+import { createMemberId } from '@/lib/member-id'
 
 export const runtime = 'nodejs'
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024
@@ -105,7 +106,7 @@ export async function POST(req: NextRequest) {
         ON CONFLICT (year_joined) DO UPDATE SET last_number = member_number_counters.last_number + 1
         RETURNING last_number
       `
-      const memberId = `KAMP-MBR-${yearJoined}-${String(lastNumber).padStart(5, '0')}`
+      const memberId = createMemberId(values.membershipType, yearJoined, lastNumber)
       const [created] = await tx`
         INSERT INTO members (member_id, first_name, last_name, email, phone, membership_type, date_of_birth, university, occupation, organization, gender, state_of_origin, study_level, why_join, year_joined, passport_photo, passport_photo_type)
         VALUES (${memberId}, ${values.firstName}, ${values.lastName}, ${email}, ${values.phone}, ${values.membershipType}, ${values.dateOfBirth}, ${university}, ${occupation}, ${organization}, ${values.gender}, ${values.stateOfOrigin}, ${studyLevel}, ${values.whyJoin}, ${yearJoined}, ${photoBuffer}, ${photo.type})

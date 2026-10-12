@@ -5,6 +5,7 @@ import { isSameOriginAdminRequest } from '@/lib/admin-request'
 import { readJsonRequest, requestBodyErrorResponse } from '@/lib/request-body'
 import { generateMemberCardPDF } from '@/lib/member-card'
 import { sendMembershipWelcome } from '@/lib/email'
+import { isMemberId } from '@/lib/member-id'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: issue?.message ?? 'Invalid request body.' }, { status: issue?.status ?? 400 })
   }
   const memberId = typeof body === 'object' && body !== null && 'memberId' in body ? body.memberId : null
-  if (typeof memberId !== 'string' || !/^KAMP-MBR-\d{4}-\d{5}$/.test(memberId)) return NextResponse.json({ error: 'Invalid member ID.' }, { status: 400 })
+  if (typeof memberId !== 'string' || !isMemberId(memberId)) return NextResponse.json({ error: 'Invalid member ID.' }, { status: 400 })
 
   try {
     const [member] = await db`

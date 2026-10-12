@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { isMemberId } from '@/lib/member-id'
 import { db } from '@/lib/db'
 import DeleteMemberButton from '@/components/admin/DeleteMemberButton'
 import ResendCardButton from '@/components/admin/ResendCardButton'
@@ -8,7 +9,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function MemberProfilePage({ params }: { params: Promise<{ memberId: string }> }) {
   const { memberId } = await params
-  if (!/^KAMP-MBR-\d{4}-\d{5}$/.test(memberId)) notFound()
+  if (!isMemberId(memberId)) notFound()
   const [member] = await db`
     SELECT member_id, first_name, last_name, email, phone, membership_type, date_of_birth,
       university, occupation, organization, gender, state_of_origin, study_level,
