@@ -54,7 +54,7 @@ export async function getTopUniversities(): Promise<UniversityCount[]> {
       MIN(BTRIM(university)) AS full_name,
       COUNT(*)::int AS count
     FROM members
-    WHERE BTRIM(university) <> ''
+    WHERE membership_type = 'student' AND university IS NOT NULL AND BTRIM(university) <> ''
     GROUP BY LOWER(REGEXP_REPLACE(BTRIM(university), '\\s+', ' ', 'g'))
     ORDER BY COUNT(*) DESC, full_name ASC
     LIMIT 10
@@ -90,6 +90,7 @@ export async function getStudyLevelBreakdown(): Promise<CategoryCount[]> {
   const rows = await db`
     SELECT study_level AS label, COUNT(*)::int AS count
     FROM members
+    WHERE membership_type = 'student' AND study_level IS NOT NULL AND BTRIM(study_level) <> ''
     GROUP BY study_level
     ORDER BY COUNT(*) DESC, study_level ASC
   `

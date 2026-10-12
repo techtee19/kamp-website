@@ -17,8 +17,9 @@ export default function MembershipForm() {
   const [photoError, setPhotoError] = useState('')
   const { register, control, handleSubmit, watch, setError, formState: { errors, isSubmitting } } = useForm<MembershipInput>({
     resolver: zodResolver(membershipSchema), mode: 'onBlur',
-    defaultValues: { firstName: '', lastName: '', email: '', phone: '', university: '', gender: undefined, stateOfOrigin: undefined, studyLevel: undefined, whyJoin: '' },
+    defaultValues: { firstName: '', lastName: '', email: '', phone: '', membershipType: 'student', dateOfBirth: '', university: '', gender: undefined, stateOfOrigin: undefined, studyLevel: undefined, occupation: '', organization: '', whyJoin: '' },
   })
+  const membershipType = watch('membershipType')
   const whyJoin = watch('whyJoin') ?? ''
 
   async function submit(values: MembershipInput) {
@@ -72,11 +73,20 @@ export default function MembershipForm() {
         <label className="block text-sm font-medium">Email address<input type="email" autoComplete="email" className={inputClass} {...register('email')} aria-invalid={!!errors.email} />{errorFor('email')}</label>
         <label className="block text-sm font-medium">Phone number<input type="tel" autoComplete="tel" className={inputClass} {...register('phone')} aria-invalid={!!errors.phone} />{errorFor('phone')}</label>
       </div>
-      <label className="block text-sm font-medium">Tertiary institution<Controller name="university" control={control} render={({ field }) => <InstitutionCombobox name="university" defaultValue={field.value} onValueChange={field.onChange} required />} />{errorFor('university')}</label>
-      <div className="grid gap-5 sm:grid-cols-3">
+      <div className="grid gap-5 sm:grid-cols-2">
+        <label className="block text-sm font-medium">Membership category<select className={inputClass} {...register('membershipType')}><option value="student">Student</option><option value="professional">Professional</option><option value="non_professional">Non-professional</option></select>{errorFor('membershipType')}</label>
+        <label className="block text-sm font-medium">Date of birth<input type="date" autoComplete="bday" className={inputClass} {...register('dateOfBirth')} aria-invalid={!!errors.dateOfBirth} />{errorFor('dateOfBirth')}</label>
+      </div>
+      {membershipType === 'student' ? <>
+        <label className="block text-sm font-medium">Tertiary institution<Controller name="university" control={control} render={({ field }) => <InstitutionCombobox name="university" defaultValue={field.value ?? ''} onValueChange={field.onChange} required />} />{errorFor('university')}</label>
+        <label className="block text-sm font-medium">Study level<select className={inputClass} defaultValue="" {...register('studyLevel')}><option value="" disabled>Select your current level</option>{studyLevels.map((level) => <option key={level}>{level}</option>)}</select>{errorFor('studyLevel')}</label>
+      </> : <div className="grid gap-5 sm:grid-cols-2">
+        <label className="block text-sm font-medium">{membershipType === 'professional' ? 'Profession or role' : 'Current activity'}<input className={inputClass} maxLength={120} placeholder={membershipType === 'professional' ? 'e.g. Teacher, Engineer, Consultant' : 'e.g. Job seeker, Entrepreneur, Volunteer'} {...register('occupation')} aria-invalid={!!errors.occupation} />{errorFor('occupation')}</label>
+        {membershipType === 'professional' && <label className="block text-sm font-medium">Organization <span className="font-normal text-brand-grey">(optional)</span><input className={inputClass} maxLength={160} placeholder="Employer or organization" {...register('organization')} aria-invalid={!!errors.organization} />{errorFor('organization')}</label>}
+      </div>}
+      <div className="grid gap-5 sm:grid-cols-2">
         <label className="block text-sm font-medium">Gender<select className={inputClass} defaultValue="" {...register('gender')}><option value="" disabled>Select</option><option>Female</option><option>Male</option></select>{errorFor('gender')}</label>
         <label className="block text-sm font-medium">State of origin<select className={inputClass} defaultValue="" {...register('stateOfOrigin')}><option value="" disabled>Select</option>{NIGERIAN_STATES.map((state) => <option key={state}>{state}</option>)}</select>{errorFor('stateOfOrigin')}</label>
-        <label className="block text-sm font-medium">Study level<select className={inputClass} defaultValue="" {...register('studyLevel')}><option value="" disabled>Select</option>{studyLevels.map((level) => <option key={level}>{level}</option>)}</select>{errorFor('studyLevel')}</label>
       </div>
       <label className="block text-sm font-medium">Passport-style photo <span className="font-normal text-brand-grey">(JPG or PNG, up to 2 MB)</span><input type="file" accept="image/jpeg,image/png" required className={`${inputClass} file:mr-4 file:rounded-full file:border-0 file:bg-brand-ink file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white`} onChange={(event) => { const file = event.target.files?.[0] ?? null; setPassportPhoto(file); setPhotoError(file && file.size > 2 * 1024 * 1024 ? 'Photo must be 2 MB or smaller.' : ''); }} aria-invalid={!!photoError} />{passportPhoto && !photoError && <span className="mt-1 block text-xs text-brand-grey">Selected: {passportPhoto.name}</span>}{photoError && <p className="mt-1 text-sm text-red-700" role="alert">{photoError}</p>}</label>
       <label className="block text-sm font-medium">Why do you want to join KAMP?<textarea rows={4} maxLength={500} className={`${inputClass} resize-y`} {...register('whyJoin')} aria-invalid={!!errors.whyJoin} /><span className="mt-1 block text-right text-xs text-brand-grey">{whyJoin.length}/500</span>{errorFor('whyJoin')}</label>

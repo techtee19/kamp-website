@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const [member] = await db`
-      SELECT member_id, first_name, last_name, email, university, year_joined,
+      SELECT member_id, first_name, last_name, email, membership_type, university, occupation, organization, year_joined,
         joined_at, passport_photo, passport_photo_type
       FROM members WHERE member_id = ${memberId} LIMIT 1
     `
@@ -34,7 +34,10 @@ export async function POST(request: NextRequest) {
       firstName: member.first_name as string,
       lastName: member.last_name as string,
       memberId: member.member_id as string,
-      university: member.university as string,
+      membershipType: member.membership_type as string,
+      affiliation: member.membership_type === 'student'
+        ? String(member.university ?? 'Student')
+        : [member.occupation, member.organization].filter(Boolean).join(' · ') || 'KAMP Community',
       yearJoined: member.year_joined as number,
       ...(photoAvailable ? { passportDataUri: `data:${photoType};base64,${photo.toString('base64')}` } : {}),
     })

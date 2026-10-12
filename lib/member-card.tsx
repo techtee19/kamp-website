@@ -6,7 +6,8 @@ export interface MemberCardData {
   firstName: string
   lastName: string
   memberId: string
-  university: string
+  membershipType: string
+  affiliation: string
   yearJoined: number
   passportDataUri?: string
 }
@@ -51,8 +52,8 @@ function MemberCard({ data }: { data: MemberCardData }) {
           <View style={styles.frontBody}>
             <View style={styles.photoFrame}>{data.passportDataUri ? <Image src={data.passportDataUri} style={styles.photo} /> : <View style={styles.photoPlaceholder}><Text style={styles.photoInitials}>{`${data.firstName[0] ?? ''}${data.lastName[0] ?? ''}`.toUpperCase()}</Text></View>}</View>
             <Text style={styles.name}>{fullName}</Text>
-            <Text style={styles.memberType}>KAMP MEMBER</Text>
-            <Text style={styles.institution}>{data.university}</Text>
+            <Text style={styles.memberType}>{data.membershipType.replace('_', ' ').toUpperCase()}</Text>
+            <Text style={styles.institution}>{data.affiliation}</Text>
             <View style={styles.idPanel}><Text style={styles.idLabel}>MEMBER ID</Text><Text style={styles.idValue}>{data.memberId}</Text></View>
           </View>
           <View style={styles.frontFooter}><Text style={styles.footerText}>MENTORSHIP  •  COMMUNITY  •  GROWTH</Text><Text style={styles.footerYear}>{data.yearJoined}</Text></View>

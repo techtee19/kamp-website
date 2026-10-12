@@ -10,16 +10,22 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
   const { memberId } = await params
   if (!/^KAMP-MBR-\d{4}-\d{5}$/.test(memberId)) notFound()
   const [member] = await db`
-    SELECT member_id, first_name, last_name, email, phone, university,
-      gender, state_of_origin, study_level, why_join, status, year_joined, joined_at
+    SELECT member_id, first_name, last_name, email, phone, membership_type, date_of_birth,
+      university, occupation, organization, gender, state_of_origin, study_level,
+      why_join, status, year_joined, joined_at
     FROM members WHERE member_id = ${memberId} LIMIT 1
   `
   if (!member) notFound()
 
+  const dateOfBirth = member.date_of_birth
+    ? new Date(`${String(member.date_of_birth).slice(0, 10)}T00:00:00`).toLocaleDateString('en-NG', { year: 'numeric', month: 'long', day: 'numeric' })
+    : null
   const fields = [
     ['Full name', `${member.first_name} ${member.last_name}`],
-    ['Email', member.email], ['Phone', member.phone], ['Institution', member.university],
-    ['Level of study', member.study_level], ['State of origin', member.state_of_origin],
+    ['Email', member.email], ['Phone', member.phone], ['Membership category', member.membership_type],
+    ['Date of birth', dateOfBirth], ['Institution', member.university], ['Level of study', member.study_level],
+    ['Profession or activity', member.occupation], ['Organization', member.organization],
+    ['State of origin', member.state_of_origin],
     ['Gender', member.gender], ['Year joined', member.year_joined],
     ['Date joined', new Date(member.joined_at as string).toLocaleDateString('en-NG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })],
     ['Member ID', member.member_id],

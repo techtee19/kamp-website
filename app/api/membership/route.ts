@@ -93,6 +93,11 @@ export async function POST(req: NextRequest) {
     const values = parsed.data
     const email = values.email.trim().toLowerCase()
     const yearJoined = currentLagosYear()
+    const isStudent = values.membershipType === 'student'
+    const university = isStudent ? values.university?.trim() ?? null : null
+    const studyLevel = isStudent ? values.studyLevel ?? null : null
+    const occupation = isStudent ? null : values.occupation?.trim() ?? null
+    const organization = values.membershipType === 'professional' ? values.organization?.trim() || null : null
 
     const member = await db.begin(async (tx) => {
       const [{ last_number: lastNumber }] = await tx<{ last_number: number }[]>`
@@ -102,16 +107,19 @@ export async function POST(req: NextRequest) {
       `
       const memberId = `KAMP-MBR-${yearJoined}-${String(lastNumber).padStart(5, '0')}`
       const [created] = await tx`
-        INSERT INTO members (member_id, first_name, last_name, email, phone, university, gender, state_of_origin, study_level, why_join, year_joined, passport_photo, passport_photo_type)
-        VALUES (${memberId}, ${values.firstName}, ${values.lastName}, ${email}, ${values.phone}, ${values.university}, ${values.gender}, ${values.stateOfOrigin}, ${values.studyLevel}, ${values.whyJoin}, ${yearJoined}, ${photoBuffer}, ${photo.type})
-        RETURNING member_id, first_name, last_name, email, phone, university, gender, state_of_origin, study_level, why_join, status, year_joined, joined_at
+        INSERT INTO members (member_id, first_name, last_name, email, phone, membership_type, date_of_birth, university, occupation, organization, gender, state_of_origin, study_level, why_join, year_joined, passport_photo, passport_photo_type)
+        VALUES (${memberId}, ${values.firstName}, ${values.lastName}, ${email}, ${values.phone}, ${values.membershipType}, ${values.dateOfBirth}, ${university}, ${occupation}, ${organization}, ${values.gender}, ${values.stateOfOrigin}, ${studyLevel}, ${values.whyJoin}, ${yearJoined}, ${photoBuffer}, ${photo.type})
+        RETURNING member_id, first_name, last_name, email, phone, membership_type, date_of_birth, university, occupation, organization, gender, state_of_origin, study_level, why_join, status, year_joined, joined_at
       `
       return created
     })
 
     let emailSent = false
     try {
-      const cardPDF = await generateMemberCardPDF({ firstName: member.first_name, lastName: member.last_name, memberId: member.member_id, university: member.university, yearJoined: member.year_joined, passportDataUri: photoDataUri })
+      const affiliation = member.membership_type === 'student'
+        ? member.university ?? 'Student'
+        : [member.occupation, member.organization].filter(Boolean).join(' · ') || 'KAMP Community'
+      const cardPDF = await generateMemberCardPDF({ firstName: member.first_name, lastName: member.last_name, memberId: member.member_id, membershipType: member.membership_type, affiliation, yearJoined: member.year_joined, passportDataUri: photoDataUri })
       await sendMembershipWelcome({ to: email, firstName: member.first_name, memberId: member.member_id, cardPDF })
       emailSent = true
     } catch (error) { console.error('Membership welcome email failed:', error) }
