@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowRight, CheckCircle2, LoaderCircle, ShieldCheck } from 'lucide-react'
@@ -14,6 +14,8 @@ const inputClass = (invalid: boolean) => `${inputBaseClass} ${invalid ? 'border-
 export default function MembershipForm() {
   const [success, setSuccess] = useState<{ memberId: string; emailSent: boolean } | null>(null)
   const [serverError, setServerError] = useState('')
+  const [validationMessage, setValidationMessage] = useState('')
+  const validationSummaryRef = useRef<HTMLDivElement>(null)
   const [passportPhoto, setPassportPhoto] = useState<File | null>(null)
   const [photoError, setPhotoError] = useState('')
   const { register, control, handleSubmit, watch, setError, formState: { errors, isSubmitting } } = useForm<MembershipInput>({
@@ -23,11 +25,26 @@ export default function MembershipForm() {
   const membershipType = watch('membershipType')
   const whyJoin = watch('whyJoin') ?? ''
 
+  useEffect(() => {
+    if (validationMessage) validationSummaryRef.current?.focus()
+  }, [validationMessage])
+
+  function handleInvalidSubmit() {
+    setServerError('')
+    setValidationMessage('Please correct the highlighted fields before submitting your application.')
+  }
+
   async function submit(values: MembershipInput) {
     setServerError('')
+    setValidationMessage('')
     if (!passportPhoto || photoError || passportPhoto.size > 2 * 1024 * 1024) {
-      if (!passportPhoto) setPhotoError('Please add a passport-style photo.')
-      else if (passportPhoto.size > 2 * 1024 * 1024) setPhotoError('Photo must be 2 MB or smaller.')
+      if (!passportPhoto) {
+        setPhotoError('Please add a passport-style photo.')
+        setValidationMessage('Please add a passport-style photo before submitting your application.')
+      } else if (passportPhoto.size > 2 * 1024 * 1024) {
+        setPhotoError('Photo must be 2 MB or smaller.')
+        setValidationMessage('Please choose a smaller passport-style photo before submitting your application.')
+      }
       return
     }
     try {
@@ -38,6 +55,7 @@ export default function MembershipForm() {
       const result = await response.json()
       if (!response.ok) {
         if (result.details) {
+          setValidationMessage('Please correct the highlighted fields before submitting your application.')
           for (const [field, messages] of Object.entries(result.details as Record<string, string[]>)) {
             if (messages?.[0]) setError(field as keyof MembershipInput, { type: 'server', message: messages[0] })
           }
@@ -64,8 +82,25 @@ export default function MembershipForm() {
   const errorFor = (name: keyof MembershipInput) => errors[name]?.message && <p className="mt-1 text-sm text-red-700" role="alert">{errors[name]?.message}</p>
 
   return (
-    <form onSubmit={handleSubmit(submit)} noValidate aria-busy={isSubmitting} className="space-y-7">
+    <form
+      onSubmit={handleSubmit(submit, handleInvalidSubmit)}
+      onChange={() => { if (validationMessage) setValidationMessage('') }}
+      noValidate
+      aria-busy={isSubmitting}
+      className="space-y-7"
+    >
       <div className="flex items-center justify-between gap-3 border-b border-brand-card pb-4"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-ink/55">Membership application</p><p className="mt-1 text-xs text-brand-grey">Fields marked <span className="font-bold text-brand-gold">*</span> are required</p></div><span className="rounded-full bg-brand-cream px-3 py-1.5 text-[11px] font-semibold text-brand-ink">KAMP</span></div>
+
+      {validationMessage && (
+        <div
+          ref={validationSummaryRef}
+          tabIndex={-1}
+          role="alert"
+          className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-relaxed text-red-800 focus:outline-2 focus:outline-offset-2 focus:outline-red-500"
+        >
+          {validationMessage}
+        </div>
+      )}
 
       <section aria-labelledby="membership-personal-heading" className="space-y-5">
         <div><h3 id="membership-personal-heading" className="font-display text-lg font-semibold tracking-[-0.02em] text-brand-ink">About you</h3><p className="mt-1 text-xs leading-relaxed text-brand-grey">Your contact details and membership category.</p></div>
