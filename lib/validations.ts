@@ -72,7 +72,10 @@ export const membershipSchema = z.object({
   university: z.string().trim().max(160, 'Keep this under 160 characters').optional(),
   gender: z.enum(['Male', 'Female'], { error: () => ({ message: 'Select a gender' }) }),
   stateOfOrigin: z.enum(NIGERIAN_STATES, { error: () => ({ message: 'Select a state' }) }),
-  studyLevel: z.enum(['100L', '200L', '300L', '400L', '500L', 'Postgraduate', 'Other']).optional(),
+  // The student-only select can remain registered with its placeholder value
+  // after the user switches categories. Accept that empty value here; the
+  // conditional rule below still requires a real level for students.
+  studyLevel: z.enum(['100L', '200L', '300L', '400L', '500L', 'Postgraduate', 'Other']).or(z.literal('')).optional(),
   occupation: z.string().trim().max(120, 'Keep this under 120 characters').optional(),
   organization: z.string().trim().max(160, 'Keep this under 160 characters').optional(),
   whyJoin: z.string().trim().min(10, 'Tell us a little more (at least 10 characters)').max(500, 'Keep your answer under 500 characters'),
