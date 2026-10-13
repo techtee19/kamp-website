@@ -11,7 +11,7 @@ type GalleryAlbumsProps = {
   events: GalleryEventDocument[]
 }
 
-const ROTATION_MS = 5000
+const ROTATION_MS = 4000
 
 export default function GalleryAlbums({ events }: GalleryAlbumsProps) {
   const [index, setIndex] = useState(0)
@@ -97,9 +97,9 @@ export default function GalleryAlbums({ events }: GalleryAlbumsProps) {
                 src={imageUrl}
                 alt={imageAlt}
                 fill
-                priority={imageIndex === 0}
+                loading={imageIndex === 0 || imageIndex === (index + 1) % events.length ? 'eager' : 'lazy'}
                 sizes="(min-width: 1440px) 1400px, calc(100vw - 2rem)"
-                className={`object-cover object-center transition-opacity duration-[1000ms] ease-in-out motion-reduce:transition-none ${imageIndex === index ? 'opacity-100' : 'opacity-0'}`}
+                className={`object-cover object-center transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${imageIndex === index ? 'opacity-100' : 'opacity-0'}`}
                 aria-hidden={imageIndex !== index}
               />
             )
@@ -108,7 +108,7 @@ export default function GalleryAlbums({ events }: GalleryAlbumsProps) {
 
           <div
             key={event._id}
-            className="absolute inset-x-0 bottom-0 flex flex-col gap-7 p-6 text-white motion-safe:animate-[fade-in_500ms_ease-out] sm:p-10 md:flex-row md:items-end md:justify-between md:p-12"
+            className="absolute inset-x-0 bottom-0 flex flex-col gap-7 p-6 text-white motion-safe:animate-[fade-in_700ms_cubic-bezier(0.22,1,0.36,1)] motion-reduce:animate-none sm:p-10 md:flex-row md:items-end md:justify-between md:p-12"
           >
             <div className="max-w-3xl">
               <p className="text-brand-gold mb-3 text-xs font-semibold tracking-[0.2em] uppercase sm:text-sm">
