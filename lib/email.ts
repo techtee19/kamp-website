@@ -99,9 +99,32 @@ export async function sendMembershipWelcome(opts: {
   const result = await resend().emails.send({
     from: FROM(),
     to: opts.to,
-    subject: 'Welcome to KAMP — your membership ID card',
+    subject: 'Welcome to the KAMP community',
     attachments: [{ filename: `KAMP-Member-${opts.memberId.replace(/[^A-Z0-9-]/gi, '')}.pdf`, content: opts.cardPDF }],
-    html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#202020"><div style="background:#1B2A4A;padding:28px;text-align:center;color:white"><h1 style="color:#C49A22;margin:0">KAMP</h1><p>Kolade Adepoju Mentoring Program</p></div><div style="padding:30px"><h2>Welcome, ${esc(opts.firstName)}!</h2><p>Your KAMP membership is active. Your member ID is <strong>${esc(opts.memberId)}</strong>.</p><p>Your member ID card is attached to this email. Keep it safe and use this ID when contacting KAMP.</p><p><a href="${esc(whatsappLink)}" style="display:inline-block;background:#1B2A4A;color:white;padding:12px 20px;border-radius:24px;text-decoration:none">Join the KAMP WhatsApp community</a></p><p>We are glad you are here.<br/><strong>The KAMP Team</strong></p></div></div>`,
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#202020;line-height:1.65">
+        <div style="background:#1B2A4A;padding:30px;text-align:center;color:white">
+          <h1 style="color:#C49A22;margin:0;font-size:30px;letter-spacing:2px">KAMP</h1>
+          <p style="margin:8px 0 0">Kolade Adepoju Mentoring Program</p>
+        </div>
+        <div style="padding:32px 30px">
+          <p style="margin:0 0 8px;color:#C49A22;font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase">You belong here</p>
+          <h2 style="margin:0 0 18px;color:#1B2A4A;font-size:25px">A warm welcome to KAMP, ${esc(opts.firstName)}!</h2>
+          <p>We’re truly glad you’ve joined us. By becoming a KAMP member, you’re now part of a community that believes in people, purposeful mentorship, and the potential each of us carries to make a difference.</p>
+          <p>We hope KAMP brings you meaningful connections, encouragement, and opportunities to learn, grow, and lead. Wherever you are on your journey, there’s room here for you.</p>
+          <div style="background:#F5F0E8;padding:20px;border-radius:10px;margin:24px 0;border-left:4px solid #C49A22">
+            <p style="margin:0;color:#595959;font-size:12px;letter-spacing:1px;text-transform:uppercase">Your KAMP member ID</p>
+            <p style="margin:6px 0 0;color:#1B2A4A;font-size:22px;font-weight:bold">${esc(opts.memberId)}</p>
+          </div>
+          <p>Your membership card is attached. Please keep it somewhere safe; your member ID helps us identify your membership whenever you contact the KAMP team.</p>
+          <p>Stay connected with fellow members and hear from the community by joining our WhatsApp group:</p>
+          <p style="margin:24px 0"><a href="${esc(whatsappLink)}" style="display:inline-block;background:#1B2A4A;color:white;padding:13px 22px;border-radius:24px;text-decoration:none;font-weight:bold">Join the KAMP WhatsApp community</a></p>
+          <p>We’re excited to have you with us. Here’s to the people you’ll meet, the ideas you’ll explore, and the impact you’ll make.</p>
+          <p style="margin-bottom:0">With warmth,<br/><strong>The KAMP Team</strong></p>
+        </div>
+        <div style="background:#F5F0E8;padding:16px;text-align:center;font-size:12px;color:#6B6B6B">© KAMP — Kolade Adepoju Mentoring Program</div>
+      </div>
+    `,
   })
   if (result.error) throw new Error(`Resend membership email failed: ${result.error.message}`)
   return result

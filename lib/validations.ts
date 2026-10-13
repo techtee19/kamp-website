@@ -51,6 +51,18 @@ export const NIGERIAN_STATES = [
   'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara',
 ] as const
 
+export const KAMP_POSITIONS = [
+  'General Member',
+  'Campus Lead',
+  'Chief Executive Officer',
+  'Program/Operations Director',
+  'Partnerships & Sponsorship Director',
+  'Volunteers Director',
+  'Media/Communications Director',
+  'Finance & Administration Director',
+  'Other KAMP role',
+] as const
+
 function todayInLagos(): string {
   const parts = new Intl.DateTimeFormat('en', {
     timeZone: 'Africa/Lagos',
@@ -68,6 +80,10 @@ export const membershipSchema = z.object({
   email: z.string().trim().max(254, 'Email address is too long').pipe(z.email('Enter a valid email address')),
   phone: z.string().trim().min(7, 'Enter a valid phone number').max(24, 'Phone number is too long').regex(/^\+?[0-9][0-9\s().-]*$/, 'Enter a valid phone number'),
   membershipType: z.enum(['student', 'professional', 'non_professional'], { error: () => ({ message: 'Select your membership category' }) }),
+  // Optional at the API boundary to allow already-open clients from a previous
+  // deployment to finish registering as a General Member.
+  kampPosition: z.enum(KAMP_POSITIONS, { error: () => ({ message: 'Select your position in KAMP' }) }).optional(),
+  kampPositionOther: z.string().trim().max(48, 'Keep the KAMP position under 48 characters').optional(),
   dateOfBirth: z.iso.date('Enter a valid date of birth').refine((date) => date <= todayInLagos(), 'Date of birth cannot be in the future'),
   university: z.string().trim().max(160, 'Keep this under 160 characters').optional(),
   gender: z.enum(['Male', 'Female'], { error: () => ({ message: 'Select a gender' }) }),
@@ -80,6 +96,10 @@ export const membershipSchema = z.object({
   organization: z.string().trim().max(160, 'Keep this under 160 characters').optional(),
   whyJoin: z.string().trim().min(10, 'Tell us a little more (at least 10 characters)').max(500, 'Keep your answer under 500 characters'),
 }).superRefine((data, context) => {
+  if (data.kampPosition === 'Other KAMP role' && (!data.kampPositionOther || data.kampPositionOther.length < 2)) {
+    context.addIssue({ code: 'custom', path: ['kampPositionOther'], message: 'Enter your KAMP role' })
+  }
+
   if (data.membershipType === 'student') {
     if (!data.university || data.university.length < 2) {
       context.addIssue({ code: 'custom', path: ['university'], message: 'Enter your tertiary institution' })

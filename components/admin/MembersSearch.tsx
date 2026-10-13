@@ -24,6 +24,6 @@ export default function MembersSearch({ defaultValue }: { defaultValue: string }
 
   return <label className="block">
     <span className="sr-only">Search members</span>
-    <input type="search" value={value} onChange={(event) => updateSearch(event.target.value)} maxLength={100} placeholder="Search by name, email, institution, member ID, or state…" className="w-full rounded-lg border border-brand-card bg-white px-4 py-3 text-sm outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold" />
+    <input type="search" value={value} onChange={(event) => updateSearch(event.target.value)} maxLength={100} placeholder="Search by name, email, KAMP position, institution, member ID, or state…" className="w-full rounded-lg border border-brand-card bg-white px-4 py-3 text-sm outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold" />
   </label>
 }

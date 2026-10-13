@@ -4,6 +4,7 @@ import { isMemberId } from '@/lib/member-id'
 import { db } from '@/lib/db'
 import DeleteMemberButton from '@/components/admin/DeleteMemberButton'
 import ResendCardButton from '@/components/admin/ResendCardButton'
+import EditMemberPosition from '@/components/admin/EditMemberPosition'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,7 +12,7 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
   const { memberId } = await params
   if (!isMemberId(memberId)) notFound()
   const [member] = await db`
-    SELECT member_id, first_name, last_name, email, phone, membership_type, date_of_birth,
+    SELECT member_id, first_name, last_name, email, phone, membership_type, kamp_position, date_of_birth,
       university, occupation, organization, gender, state_of_origin, study_level,
       why_join, status, year_joined, joined_at
     FROM members WHERE member_id = ${memberId} LIMIT 1
@@ -40,6 +41,7 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
     </header>
     <section className="mb-6 overflow-hidden rounded-xl border border-brand-card bg-white">
       <div className="border-b border-brand-card bg-brand-cream px-6 py-4"><h2 className="text-sm font-semibold text-brand-black">Member details</h2></div>
+      <EditMemberPosition memberId={member.member_id as string} currentPosition={(member.kamp_position as string | null) ?? 'General Member'} />
       <dl className="grid grid-cols-1 sm:grid-cols-2">{fields.map(([label, value], index) => <div key={label} className={`border-b border-brand-card px-6 py-4 ${index % 2 ? 'bg-brand-cream/40' : ''}`}><dt className="mb-1 text-xs uppercase tracking-widest text-brand-grey">{label}</dt><dd className="break-words text-sm font-medium text-brand-black">{String(value ?? '—')}</dd></div>)}</dl>
       {member.why_join && <div className="border-t border-brand-card px-6 py-4"><h3 className="mb-2 text-xs uppercase tracking-widest text-brand-grey">Why they joined</h3><p className="whitespace-pre-wrap text-sm leading-relaxed text-brand-black">{member.why_join as string}</p></div>}
     </section>

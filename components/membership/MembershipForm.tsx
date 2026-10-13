@@ -5,14 +5,14 @@ import { useForm, Controller, type FieldErrors } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowRight, CheckCircle2, LoaderCircle, ShieldCheck } from 'lucide-react'
 import InstitutionCombobox from '@/components/ui/InstitutionCombobox'
-import { membershipSchema, NIGERIAN_STATES, type MembershipInput } from '@/lib/validations'
+import { KAMP_POSITIONS, membershipSchema, NIGERIAN_STATES, type MembershipInput } from '@/lib/validations'
 
 const studyLevels = ['100L', '200L', '300L', '400L', '500L', 'Postgraduate', 'Other'] as const
 const membershipFieldLabels: Partial<Record<keyof MembershipInput, string>> = {
   firstName: 'First name', lastName: 'Last name', email: 'Email address', phone: 'Phone number',
   membershipType: 'Membership category', dateOfBirth: 'Date of birth', university: 'Tertiary institution',
   gender: 'Gender', stateOfOrigin: 'State of origin', studyLevel: 'Study level', occupation: 'Profession or current activity',
-  organization: 'Organization', whyJoin: 'Why do you want to join KAMP?',
+  organization: 'Organization', kampPosition: 'KAMP position', kampPositionOther: 'KAMP position', whyJoin: 'Why do you want to join KAMP?',
 }
 const inputBaseClass = 'mt-2 min-h-12 w-full rounded-xl border bg-white px-4 py-3 text-brand-ink outline-none transition duration-150 placeholder:text-brand-grey/65 focus:ring-4 motion-reduce:transition-none'
 const inputClass = (invalid: boolean) => `${inputBaseClass} ${invalid ? 'border-red-400 focus:border-red-500 focus:ring-red-100' : 'border-brand-ink/15 hover:border-brand-ink/30 focus:border-brand-gold focus:ring-brand-gold/15'}`
@@ -27,9 +27,10 @@ export default function MembershipForm() {
   const [photoError, setPhotoError] = useState('')
   const { register, control, handleSubmit, watch, setError, formState: { errors, isSubmitting } } = useForm<MembershipInput>({
     resolver: zodResolver(membershipSchema), mode: 'onBlur',
-    defaultValues: { firstName: '', lastName: '', email: '', phone: '', membershipType: 'student', dateOfBirth: '', university: '', gender: undefined, stateOfOrigin: undefined, studyLevel: undefined, occupation: '', organization: '', whyJoin: '' },
+    defaultValues: { firstName: '', lastName: '', email: '', phone: '', membershipType: 'student', kampPosition: 'General Member', kampPositionOther: '', dateOfBirth: '', university: '', gender: undefined, stateOfOrigin: undefined, studyLevel: undefined, occupation: '', organization: '', whyJoin: '' },
   })
   const membershipType = watch('membershipType')
+  const kampPosition = watch('kampPosition')
   const whyJoin = watch('whyJoin') ?? ''
 
   useEffect(() => {
@@ -157,6 +158,10 @@ export default function MembershipForm() {
         <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
           <label className="block text-sm font-medium text-brand-ink">Gender <span className="text-brand-gold">*</span><select className={inputClass(!!errors.gender)} defaultValue="" {...register('gender')}><option value="" disabled>Select</option><option>Female</option><option>Male</option></select>{errorFor('gender')}</label>
           <label className="block text-sm font-medium text-brand-ink">State of origin <span className="text-brand-gold">*</span><select className={inputClass(!!errors.stateOfOrigin)} defaultValue="" {...register('stateOfOrigin')}><option value="" disabled>Select</option>{NIGERIAN_STATES.map((state) => <option key={state}>{state}</option>)}</select>{errorFor('stateOfOrigin')}</label>
+        </div>
+        <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
+          <label className="block text-sm font-medium text-brand-ink">Position in KAMP <span className="text-brand-gold">*</span><select className={inputClass(!!errors.kampPosition)} {...register('kampPosition')}>{KAMP_POSITIONS.map((position) => <option key={position} value={position}>{position}</option>)}</select>{errorFor('kampPosition')}<span className="mt-1 block text-xs font-normal leading-relaxed text-brand-grey">Choose a role assigned to you by KAMP. Select General Member if you do not hold a KAMP position.</span></label>
+          {kampPosition === 'Other KAMP role' && <label className="block text-sm font-medium text-brand-ink">Other KAMP role <span className="text-brand-gold">*</span><input maxLength={80} placeholder="Enter your assigned KAMP role" className={inputClass(!!errors.kampPositionOther)} {...register('kampPositionOther')} aria-invalid={!!errors.kampPositionOther} />{errorFor('kampPositionOther')}</label>}
         </div>
       </section>
 

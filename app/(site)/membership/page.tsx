@@ -39,6 +39,9 @@ export default function MembershipPage() {
           <p className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.18em] text-brand-ink/60"><span aria-hidden="true" className="h-px w-7 bg-brand-gold" />Your next step</p>
           <h2 className="mt-4 font-display text-3xl font-semibold leading-[1.05] tracking-[-0.035em] sm:text-4xl">Find your place in the KAMP community.</h2>
           <p className="mt-5 max-w-md leading-relaxed text-brand-grey">Tell us a little about yourself. We&apos;ll create your membership and send your member ID and card to your email.</p>
+          <Link href="/membership/card-preview" className="group mt-5 inline-flex items-center gap-2 text-sm font-semibold text-brand-ink underline decoration-brand-gold decoration-2 underline-offset-4 transition-colors hover:text-brand-grey focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-ink">
+            Preview the membership card <ArrowRight aria-hidden="true" className="size-4 transition-transform group-hover:translate-x-1 motion-reduce:transition-none" />
+          </Link>
           <p className="mt-6 max-w-md border-l-2 border-brand-gold pl-4 text-sm leading-relaxed text-brand-grey">Your details are used to manage your membership and keep you connected with KAMP.</p>
         </div>
         <div className="rounded-[24px] border border-white/80 bg-white p-5 shadow-[0_20px_60px_rgba(32,32,32,0.07)] sm:p-8 lg:p-9">
