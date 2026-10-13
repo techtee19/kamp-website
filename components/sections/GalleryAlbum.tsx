@@ -64,8 +64,20 @@ export default function GalleryAlbum({
 
   return (
     <div className="container max-w-[1200px]">
-      <div className="flex items-center justify-between gap-6">
-        <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{event.title}</h2>
+      <div className="flex items-end justify-between gap-6 border-b border-brand-ink/10 pb-5 sm:pb-6">
+        <div className="min-w-0">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-brand-gold">Event album</p>
+          <h2 className="font-display text-3xl font-semibold leading-tight tracking-[-.025em] sm:text-4xl">{event.title}</h2>
+          {(event.theme || event.university) && (
+            <p className="mt-2 text-sm text-brand-grey sm:text-base">
+              {[event.theme, event.university].filter(Boolean).join(' · ')}
+            </p>
+          )}
+        </div>
+        <p className="hidden shrink-0 text-right text-sm text-brand-grey sm:block">
+          <span className="block font-display text-2xl font-semibold leading-none text-brand-black">{String(albumPhotos.length).padStart(2, '0')}</span>
+          {albumPhotos.length === 1 ? 'photo' : 'photos'}
+        </p>
         {showArrows && (
           // Visible at every breakpoint: these arrows are now the only way to reach
           // another event's album, so hiding them on mobile would strand phone visitors
@@ -86,11 +98,11 @@ export default function GalleryAlbum({
         <p className="sr-only" aria-live="polite">{`Showing ${event.title}, gallery ${position.index + 1} of ${position.total}, ${photos.length} photos`}</p>
       )}
 
-      <div className="mt-8 grid auto-rows-[72px] grid-cols-4 gap-3 sm:auto-rows-[88px] md:mt-10 md:auto-rows-[80px] md:grid-cols-12 md:gap-4 lg:auto-rows-[96px]">
+      <div className="mt-6 grid auto-rows-[72px] grid-cols-4 gap-2.5 sm:auto-rows-[88px] sm:gap-3 md:mt-8 md:auto-rows-[80px] md:grid-cols-12 md:gap-4 lg:auto-rows-[96px]">
         {visible.map((photo, index) => (
           // Keying on the event as well as the photo remounts each tile, which is what
           // replays the fade as a new album comes in.
-          <figure key={`${event._id}-${index}-${photo.asset?.url}`} className={`relative overflow-hidden rounded-2xl bg-brand-card motion-safe:animate-[fade-in_400ms_ease-out] ${slots[index]}`}>
+          <figure key={`${event._id}-${index}-${photo.asset?.url}`} className={`relative overflow-hidden rounded-xl bg-brand-card motion-safe:animate-[fade-in_400ms_ease-out] sm:rounded-2xl ${slots[index]}`}>
             {/* An image field an editor added but never uploaded to projects as a
                 null asset, so that slot keeps the card tint instead of handing
                 next/image an undefined src. */}
