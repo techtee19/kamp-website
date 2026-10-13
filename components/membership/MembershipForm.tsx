@@ -1,13 +1,19 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useForm, Controller } from 'react-hook-form'
+import { useForm, Controller, type FieldErrors } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowRight, CheckCircle2, LoaderCircle, ShieldCheck } from 'lucide-react'
 import InstitutionCombobox from '@/components/ui/InstitutionCombobox'
 import { membershipSchema, NIGERIAN_STATES, type MembershipInput } from '@/lib/validations'
 
 const studyLevels = ['100L', '200L', '300L', '400L', '500L', 'Postgraduate', 'Other'] as const
+const membershipFieldLabels: Partial<Record<keyof MembershipInput, string>> = {
+  firstName: 'First name', lastName: 'Last name', email: 'Email address', phone: 'Phone number',
+  membershipType: 'Membership category', dateOfBirth: 'Date of birth', university: 'Tertiary institution',
+  gender: 'Gender', stateOfOrigin: 'State of origin', studyLevel: 'Study level', occupation: 'Profession or current activity',
+  organization: 'Organization', whyJoin: 'Why do you want to join KAMP?',
+}
 const inputBaseClass = 'mt-2 min-h-12 w-full rounded-xl border bg-white px-4 py-3 text-brand-ink outline-none transition duration-150 placeholder:text-brand-grey/65 focus:ring-4 motion-reduce:transition-none'
 const inputClass = (invalid: boolean) => `${inputBaseClass} ${invalid ? 'border-red-400 focus:border-red-500 focus:ring-red-100' : 'border-brand-ink/15 hover:border-brand-ink/30 focus:border-brand-gold focus:ring-brand-gold/15'}`
 
@@ -15,6 +21,7 @@ export default function MembershipForm() {
   const [success, setSuccess] = useState<{ memberId: string; emailSent: boolean } | null>(null)
   const [serverError, setServerError] = useState('')
   const [validationMessage, setValidationMessage] = useState('')
+  const [validationDetails, setValidationDetails] = useState<string[]>([])
   const validationSummaryRef = useRef<HTMLDivElement>(null)
   const [passportPhoto, setPassportPhoto] = useState<File | null>(null)
   const [photoError, setPhotoError] = useState('')
@@ -29,21 +36,30 @@ export default function MembershipForm() {
     if (validationMessage) validationSummaryRef.current?.focus()
   }, [validationMessage])
 
-  function handleInvalidSubmit() {
+  function handleInvalidSubmit(invalidFields: FieldErrors<MembershipInput>) {
     setServerError('')
-    setValidationMessage('Please correct the highlighted fields before submitting your application.')
+    const details = Object.entries(invalidFields).map(([field, issue]) => {
+      const label = membershipFieldLabels[field as keyof MembershipInput] ?? field
+      const message = issue?.message ? String(issue.message) : 'Check this field.'
+      return `${label}: ${message}`
+    })
+    setValidationMessage(details.length ? 'Please check the following before submitting:' : 'The form could not be validated. Please reload and try again.')
+    setValidationDetails(details.length ? details : ['The form could not be validated. Please reload and try again.'])
   }
 
   async function submit(values: MembershipInput) {
     setServerError('')
     setValidationMessage('')
+    setValidationDetails([])
     if (!passportPhoto || photoError || passportPhoto.size > 2 * 1024 * 1024) {
       if (!passportPhoto) {
         setPhotoError('Please add a passport-style photo.')
         setValidationMessage('Please add a passport-style photo before submitting your application.')
+        setValidationDetails(['Passport-style photo: Please choose a JPG or PNG image.'])
       } else if (passportPhoto.size > 2 * 1024 * 1024) {
         setPhotoError('Photo must be 2 MB or smaller.')
         setValidationMessage('Please choose a smaller passport-style photo before submitting your application.')
+        setValidationDetails(['Passport-style photo: The image must be 2 MB or smaller.'])
       }
       return
     }
@@ -55,7 +71,12 @@ export default function MembershipForm() {
       const result = await response.json()
       if (!response.ok) {
         if (result.details) {
-          setValidationMessage('Please correct the highlighted fields before submitting your application.')
+          const details = Object.entries(result.details as Record<string, string[]>).flatMap(([field, messages]) => {
+            const label = membershipFieldLabels[field as keyof MembershipInput] ?? field
+            return messages?.[0] ? [`${label}: ${messages[0]}`] : []
+          })
+          setValidationMessage(details.length ? 'Please check the following before submitting:' : 'The server could not validate the form. Please review your entries and try again.')
+          setValidationDetails(details)
           for (const [field, messages] of Object.entries(result.details as Record<string, string[]>)) {
             if (messages?.[0]) setError(field as keyof MembershipInput, { type: 'server', message: messages[0] })
           }
@@ -84,7 +105,12 @@ export default function MembershipForm() {
   return (
     <form
       onSubmit={handleSubmit(submit, handleInvalidSubmit)}
-      onChange={() => { if (validationMessage) setValidationMessage('') }}
+      onChange={() => {
+        if (validationMessage) {
+          setValidationMessage('')
+          setValidationDetails([])
+        }
+      }}
       noValidate
       aria-busy={isSubmitting}
       className="space-y-7"
@@ -99,6 +125,11 @@ export default function MembershipForm() {
           className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-relaxed text-red-800 focus:outline-2 focus:outline-offset-2 focus:outline-red-500"
         >
           {validationMessage}
+          {validationDetails.length > 0 && (
+            <ul className="mt-2 list-inside list-disc space-y-1">
+              {validationDetails.map((detail) => <li key={detail}>{detail}</li>)}
+            </ul>
+          )}
         </div>
       )}
 
