@@ -25,6 +25,7 @@ interface InstitutionComboboxProps {
   /** Pre-fill the input (e.g. when editing an existing form). */
   defaultValue?: string
   className?: string
+  inputClassName?: string
   onValueChange?: (value: string) => void
 }
 
@@ -34,6 +35,7 @@ export default function InstitutionCombobox({
   disabled = false,
   defaultValue = '',
   className = '',
+  inputClassName,
   onValueChange,
 }: InstitutionComboboxProps) {
   const id = useId()
@@ -209,7 +211,7 @@ export default function InstitutionCombobox({
         onFocus={() => {
           if (query.trim().length >= 3) setOpen(true)
         }}
-        className={baseInput}
+        className={inputClassName ?? baseInput}
       />
 
       {/* Dropdown */}
