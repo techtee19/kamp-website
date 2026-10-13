@@ -13,9 +13,9 @@ export default function StatesChart({ data }: { data: CategoryCount[] }) {
           <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#6B6B6B' }} tickLine={false} axisLine={false} angle={-30} textAnchor="end" interval={0} />
           <YAxis tick={{ fontSize: 11, fill: '#6B6B6B' }} tickLine={false} axisLine={false} allowDecimals={false} />
           <Tooltip
-            contentStyle={{ background: '#1A1A1A', border: 'none', borderRadius: 8, color: '#fff', fontSize: 12 }}
+            contentStyle={{ background: '#202020', border: 'none', borderRadius: 10, color: '#fff', fontSize: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.16)' }}
           />
-          <Bar dataKey="count" name="Members" fill="#1A1A1A" radius={[5, 5, 0, 0]} barSize={24} />
+          <Bar dataKey="count" name="Members" fill="#202020" radius={[5, 5, 0, 0]} barSize={24} />
         </BarChart>
       </ResponsiveContainer>
     </div>

@@ -15,25 +15,28 @@ export interface MemberCardData {
 const CARD = { width: 153.07, height: 242.65 }
 
 const styles = StyleSheet.create({
-  page: { width: CARD.width, height: CARD.height, padding: 6, backgroundColor: '#EAE6DD', fontFamily: 'Helvetica' },
-  front: { flex: 1, overflow: 'hidden', borderRadius: 10, borderWidth: 0.8, borderColor: '#C59A2A', backgroundColor: '#FFFEFB' },
-  frontHeader: { height: 43, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#1B2A4A', borderBottomWidth: 2, borderBottomColor: '#C59A2A' },
-  logo: { width: 58, height: 27, objectFit: 'contain' },
-  brandText: { color: '#E5C36A', fontSize: 5.5, letterSpacing: 0.8, textAlign: 'right' },
-  frontBody: { flex: 1, paddingHorizontal: 12, paddingTop: 9, alignItems: 'center' },
-  photoFrame: { width: 66, height: 78, padding: 2, borderWidth: 1.5, borderColor: '#C59A2A', borderRadius: 7, backgroundColor: '#fff' },
-  photo: { width: '100%', height: '100%', objectFit: 'cover', borderRadius: 4 },
-  photoPlaceholder: { width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', backgroundColor: '#EAE6DD', borderRadius: 4 },
+  page: { width: CARD.width, height: CARD.height, padding: 5, backgroundColor: '#F1EFE9', fontFamily: 'Helvetica' },
+  front: { flex: 1, overflow: 'hidden', borderRadius: 10, borderWidth: 0.6, borderColor: '#D9D4C9', backgroundColor: '#FFFEFC' },
+  frontHeader: { height: 43, paddingHorizontal: 11, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#1B2A4A', borderBottomWidth: 2, borderBottomColor: '#EFBC2B' },
+  logo: { width: 52, height: 28, objectFit: 'contain' },
+  brandBlock: { alignItems: 'flex-end' },
+  brandEyebrow: { color: '#EFBC2B', fontFamily: 'Helvetica-Bold', fontSize: 5.2, letterSpacing: 1.2 },
+  brandText: { marginTop: 2, color: '#FFFFFF', fontSize: 5.3, letterSpacing: 0.5, textAlign: 'right' },
+  frontBody: { flex: 1, paddingHorizontal: 12, paddingTop: 8, paddingBottom: 6, alignItems: 'center' },
+  photoFrame: { width: 59, height: 67, padding: 2, borderWidth: 1, borderColor: '#D7C27D', borderRadius: 8, backgroundColor: '#fff' },
+  photo: { width: '100%', height: '100%', objectFit: 'cover', borderRadius: 5 },
+  photoPlaceholder: { width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F1EFE9', borderRadius: 5 },
   photoInitials: { color: '#1B2A4A', fontFamily: 'Helvetica-Bold', fontSize: 17, letterSpacing: 1 },
-  name: { marginTop: 7, color: '#17233B', fontFamily: 'Helvetica-Bold', fontSize: 12, textAlign: 'center' },
-  memberType: { marginTop: 3, color: '#8A6A20', fontSize: 6, fontFamily: 'Helvetica-Bold', letterSpacing: 1.1, textAlign: 'center' },
-  institution: { marginTop: 4, color: '#606979', fontSize: 6.5, textAlign: 'center' },
-  idPanel: { width: '100%', marginTop: 8, paddingVertical: 5, paddingHorizontal: 7, borderLeftWidth: 2, borderLeftColor: '#C59A2A', backgroundColor: '#F3F0E8' },
-  idLabel: { color: '#77705F', fontSize: 5, letterSpacing: 1 },
-  idValue: { marginTop: 2, color: '#17233B', fontFamily: 'Helvetica-Bold', fontSize: 8.5 },
-  frontFooter: { height: 19, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#1B2A4A' },
-  footerText: { color: '#E5C36A', fontSize: 5, letterSpacing: 0.7 },
-  footerYear: { color: '#fff', fontSize: 5.5 },
+  name: { width: '100%', marginTop: 6, color: '#17233B', fontFamily: 'Helvetica-Bold', fontSize: 11.5, textAlign: 'center' },
+  typePill: { marginTop: 4, paddingVertical: 3, paddingHorizontal: 7, borderRadius: 99, backgroundColor: '#F5F0E1' },
+  memberType: { color: '#745A1C', fontSize: 5.7, fontFamily: 'Helvetica-Bold', letterSpacing: 0.8, textAlign: 'center' },
+  institution: { width: '100%', marginTop: 5, color: '#626B79', fontSize: 6.3, lineHeight: 1.3, textAlign: 'center' },
+  idPanel: { width: '100%', marginTop: 7, paddingVertical: 5, paddingHorizontal: 7, borderRadius: 5, backgroundColor: '#F3F1EB' },
+  idLabel: { color: '#7A7468', fontFamily: 'Helvetica-Bold', fontSize: 4.8, letterSpacing: 1 },
+  idValue: { marginTop: 2, color: '#17233B', fontFamily: 'Helvetica-Bold', fontSize: 7.5, letterSpacing: 0.25 },
+  frontFooter: { height: 20, paddingHorizontal: 11, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#1B2A4A' },
+  footerText: { color: '#FFFFFF', fontSize: 5, letterSpacing: 0.45 },
+  footerYear: { color: '#EFBC2B', fontFamily: 'Helvetica-Bold', fontSize: 5.8 },
 
 })
 
@@ -47,12 +50,15 @@ function MemberCard({ data }: { data: MemberCardData }) {
         <View style={styles.front}>
           <View style={styles.frontHeader}>
             <Image src={logoPath} style={styles.logo} />
-            <View><Text style={styles.brandText}>KOLADE ADEPOJU</Text><Text style={styles.brandText}>MENTORING PROGRAM</Text></View>
+            <View style={styles.brandBlock}>
+              <Text style={styles.brandEyebrow}>KAMP MEMBERSHIP</Text>
+              <Text style={styles.brandText}>KOLADE ADEPOJU MENTORING PROGRAM</Text>
+            </View>
           </View>
           <View style={styles.frontBody}>
             <View style={styles.photoFrame}>{data.passportDataUri ? <Image src={data.passportDataUri} style={styles.photo} /> : <View style={styles.photoPlaceholder}><Text style={styles.photoInitials}>{`${data.firstName[0] ?? ''}${data.lastName[0] ?? ''}`.toUpperCase()}</Text></View>}</View>
             <Text style={styles.name}>{fullName}</Text>
-            <Text style={styles.memberType}>{data.membershipType.replace('_', ' ').toUpperCase()}</Text>
+            <View style={styles.typePill}><Text style={styles.memberType}>{data.membershipType.replaceAll('_', ' ').toUpperCase()}</Text></View>
             <Text style={styles.institution}>{data.affiliation}</Text>
             <View style={styles.idPanel}><Text style={styles.idLabel}>MEMBER ID</Text><Text style={styles.idValue}>{data.memberId}</Text></View>
           </View>

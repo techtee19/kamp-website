@@ -2,7 +2,7 @@
 
 import type { CategoryCount } from '@/lib/admin-analytics'
 
-const colors = ['#C9A227', '#1A1A1A', '#C9A227', '#1A1A1A', '#C9A227', '#6B6B6B', '#4ECDC4']
+const colors = ['#EFBC2B', '#202020', '#EFBC2B', '#202020', '#EFBC2B', '#6B6B6B', '#4ECDC4']
 
 export default function StudyLevelBreakdown({ data }: { data: CategoryCount[] }) {
   if (data.length === 0) return <p className="py-8 text-center text-sm text-brand-grey">No member data yet.</p>

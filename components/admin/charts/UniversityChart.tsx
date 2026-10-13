@@ -13,9 +13,9 @@ export default function UniversityChart({ data }: { data: UniversityCount[] }) {
           <XAxis type="number" tick={{ fontSize: 11, fill: '#6B6B6B' }} tickLine={false} axisLine={false} allowDecimals={false} />
           <YAxis type="category" dataKey="university" width={132} tick={{ fontSize: 10, fill: '#6B6B6B' }} tickLine={false} axisLine={false} />
           <Tooltip
-            contentStyle={{ background: '#1A1A1A', border: 'none', borderRadius: 8, color: '#fff', fontSize: 12 }}
+            contentStyle={{ background: '#202020', border: 'none', borderRadius: 10, color: '#fff', fontSize: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.16)' }}
           />
-          <Bar dataKey="count" name="Members" fill="#C9A227" radius={[0, 5, 5, 0]} barSize={16} />
+          <Bar dataKey="count" name="Members" fill="#EFBC2B" radius={[0, 5, 5, 0]} barSize={16} />
         </BarChart>
       </ResponsiveContainer>
     </div>

@@ -1,7 +1,11 @@
 const EVENT_TABLE_NAME = /^reg_[a-z0-9_]{1,43}$/
 
+export function isEventTableName(value: unknown): value is string {
+  return typeof value === 'string' && EVENT_TABLE_NAME.test(value)
+}
+
 export function quoteEventTableName(value: unknown): string {
-  if (typeof value !== 'string' || !EVENT_TABLE_NAME.test(value)) {
+  if (!isEventTableName(value)) {
     throw new Error('Invalid event registration table name in registry')
   }
   return `"${value}"`

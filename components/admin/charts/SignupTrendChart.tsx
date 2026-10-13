@@ -24,10 +24,10 @@ export default function SignupTrendChart({ data }: { data: SignupMonth[] }) {
           <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#6B6B6B' }} tickLine={false} axisLine={false} />
           <YAxis tick={{ fontSize: 11, fill: '#6B6B6B' }} tickLine={false} axisLine={false} allowDecimals={false} />
           <Tooltip
-            contentStyle={{ background: '#1A1A1A', border: 'none', borderRadius: 8, color: '#fff', fontSize: 12 }}
-            labelStyle={{ color: '#C9A227' }}
+            contentStyle={{ background: '#202020', border: 'none', borderRadius: 10, color: '#fff', fontSize: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.16)' }}
+            labelStyle={{ color: '#EFBC2B' }}
           />
-          <Line type="monotone" dataKey="count" stroke="#C9A227" strokeWidth={3} dot={{ fill: '#C9A227', r: 3 }} activeDot={{ r: 5 }} />
+          <Line type="monotone" dataKey="count" stroke="#EFBC2B" strokeWidth={2.5} dot={{ fill: '#EFBC2B', r: 3 }} activeDot={{ r: 5 }} />
         </LineChart>
       </ResponsiveContainer>
     </div>

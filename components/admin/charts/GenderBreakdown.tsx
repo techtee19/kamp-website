@@ -2,7 +2,7 @@
 
 import type { GenderCount } from '@/lib/admin-analytics'
 
-const colors: Record<string, string> = { Male: '#1A1A1A', Female: '#C9A227' }
+const colors: Record<string, string> = { Male: '#202020', Female: '#EFBC2B' }
 
 export default function GenderBreakdown({ data }: { data: GenderCount[] }) {
   if (data.length === 0) return <p className="py-8 text-center text-sm text-brand-grey">No member data yet.</p>

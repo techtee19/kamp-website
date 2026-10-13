@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { quoteEventTableName } from '@/lib/admin-data'
+import { isEventTableName, quoteEventTableName } from '@/lib/admin-data'
 
 export type SignupMonth = { month: string; count: number }
 export type UniversityCount = { university: string; fullName: string; count: number }
@@ -12,6 +12,11 @@ function isMissingTableError(error: unknown): boolean {
 }
 
 export async function getEventRegistrationCount(tableName: unknown): Promise<EventRegistrationCount> {
+  if (!isEventTableName(tableName)) {
+    console.warn('[admin] Invalid registration table name in event registry; skipping its count.')
+    return { count: 0, available: false }
+  }
+
   const table = quoteEventTableName(tableName)
 
   try {
