@@ -45,11 +45,11 @@ function currentLagosYear() {
 }
 
 export async function POST(req: NextRequest) {
-  if (!(await rateLimit(`membership:${getClientIp(req)}`, 3, 60_000))) {
-    return NextResponse.json({ error: 'Too many attempts. Please try again shortly.' }, { status: 429 })
-  }
-
   try {
+    if (!(await rateLimit(`membership:${getClientIp(req)}`, 3, 60_000))) {
+      return NextResponse.json({ error: 'Too many attempts. Please try again shortly.' }, { status: 429 })
+    }
+
     if (req.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() !== 'multipart/form-data') {
       return NextResponse.json({ error: 'Invalid request.' }, { status: 415 })
     }

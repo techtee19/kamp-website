@@ -4,7 +4,7 @@
 import { ChevronDown, Menu, X } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSelectedLayoutSegment } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 const primaryLinks = [
@@ -29,8 +29,11 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<DropdownName | null>(null)
   const pathname = usePathname()
+  const selectedSegment = useSelectedLayoutSegment()
   const desktopNavRef = useRef<HTMLDivElement>(null)
-  const isHome = pathname === '/' || pathname === '/about'
+  // This navbar is rendered by app/(site)/layout.tsx, so the selected child
+  // segment is available on the initial render and stays correct on navigation.
+  const isHome = selectedSegment === null || selectedSegment === 'about'
 
   const isActive = (href: string) =>
     pathname === href || (href !== '/' && pathname.startsWith(`${href}/`))
