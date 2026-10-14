@@ -13,6 +13,12 @@ export const db =
     // db-check configuration. For certificate verification, configure the
     // provider's CA certificate and set rejectUnauthorized to true.
     ssl: { rejectUnauthorized: false },
+    // Supabase's transaction-mode pooler can route a query to a different
+    // backend connection than the one that created its named prepared
+    // statement. Disabling protocol-level prepares avoids intermittent
+    // `prepared statement ... does not exist` errors while keeping all tagged
+    // queries parameterized.
+    prepare: false,
     max: 10,
     idle_timeout: 20,
     connect_timeout: 10,

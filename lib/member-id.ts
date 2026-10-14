@@ -17,5 +17,5 @@ export function createMemberId(category: MembershipCategory, year: number, seque
 
 /** Accept historical IDs as well as the current category-coded format. */
 export function isMemberId(value: string): boolean {
-  return /^KAMP-(?:MBR|STU|PRO|NPR)-\d{4}-\d{5}$/.test(value)
+  return /^KAMP-(?:(?:MBR|STU|PRO|NPR)-\d{4}-\d{5}|(?:FND|COF)-\d{4}-001|BRD-\d{4}-(?:00[1-9]|01[0-5]))$/.test(value)
 }

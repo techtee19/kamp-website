@@ -29,7 +29,8 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en" className={`${urbanist.variable} h-full`}>
       <Analytics />
-      <body className="font-body text-charcoal flex min-h-full flex-col bg-white antialiased">
+      {/* Browser extensions can inject attributes into body before React hydrates. */}
+      <body suppressHydrationWarning className="font-body text-charcoal flex min-h-full flex-col bg-white antialiased">
         {children}
       </body>
     </html>

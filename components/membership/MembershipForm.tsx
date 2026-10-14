@@ -17,7 +17,7 @@ const membershipFieldLabels: Partial<Record<keyof MembershipInput, string>> = {
 const inputBaseClass = 'mt-2 min-h-12 w-full rounded-xl border bg-white px-4 py-3 text-brand-ink outline-none transition duration-150 placeholder:text-brand-grey/65 focus:ring-4 motion-reduce:transition-none'
 const inputClass = (invalid: boolean) => `${inputBaseClass} ${invalid ? 'border-red-400 focus:border-red-500 focus:ring-red-100' : 'border-brand-ink/15 hover:border-brand-ink/30 focus:border-brand-gold focus:ring-brand-gold/15'}`
 
-export default function MembershipForm() {
+export default function MembershipForm({ leadershipInvite }: { leadershipInvite?: { token: string; email: string; role: string } }) {
   const [success, setSuccess] = useState<{ memberId: string; emailSent: boolean } | null>(null)
   const [serverError, setServerError] = useState('')
   const [validationMessage, setValidationMessage] = useState('')
@@ -27,7 +27,7 @@ export default function MembershipForm() {
   const [photoError, setPhotoError] = useState('')
   const { register, control, handleSubmit, watch, setError, formState: { errors, isSubmitting } } = useForm<MembershipInput>({
     resolver: zodResolver(membershipSchema), mode: 'onBlur',
-    defaultValues: { firstName: '', lastName: '', email: '', phone: '', membershipType: 'student', kampPosition: 'General Member', kampPositionOther: '', dateOfBirth: '', university: '', gender: undefined, stateOfOrigin: undefined, studyLevel: undefined, occupation: '', organization: '', whyJoin: '' },
+    defaultValues: { firstName: '', lastName: '', email: leadershipInvite?.email ?? '', phone: '', membershipType: 'student', kampPosition: 'General Member', kampPositionOther: '', dateOfBirth: '', university: '', gender: undefined, stateOfOrigin: undefined, studyLevel: undefined, occupation: '', organization: '', whyJoin: '' },
   })
   const membershipType = watch('membershipType')
   const kampPosition = watch('kampPosition')
@@ -68,6 +68,7 @@ export default function MembershipForm() {
       const formData = new FormData()
       formData.set('data', JSON.stringify(values))
       formData.set('passportPhoto', passportPhoto)
+      if (leadershipInvite) formData.set('leadershipInviteToken', leadershipInvite.token)
       const response = await fetch('/api/membership', { method: 'POST', body: formData })
       const result = await response.json()
       if (!response.ok) {
@@ -116,7 +117,7 @@ export default function MembershipForm() {
       aria-busy={isSubmitting}
       className="space-y-7"
     >
-      <div className="flex items-center justify-between gap-3 border-b border-brand-card pb-4"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-ink/55">Membership application</p><p className="mt-1 text-xs text-brand-grey">Fields marked <span className="font-bold text-brand-gold">*</span> are required</p></div><span className="rounded-full bg-brand-cream px-3 py-1.5 text-[11px] font-semibold text-brand-ink">KAMP</span></div>
+      <div className="flex items-center justify-between gap-3 border-b border-brand-card pb-4"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-ink/55">{leadershipInvite ? 'Leadership membership application' : 'Membership application'}</p><p className="mt-1 text-xs text-brand-grey">Fields marked <span className="font-bold text-brand-gold">*</span> are required</p></div><span className="rounded-full bg-brand-cream px-3 py-1.5 text-[11px] font-semibold text-brand-ink">KAMP</span></div>
 
       {validationMessage && (
         <div
@@ -139,7 +140,7 @@ export default function MembershipForm() {
         <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
           <label className="block text-sm font-medium text-brand-ink">First name <span className="text-brand-gold">*</span><input autoComplete="given-name" className={inputClass(!!errors.firstName)} {...register('firstName')} aria-invalid={!!errors.firstName} />{errorFor('firstName')}</label>
           <label className="block text-sm font-medium text-brand-ink">Last name <span className="text-brand-gold">*</span><input autoComplete="family-name" className={inputClass(!!errors.lastName)} {...register('lastName')} aria-invalid={!!errors.lastName} />{errorFor('lastName')}</label>
-          <label className="block text-sm font-medium text-brand-ink">Email address <span className="text-brand-gold">*</span><input type="email" autoComplete="email" className={inputClass(!!errors.email)} {...register('email')} aria-invalid={!!errors.email} />{errorFor('email')}</label>
+          <label className="block text-sm font-medium text-brand-ink">Email address <span className="text-brand-gold">*</span><input type="email" autoComplete="email" readOnly={!!leadershipInvite} className={`${inputClass(!!errors.email)} ${leadershipInvite ? 'bg-brand-cream/60' : ''}`} {...register('email')} aria-invalid={!!errors.email} />{leadershipInvite && <span className="mt-1 block text-xs font-normal text-brand-grey">This invitation is assigned to this email address.</span>}{errorFor('email')}</label>
           <label className="block text-sm font-medium text-brand-ink">Phone number <span className="text-brand-gold">*</span><input type="tel" autoComplete="tel" className={inputClass(!!errors.phone)} {...register('phone')} aria-invalid={!!errors.phone} />{errorFor('phone')}</label>
           <label className="block text-sm font-medium text-brand-ink">Membership category <span className="text-brand-gold">*</span><select className={inputClass(!!errors.membershipType)} {...register('membershipType')}><option value="student">Student</option><option value="professional">Professional</option><option value="non_professional">Non-professional</option></select>{errorFor('membershipType')}</label>
           <label className="block text-sm font-medium text-brand-ink">Date of birth <span className="text-brand-gold">*</span><input type="date" autoComplete="bday" className={inputClass(!!errors.dateOfBirth)} {...register('dateOfBirth')} aria-invalid={!!errors.dateOfBirth} />{errorFor('dateOfBirth')}</label>
@@ -159,10 +160,10 @@ export default function MembershipForm() {
           <label className="block text-sm font-medium text-brand-ink">Gender <span className="text-brand-gold">*</span><select className={inputClass(!!errors.gender)} defaultValue="" {...register('gender')}><option value="" disabled>Select</option><option>Female</option><option>Male</option></select>{errorFor('gender')}</label>
           <label className="block text-sm font-medium text-brand-ink">State of origin <span className="text-brand-gold">*</span><select className={inputClass(!!errors.stateOfOrigin)} defaultValue="" {...register('stateOfOrigin')}><option value="" disabled>Select</option>{NIGERIAN_STATES.map((state) => <option key={state}>{state}</option>)}</select>{errorFor('stateOfOrigin')}</label>
         </div>
-        <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
+        {leadershipInvite ? <div className="rounded-xl border border-brand-gold/30 bg-brand-cream p-4"><p className="text-xs font-semibold uppercase tracking-widest text-brand-grey">Approved KAMP position</p><p className="mt-1 font-semibold text-brand-ink">{leadershipInvite.role}</p><p className="mt-1 text-xs text-brand-grey">This role and its member ID are set by your private invitation.</p></div> : <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
           <label className="block text-sm font-medium text-brand-ink">Position in KAMP <span className="text-brand-gold">*</span><select className={inputClass(!!errors.kampPosition)} {...register('kampPosition')}>{KAMP_POSITIONS.map((position) => <option key={position} value={position}>{position}</option>)}</select>{errorFor('kampPosition')}<span className="mt-1 block text-xs font-normal leading-relaxed text-brand-grey">Choose a role assigned to you by KAMP. Select General Member if you do not hold a KAMP position.</span></label>
           {kampPosition === 'Other KAMP role' && <label className="block text-sm font-medium text-brand-ink">Other KAMP role <span className="text-brand-gold">*</span><input maxLength={80} placeholder="Enter your assigned KAMP role" className={inputClass(!!errors.kampPositionOther)} {...register('kampPositionOther')} aria-invalid={!!errors.kampPositionOther} />{errorFor('kampPositionOther')}</label>}
-        </div>
+        </div>}
       </section>
 
       <section aria-labelledby="membership-finish-heading" className="space-y-5 border-t border-brand-card pt-6">

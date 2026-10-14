@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { membershipSchema } from '@/lib/validations'
@@ -6,6 +7,7 @@ import { generateMemberCardPDF } from '@/lib/member-card'
 import { sendMembershipWelcome } from '@/lib/email'
 import { readRequestBytes, RequestBodyTooLargeError } from '@/lib/request-body'
 import { createMemberId } from '@/lib/member-id'
+import { createLeadershipMemberId, isLeadershipInviteToken, LEADERSHIP_ROLES } from '@/lib/leadership'
 
 export const runtime = 'nodejs'
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024
@@ -44,6 +46,10 @@ function currentLagosYear() {
   return Number(new Intl.DateTimeFormat('en', { timeZone: 'Africa/Lagos', year: 'numeric' }).format(new Date()))
 }
 
+class LeadershipRegistrationError extends Error {
+  constructor(message: string, readonly status: number) { super(message) }
+}
+
 export async function POST(req: NextRequest) {
   try {
     if (!(await rateLimit(`membership:${getClientIp(req)}`, 3, 60_000))) {
@@ -61,6 +67,11 @@ export async function POST(req: NextRequest) {
     const formData = await boundedRequest.formData()
     const raw = formData.get('data')
     const photo = formData.get('passportPhoto')
+    const inviteTokenField = formData.get('leadershipInviteToken')
+    if (inviteTokenField !== null && (typeof inviteTokenField !== 'string' || !isLeadershipInviteToken(inviteTokenField))) {
+      return NextResponse.json({ error: 'This leadership invitation is invalid. Open the original invitation link and try again.' }, { status: 400 })
+    }
+    const leadershipInviteToken = typeof inviteTokenField === 'string' ? inviteTokenField : null
     if (typeof raw !== 'string') return NextResponse.json({ error: 'Invalid registration data.' }, { status: 400 })
     if (Buffer.byteLength(raw, 'utf8') > 16 * 1024) return NextResponse.json({ error: 'Registration details are too large.' }, { status: 413 })
     let body: unknown
@@ -103,20 +114,73 @@ export async function POST(req: NextRequest) {
       ? values.kampPositionOther!.trim()
       : values.kampPosition ?? 'General Member'
 
-    const member = await db.begin(async (tx) => {
-      const [{ last_number: lastNumber }] = await tx<{ last_number: number }[]>`
-        INSERT INTO member_number_counters (year_joined, last_number) VALUES (${yearJoined}, 1)
-        ON CONFLICT (year_joined) DO UPDATE SET last_number = member_number_counters.last_number + 1
-        RETURNING last_number
-      `
-      const memberId = createMemberId(values.membershipType, yearJoined, lastNumber)
-      const [created] = await tx`
-        INSERT INTO members (member_id, first_name, last_name, email, phone, membership_type, kamp_position, date_of_birth, university, occupation, organization, gender, state_of_origin, study_level, why_join, year_joined, passport_photo, passport_photo_type)
-        VALUES (${memberId}, ${values.firstName}, ${values.lastName}, ${email}, ${values.phone}, ${values.membershipType}, ${kampPosition}, ${values.dateOfBirth}, ${university}, ${occupation}, ${organization}, ${values.gender}, ${values.stateOfOrigin}, ${studyLevel}, ${values.whyJoin}, ${yearJoined}, ${photoBuffer}, ${photo.type})
-        RETURNING member_id, first_name, last_name, email, phone, membership_type, kamp_position, date_of_birth, university, occupation, organization, gender, state_of_origin, study_level, why_join, status, year_joined, joined_at
-      `
-      return created
-    })
+    let member
+    try {
+      member = await db.begin(async (tx) => {
+        let memberId: string
+        let finalKampPosition = kampPosition
+        let invitationId: number | null = null
+
+        if (leadershipInviteToken) {
+          const tokenHash = createHash('sha256').update(leadershipInviteToken).digest('hex')
+          const [invitation] = await tx`
+            SELECT id, invitee_email, role_code, member_id
+            FROM leadership_registration_invites
+            WHERE token_hash = ${tokenHash} AND consumed_at IS NULL AND expires_at > NOW()
+            FOR UPDATE
+          `
+          if (!invitation) throw new LeadershipRegistrationError('This leadership invitation is invalid, expired, or has already been used.', 400)
+          if (String(invitation.invitee_email).toLowerCase() !== email) {
+            throw new LeadershipRegistrationError('Use the email address that received this invitation.', 400)
+          }
+          const role = Object.values(LEADERSHIP_ROLES).find((item) => item.code === invitation.role_code)
+          if (!role) throw new LeadershipRegistrationError('This leadership invitation has an invalid role. Contact KAMP for help.', 400)
+          const [counter] = await tx`
+            INSERT INTO leadership_member_id_counters (role_code, year_issued, last_number, max_number)
+            VALUES (${role.code}, ${yearJoined}, 1, ${role.maximum})
+            ON CONFLICT (role_code) DO UPDATE
+            SET last_number = leadership_member_id_counters.last_number + 1
+            WHERE leadership_member_id_counters.last_number < leadership_member_id_counters.max_number
+            RETURNING year_issued, last_number
+          `
+          if (!counter) throw new LeadershipRegistrationError(`All ${role.maximum} ${role.label.toLowerCase()} IDs have already been assigned. Contact KAMP for help.`, 409)
+          const leadershipRole = Object.entries(LEADERSHIP_ROLES).find(([, item]) => item.code === role.code)?.[0]
+          if (!leadershipRole) throw new LeadershipRegistrationError('This leadership invitation has an invalid role. Contact KAMP for help.', 400)
+          memberId = createLeadershipMemberId(leadershipRole as keyof typeof LEADERSHIP_ROLES, Number(counter.year_issued), Number(counter.last_number))
+          finalKampPosition = role.label
+          invitationId = Number(invitation.id)
+        } else {
+          const [{ last_number: lastNumber }] = await tx<{ last_number: number }[]>`
+            INSERT INTO member_number_counters (year_joined, last_number) VALUES (${yearJoined}, 1)
+            ON CONFLICT (year_joined) DO UPDATE SET last_number = member_number_counters.last_number + 1
+            RETURNING last_number
+          `
+          memberId = createMemberId(values.membershipType, yearJoined, lastNumber)
+        }
+
+        const [created] = await tx`
+          INSERT INTO members (member_id, first_name, last_name, email, phone, membership_type, kamp_position, date_of_birth, university, occupation, organization, gender, state_of_origin, study_level, why_join, year_joined, passport_photo, passport_photo_type)
+          VALUES (${memberId}, ${values.firstName}, ${values.lastName}, ${email}, ${values.phone}, ${values.membershipType}, ${finalKampPosition}, ${values.dateOfBirth}, ${university}, ${occupation}, ${organization}, ${values.gender}, ${values.stateOfOrigin}, ${studyLevel}, ${values.whyJoin}, ${yearJoined}, ${photoBuffer}, ${photo.type})
+          RETURNING member_id, first_name, last_name, email, phone, membership_type, kamp_position, date_of_birth, university, occupation, organization, gender, state_of_origin, study_level, why_join, status, year_joined, joined_at
+        `
+
+        if (invitationId !== null) {
+          const [consumed] = await tx`
+            UPDATE leadership_registration_invites
+            SET consumed_at = NOW(), consumed_member_id = ${memberId}
+            WHERE id = ${invitationId} AND consumed_at IS NULL
+            RETURNING id
+          `
+          if (!consumed) throw new LeadershipRegistrationError('This leadership invitation has already been used.', 409)
+        }
+        return created
+      })
+    } catch (error) {
+      if (error instanceof LeadershipRegistrationError) {
+        return NextResponse.json({ error: error.message }, { status: error.status })
+      }
+      throw error
+    }
 
     let emailSent = false
     try {
