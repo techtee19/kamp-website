@@ -6,6 +6,7 @@ import { readJsonRequest, requestBodyErrorResponse } from '@/lib/request-body'
 import { generateMemberCardPDF } from '@/lib/member-card'
 import { sendMembershipWelcome } from '@/lib/email'
 import { isMemberId } from '@/lib/member-id'
+import { createCommunityLinkToken, createTrackedCommunityUrl, hashCommunityLinkToken, getSiteOrigin } from '@/lib/community'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -29,6 +30,25 @@ export async function POST(request: NextRequest) {
       FROM members WHERE member_id = ${memberId} LIMIT 1
     `
     if (!member) return NextResponse.json({ error: 'Member not found.' }, { status: 404 })
+    const communityToken = createCommunityLinkToken()
+    const communityTokenHash = hashCommunityLinkToken(communityToken)
+    let communityTrackingReady = false
+    try {
+      await db.begin(async (tx) => {
+        await tx`
+          INSERT INTO member_community_tracking (member_id)
+          VALUES (${memberId})
+          ON CONFLICT (member_id) DO NOTHING
+        `
+        await tx`
+          INSERT INTO member_community_invite_links (member_id, token_hash)
+          VALUES (${memberId}, ${communityTokenHash})
+        `
+      })
+      communityTrackingReady = true
+    } catch (error) {
+      console.error('Could not initialize WhatsApp follow-up tracking for resent card:', error)
+    }
     stage = 'card generation'
     const photo = member.passport_photo
     const photoType = member.passport_photo_type
@@ -46,8 +66,13 @@ export async function POST(request: NextRequest) {
       ...(photoAvailable ? { passportDataUri: `data:${photoType};base64,${photo.toString('base64')}` } : {}),
     })
     stage = 'email delivery'
-    await sendMembershipWelcome({ to: member.email as string, firstName: member.first_name as string, memberId: member.member_id as string, cardPDF })
-    return NextResponse.json({ success: true, photoAvailable }, { headers: { 'Cache-Control': 'no-store' } })
+    await sendMembershipWelcome({ to: member.email as string, firstName: member.first_name as string, memberId: member.member_id as string, cardPDF, ...(communityTrackingReady ? { communityJoinUrl: createTrackedCommunityUrl(communityToken, getSiteOrigin(request.nextUrl.origin)) } : {}) })
+    if (communityTrackingReady) try {
+      await db`UPDATE member_community_invite_links SET email_sent_at = NOW() WHERE token_hash = ${communityTokenHash}`
+    } catch (error) {
+      console.error('Could not record community link email delivery:', error)
+    }
+    return NextResponse.json({ success: true, photoAvailable, communityTrackingReady }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (error) {
     console.error(`Admin membership card resend failed during ${stage}:`, error)
     if (stage === 'email delivery') {

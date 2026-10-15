@@ -5,6 +5,7 @@ import { useForm, Controller, type FieldErrors } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowRight, CheckCircle2, LoaderCircle, ShieldCheck } from 'lucide-react'
 import InstitutionCombobox from '@/components/ui/InstitutionCombobox'
+import WhatsAppJoinAction from '@/components/membership/WhatsAppJoinAction'
 import { KAMP_POSITIONS, membershipSchema, NIGERIAN_STATES, type MembershipInput } from '@/lib/validations'
 
 const studyLevels = ['100L', '200L', '300L', '400L', '500L', 'Postgraduate', 'Other'] as const
@@ -18,7 +19,7 @@ const inputBaseClass = 'mt-2 min-h-12 w-full rounded-xl border bg-white px-4 py-
 const inputClass = (invalid: boolean) => `${inputBaseClass} ${invalid ? 'border-red-400 focus:border-red-500 focus:ring-red-100' : 'border-brand-ink/15 hover:border-brand-ink/30 focus:border-brand-gold focus:ring-brand-gold/15'}`
 
 export default function MembershipForm({ leadershipInvite }: { leadershipInvite?: { token: string; email: string; role: string } }) {
-  const [success, setSuccess] = useState<{ memberId: string; emailSent: boolean } | null>(null)
+  const [success, setSuccess] = useState<{ memberId: string; emailSent: boolean; communityToken: string | null; communityLink: string } | null>(null)
   const [serverError, setServerError] = useState('')
   const [validationMessage, setValidationMessage] = useState('')
   const [validationDetails, setValidationDetails] = useState<string[]>([])
@@ -87,7 +88,7 @@ export default function MembershipForm({ leadershipInvite }: { leadershipInvite?
         setServerError(result.error ?? 'Registration failed. Please try again.')
         return
       }
-      setSuccess({ memberId: result.memberId, emailSent: result.emailSent })
+      setSuccess({ memberId: result.memberId, emailSent: result.emailSent, communityToken: result.communityToken, communityLink: result.communityLink })
     } catch {
       setServerError('We could not reach the server. Please check your connection and try again.')
     }
@@ -99,6 +100,13 @@ export default function MembershipForm({ leadershipInvite }: { leadershipInvite?
       <div className="mt-5 text-center"><p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-800">Registration complete</p><h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.03em] text-brand-ink">Welcome to KAMP</h2><p className="mt-2 text-sm leading-relaxed text-brand-grey">Your membership is active. Keep this member ID for your records.</p></div>
       <p className="mt-5 rounded-xl border border-emerald-200 bg-white px-4 py-4 text-center font-mono text-lg font-bold tracking-wide text-brand-ink sm:text-xl">{success.memberId}</p>
       <p className="mt-4 flex items-start gap-2 text-sm leading-relaxed text-brand-grey"><ShieldCheck aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-emerald-700" />{success.emailSent ? 'Your membership card and welcome message are on their way by email.' : 'Your membership is saved, but we could not send the email. Please contact KAMP with your member ID.'}</p>
+      <div className="mt-6 rounded-xl border border-emerald-200 bg-white p-5">
+        <h3 className="font-semibold text-brand-ink">Join your KAMP community</h3>
+        <p className="mt-1 mb-4 text-sm leading-relaxed text-brand-grey">Connect with other members for community updates and opportunities. We’ve also included the WhatsApp link in your welcome email.</p>
+        {success.communityToken
+          ? <WhatsAppJoinAction token={success.communityToken} compact />
+          : <a href={success.communityLink} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#176B42] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#115735]">Join the KAMP WhatsApp community <ArrowRight aria-hidden="true" className="size-4" /></a>}
+      </div>
     </div>
   )
 

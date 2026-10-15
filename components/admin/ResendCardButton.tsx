@@ -18,7 +18,7 @@ export default function ResendCardButton({ memberId }: { memberId: string }) {
       })
       const data = await response.json()
       if (!response.ok) throw new Error(data.error || 'Failed to resend card.')
-      setMessage(data.photoAvailable ? 'ID card email sent.' : 'ID card email sent with an initials placeholder; this member registered before passport photos were saved.')
+      setMessage(data.photoAvailable ? 'ID card and WhatsApp community email sent.' : 'ID card and WhatsApp community email sent with an initials placeholder; this member registered before passport photos were saved.')
     } catch (cause) {
       setError(true)
       setMessage(cause instanceof Error ? cause.message : 'Network error. Please try again.')

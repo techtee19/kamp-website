@@ -8,6 +8,7 @@ import { sendMembershipWelcome } from '@/lib/email'
 import { readRequestBytes, RequestBodyTooLargeError } from '@/lib/request-body'
 import { createMemberId } from '@/lib/member-id'
 import { createLeadershipMemberId, isLeadershipInviteToken, LEADERSHIP_ROLES } from '@/lib/leadership'
+import { createCommunityLinkToken, createTrackedCommunityUrl, hashCommunityLinkToken, getSiteOrigin, getWhatsAppCommunityLink } from '@/lib/community'
 
 export const runtime = 'nodejs'
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024
@@ -113,6 +114,8 @@ export async function POST(req: NextRequest) {
     const kampPosition = values.kampPosition === 'Other KAMP role'
       ? values.kampPositionOther!.trim()
       : values.kampPosition ?? 'General Member'
+    const communityToken = createCommunityLinkToken()
+    const communityTokenHash = hashCommunityLinkToken(communityToken)
 
     let member
     try {
@@ -182,17 +185,47 @@ export async function POST(req: NextRequest) {
       throw error
     }
 
+    let communityTrackingReady = false
+    try {
+      await db.begin(async (tx) => {
+        await tx`
+          INSERT INTO member_community_tracking (member_id)
+          VALUES (${member.member_id})
+          ON CONFLICT (member_id) DO NOTHING
+        `
+        await tx`
+          INSERT INTO member_community_invite_links (member_id, token_hash)
+          VALUES (${member.member_id}, ${communityTokenHash})
+        `
+      })
+      communityTrackingReady = true
+    } catch (error) {
+      console.error('Could not initialize WhatsApp follow-up tracking; continuing registration without tracking:', error)
+    }
+
+    const trackedCommunityUrl = createTrackedCommunityUrl(communityToken, getSiteOrigin(req.nextUrl.origin))
     let emailSent = false
     try {
       const affiliation = member.membership_type === 'student'
         ? member.university ?? 'Student'
         : [member.occupation, member.organization].filter(Boolean).join(' · ') || 'KAMP Community'
       const cardPDF = await generateMemberCardPDF({ firstName: member.first_name, lastName: member.last_name, memberId: member.member_id, membershipType: member.membership_type, affiliation, kampPosition: member.kamp_position, yearJoined: member.year_joined, passportDataUri: photoDataUri })
-      await sendMembershipWelcome({ to: email, firstName: member.first_name, memberId: member.member_id, cardPDF })
+      await sendMembershipWelcome({ to: email, firstName: member.first_name, memberId: member.member_id, cardPDF, ...(communityTrackingReady ? { communityJoinUrl: trackedCommunityUrl } : {}) })
       emailSent = true
+      if (communityTrackingReady) try {
+        await db`UPDATE member_community_invite_links SET email_sent_at = NOW() WHERE token_hash = ${communityTokenHash}`
+      } catch (error) {
+        console.error('Could not record community link email delivery:', error)
+      }
     } catch (error) { console.error('Membership welcome email failed:', error) }
 
-    return NextResponse.json({ success: true, memberId: member.member_id, emailSent }, { status: 201 })
+    return NextResponse.json({
+      success: true,
+      memberId: member.member_id,
+      emailSent,
+      communityToken: communityTrackingReady ? communityToken : null,
+      communityLink: communityTrackingReady ? trackedCommunityUrl : getWhatsAppCommunityLink(),
+    }, { status: 201 })
   } catch (error) {
     if (error instanceof RequestBodyTooLargeError) {
       return NextResponse.json({ error: 'The upload must be 2 MB or smaller.' }, { status: 413 })

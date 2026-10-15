@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+import { getWhatsAppCommunityLink } from '@/lib/community'
 
 // Constructed lazily. `new Resend()` throws when RESEND_API_KEY is unset, and
 // at module scope that turns a missing key into a build failure — Next.js
@@ -89,13 +90,10 @@ export async function sendMembershipWelcome(opts: {
   firstName: string
   memberId: string
   cardPDF: Buffer
+  communityJoinUrl?: string
 }) {
-  // Keep the invite in the email even when a deployment has not loaded its env
-  // configuration yet. WHATSAPP_COMMUNITY_LINK can override this default.
-  const configuredLink = process.env.WHATSAPP_COMMUNITY_LINK?.trim()
-  const whatsappLink = configuredLink && /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9_-]+$/.test(configuredLink)
-    ? configuredLink
-    : 'https://chat.whatsapp.com/I7tSURUiRsW2n0bch1vza8'
+  const whatsappLink = getWhatsAppCommunityLink()
+  const joinLink = opts.communityJoinUrl ?? whatsappLink
   const socialLinks = [
     { name: 'LinkedIn', href: 'https://www.linkedin.com/company/kolade-adepoju-mentoring-program-kamp/', icon: 'in', background: '#0A66C2' },
     { name: 'Facebook', href: 'https://facebook.com/wearekamp?rpxt=djd1eXZ0c2Q2YzZm', icon: 'f', background: '#1877F2' },
@@ -123,7 +121,7 @@ export async function sendMembershipWelcome(opts: {
           </div>
           <p>Your membership card is attached. Please keep it somewhere safe; your member ID helps us identify your membership whenever you contact the KAMP team.</p>
           <p>Stay connected with fellow members and hear from the community by joining our WhatsApp group:</p>
-          <p style="margin:24px 0"><a href="${esc(whatsappLink)}" style="display:inline-block;background:#1B2A4A;color:white;padding:13px 22px;border-radius:24px;text-decoration:none;font-weight:bold">Join the KAMP WhatsApp community</a></p>
+          <p style="margin:24px 0"><a href="${esc(joinLink)}" style="display:inline-block;background:#1B2A4A;color:white;padding:13px 22px;border-radius:24px;text-decoration:none;font-weight:bold">Join the KAMP WhatsApp community</a></p>
           <div style="margin:30px 0 24px;padding:22px 18px;background:#F5F0E8;border-radius:12px;text-align:center">
             <p style="margin:0 0 16px;color:#1B2A4A;font-size:15px;font-weight:bold">Keep growing with us</p>
             <p style="margin:0 0 18px;color:#595959;font-size:13px">Follow KAMP for community stories, opportunities, and updates.</p>
