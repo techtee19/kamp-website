@@ -124,7 +124,7 @@ export async function POST(req: NextRequest) {
         if (leadershipInviteToken) {
           const tokenHash = createHash('sha256').update(leadershipInviteToken).digest('hex')
           const [invitation] = await tx`
-            SELECT id, invitee_email, role_code, member_id
+            SELECT id, invitee_email, role_code
             FROM leadership_registration_invites
             WHERE token_hash = ${tokenHash} AND consumed_at IS NULL AND expires_at > NOW()
             FOR UPDATE
