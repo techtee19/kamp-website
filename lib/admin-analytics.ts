@@ -107,6 +107,36 @@ export async function getStudyLevelBreakdown(): Promise<CategoryCount[]> {
   })
 }
 
+export async function getMembershipTypeBreakdown(): Promise<CategoryCount[]> {
+  const rows = await db`
+    WITH categories AS (
+      SELECT * FROM (VALUES
+        ('student', 'Student'),
+        ('professional', 'Professional'),
+        ('non_professional', 'Non-professional')
+      ) AS category(membership_type, label)
+    ), totals AS (
+      SELECT membership_type, COUNT(*)::int AS count
+      FROM members
+      GROUP BY membership_type
+    )
+    SELECT categories.label, COALESCE(totals.count, 0)::int AS count
+    FROM categories
+    LEFT JOIN totals USING (membership_type)
+    ORDER BY CASE categories.membership_type
+      WHEN 'student' THEN 1
+      WHEN 'professional' THEN 2
+      ELSE 3
+    END
+  `
+
+  const total = rows.reduce((sum, row) => sum + Number(row.count), 0)
+  return rows.map((row) => {
+    const count = Number(row.count)
+    return { label: String(row.label), count, percentage: total ? Math.round((count / total) * 100) : 0 }
+  })
+}
+
 export async function getGenderBreakdown(): Promise<GenderCount[]> {
   const rows = await db`
     SELECT gender, COUNT(*)::int AS count

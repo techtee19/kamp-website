@@ -3,6 +3,7 @@ import { Suspense } from 'react'
 import { db } from '@/lib/db'
 import {
   getGenderBreakdown,
+  getMembershipTypeBreakdown,
   getMonthlySignups,
   getStudyLevelBreakdown,
   getTotalEventRegistrations,
@@ -15,6 +16,7 @@ import UniversityChart from '@/components/admin/charts/UniversityChart'
 import StatesChart from '@/components/admin/charts/StatesChart'
 import GenderBreakdown from '@/components/admin/charts/GenderBreakdown'
 import StudyLevelBreakdown from '@/components/admin/charts/StudyLevelBreakdown'
+import MembershipTypeBreakdown from '@/components/admin/charts/MembershipTypeBreakdown'
 import { CalendarDays, ChartNoAxesCombined, UserRoundCheck, UsersRound } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -82,12 +84,13 @@ async function DashboardOverview() {
 }
 
 async function DashboardAnalytics() {
-  const [monthlySignups, topUniversities, topStates, studyLevels, genderData] = await Promise.all([
+  const [monthlySignups, topUniversities, topStates, studyLevels, genderData, membershipTypes] = await Promise.all([
     getMonthlySignups(),
     getTopUniversities(),
     getTopStates(),
     getStudyLevelBreakdown(),
     getGenderBreakdown(),
+    getMembershipTypeBreakdown(),
   ])
 
   return (
@@ -114,10 +117,16 @@ async function DashboardAnalytics() {
         </article>
       </div>
 
-      <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6">
-        <header className="mb-5"><h2 className="font-semibold text-brand-black">Level of study</h2><p className="mt-1 text-xs text-brand-grey">Member distribution by current study level</p></header>
-        <StudyLevelBreakdown data={studyLevels} />
-      </article>
+      <div className="grid gap-5 xl:grid-cols-2">
+        <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6">
+          <header className="mb-5"><h2 className="font-semibold text-brand-black">Membership categories</h2><p className="mt-1 text-xs text-brand-grey">Students, professionals, and non-professionals</p></header>
+          <MembershipTypeBreakdown data={membershipTypes} />
+        </article>
+        <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6">
+          <header className="mb-5"><h2 className="font-semibold text-brand-black">Level of study</h2><p className="mt-1 text-xs text-brand-grey">Student member distribution by current study level</p></header>
+          <StudyLevelBreakdown data={studyLevels} />
+        </article>
+      </div>
     </section>
   )
 }

@@ -96,6 +96,11 @@ export async function sendMembershipWelcome(opts: {
   const whatsappLink = configuredLink && /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9_-]+$/.test(configuredLink)
     ? configuredLink
     : 'https://chat.whatsapp.com/I7tSURUiRsW2n0bch1vza8'
+  const socialLinks = [
+    { name: 'LinkedIn', href: 'https://www.linkedin.com/company/kolade-adepoju-mentoring-program-kamp/', icon: 'in', background: '#0A66C2' },
+    { name: 'Facebook', href: 'https://facebook.com/wearekamp?rpxt=djd1eXZ0c2Q2YzZm', icon: 'f', background: '#1877F2' },
+    { name: 'Instagram', href: 'https://instagram.com/wearekamp?rpxt=djd1eXZ0c2Q2YzZm', icon: '◎', background: '#C13584' },
+  ]
   const result = await resend().emails.send({
     from: FROM(),
     to: opts.to,
@@ -119,6 +124,13 @@ export async function sendMembershipWelcome(opts: {
           <p>Your membership card is attached. Please keep it somewhere safe; your member ID helps us identify your membership whenever you contact the KAMP team.</p>
           <p>Stay connected with fellow members and hear from the community by joining our WhatsApp group:</p>
           <p style="margin:24px 0"><a href="${esc(whatsappLink)}" style="display:inline-block;background:#1B2A4A;color:white;padding:13px 22px;border-radius:24px;text-decoration:none;font-weight:bold">Join the KAMP WhatsApp community</a></p>
+          <div style="margin:30px 0 24px;padding:22px 18px;background:#F5F0E8;border-radius:12px;text-align:center">
+            <p style="margin:0 0 16px;color:#1B2A4A;font-size:15px;font-weight:bold">Keep growing with us</p>
+            <p style="margin:0 0 18px;color:#595959;font-size:13px">Follow KAMP for community stories, opportunities, and updates.</p>
+            <table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0"><tr>
+              ${socialLinks.map(({ name, href, icon, background }) => `<td align="center" style="padding:0 12px"><a href="${href}" aria-label="Follow KAMP on ${name}" target="_blank" rel="noopener noreferrer" style="display:inline-block;width:42px;height:42px;line-height:42px;border-radius:50%;background:${background};color:#ffffff;text-align:center;text-decoration:none;font-family:Arial,sans-serif;font-size:${name === 'Instagram' ? '27px' : '19px'};font-weight:bold">${icon}</a><br/><a href="${href}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:7px;color:#1B2A4A;font-size:12px;text-decoration:none">${name}</a></td>`).join('')}
+            </tr></table>
+          </div>
           <p>We’re excited to have you with us. Here’s to the people you’ll meet, the ideas you’ll explore, and the impact you’ll make.</p>
           <p style="margin-bottom:0">With warmth,<br/><strong>The KAMP Team</strong></p>
         </div>
