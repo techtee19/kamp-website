@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { db } from '@/lib/db'
 import CommunityStatusButton from '@/components/admin/CommunityStatusButton'
+import CommunityEmailCampaign from '@/components/admin/CommunityEmailCampaign'
 
 export const dynamic = 'force-dynamic'
 const PAGE_SIZE = 50
@@ -107,6 +108,8 @@ export default async function MemberEngagementPage({ searchParams }: { searchPar
         { label: 'Verified WhatsApp joins', value: Number(summary.verified_joined) },
       ].map((item) => <article key={item.label} className="rounded-2xl border border-brand-card bg-white p-5"><p className="text-xs font-semibold uppercase tracking-widest text-brand-grey">{item.label}</p><p className="mt-2 font-display text-3xl font-bold text-brand-ink">{item.value.toLocaleString()}</p></article>)}
     </section>
+
+    <CommunityEmailCampaign />
 
     <form action="/admin/members/engagement" className="grid gap-3 rounded-2xl border border-brand-card bg-white p-4 sm:grid-cols-[minmax(0,1fr)_240px_auto] sm:items-end">
       <label className="text-xs font-semibold text-brand-ink">Search members<input name="q" defaultValue={query} placeholder="Name, email, or member ID" className="mt-2 min-h-11 w-full rounded-xl border border-brand-ink/15 px-4 text-sm font-normal outline-none focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15" /></label>

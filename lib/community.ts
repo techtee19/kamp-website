@@ -27,6 +27,24 @@ export function createTrackedCommunityUrl(token: string, origin: string): string
 
 export function getSiteOrigin(requestOrigin: string): string {
   const configuredOrigin = process.env.NEXT_PUBLIC_SITE_URL?.trim()
+  if (process.env.NODE_ENV === 'development') {
+    if (configuredOrigin) {
+      try {
+        const parsed = new URL(configuredOrigin)
+        if ((parsed.protocol === 'https:' || parsed.protocol === 'http:') && !parsed.username && !parsed.password) return parsed.origin
+      } catch {
+        console.error('NEXT_PUBLIC_SITE_URL is not a valid absolute URL; using the request origin.')
+      }
+    }
+    return new URL(requestOrigin).origin
+  }
+
+  // VERCEL_URL is a deployment-specific hostname, so production member emails
+  // should always use KAMP's canonical domain instead of a *.vercel.app URL.
+  if (process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production') {
+    return 'https://wearekamp.org'
+  }
+
   if (configuredOrigin) {
     try {
       const parsed = new URL(configuredOrigin)
@@ -38,6 +56,5 @@ export function getSiteOrigin(requestOrigin: string): string {
 
   const deploymentHost = process.env.VERCEL_URL?.trim()
   if (deploymentHost && /^[A-Za-z0-9.-]+(?::\d+)?$/.test(deploymentHost)) return `https://${deploymentHost}`
-  if (process.env.NODE_ENV === 'development') return new URL(requestOrigin).origin
   return 'https://wearekamp.org'
 }

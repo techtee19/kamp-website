@@ -140,6 +140,38 @@ export async function sendMembershipWelcome(opts: {
   return result
 }
 
+export async function sendCommunityInvitation(opts: {
+  to: string
+  firstName: string
+  communityJoinUrl: string
+}) {
+  const result = await resend().emails.send({
+    from: FROM(),
+    to: opts.to,
+    subject: 'You’re invited to join the KAMP WhatsApp community',
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#202020;line-height:1.65">
+        <div style="background:#1B2A4A;padding:30px;text-align:center;color:white">
+          <h1 style="color:#C49A22;margin:0;font-size:30px;letter-spacing:2px">KAMP</h1>
+          <p style="margin:8px 0 0">Kolade Adepoju Mentoring Program</p>
+        </div>
+        <div style="padding:32px 30px">
+          <p style="margin:0 0 8px;color:#C49A22;font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase">Stay connected</p>
+          <h2 style="margin:0 0 18px;color:#1B2A4A;font-size:25px">Hello ${esc(opts.firstName)}, come join us on WhatsApp</h2>
+          <p>We’d love to welcome you into the KAMP WhatsApp community, where members can stay connected, hear about opportunities, and keep up with what’s happening across KAMP.</p>
+          <p>Use the button below to open the community invitation. We look forward to seeing you there.</p>
+          <p style="margin:28px 0"><a href="${esc(opts.communityJoinUrl)}" style="display:inline-block;background:#176B42;color:white;padding:13px 22px;border-radius:24px;text-decoration:none;font-weight:bold">Join the KAMP WhatsApp community</a></p>
+          <p style="font-size:13px;color:#595959">If the button doesn’t work, copy this link into your browser:<br/><a href="${esc(opts.communityJoinUrl)}" style="color:#176B42;word-break:break-all">${esc(opts.communityJoinUrl)}</a></p>
+          <p style="margin-bottom:0">Warmly,<br/><strong>The KAMP Team</strong></p>
+        </div>
+        <div style="background:#F5F0E8;padding:16px;text-align:center;font-size:12px;color:#6B6B6B">© KAMP — Kolade Adepoju Mentoring Program</div>
+      </div>
+    `,
+  })
+  if (result.error) throw new Error(`Resend WhatsApp community invitation failed: ${result.error.message}`)
+  return result
+}
+
 export async function sendEventReminder(opts: {
   to: string
   recipientName: string
