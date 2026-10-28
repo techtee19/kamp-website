@@ -1,9 +1,13 @@
 import React from 'react'
+import { randomBytes } from 'node:crypto'
+import path from 'node:path'
+import QRCode from 'qrcode'
 import {
   Document,
   Page,
   Text,
   View,
+  Image,
   StyleSheet,
   renderToBuffer,
 } from '@react-pdf/renderer'
@@ -25,76 +29,96 @@ export interface TicketData {
 }
 
 const styles = StyleSheet.create({
-  page: { backgroundColor: '#EEEDE8', fontFamily: 'Helvetica', padding: 20, justifyContent: 'center' },
-  ticket: { backgroundColor: '#FFFFFF', borderRadius: 14, overflow: 'hidden' },
-  hero: { backgroundColor: '#202020', minHeight: 197, padding: 28, position: 'relative' },
-  goldRail: { position: 'absolute', top: 0, bottom: 0, left: 0, width: 8, backgroundColor: '#EFBC2B' },
-  eyebrowRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  brand: { color: '#FFFFFF', fontSize: 20, fontFamily: 'Helvetica-Bold', letterSpacing: 1.5 },
-  label: { color: '#EFBC2B', fontSize: 8, fontFamily: 'Helvetica-Bold', letterSpacing: 1.8 },
-  theme: { color: '#B5B5B5', fontSize: 9, marginTop: 29, letterSpacing: 0.7 },
-  eventTitle: { color: '#FFFFFF', fontSize: 25, fontFamily: 'Helvetica-Bold', lineHeight: 1.12, marginTop: 7, maxWidth: 300 },
-  ticketMark: { position: 'absolute', right: 28, bottom: 26, color: '#EFBC2B', fontSize: 12, fontFamily: 'Helvetica-Bold', letterSpacing: 1.4 },
-  body: { paddingHorizontal: 28, paddingTop: 24, paddingBottom: 15 },
-  attendeeLabel: { color: '#7D7B74', fontSize: 8, fontFamily: 'Helvetica-Bold', letterSpacing: 1.6 },
-  attendeeName: { color: '#202020', fontSize: 21, fontFamily: 'Helvetica-Bold', marginTop: 6 },
-  attendeeMeta: { color: '#6B6B6B', fontSize: 10, marginTop: 5 },
-  details: { flexDirection: 'row', marginTop: 23, paddingTop: 17, borderTopWidth: 1, borderTopColor: '#E6E4DE' },
-  dateColumn: { width: '50%', paddingRight: 14 },
-  venueColumn: { width: '50%', paddingLeft: 14, borderLeftWidth: 1, borderLeftColor: '#E6E4DE' },
-  detailLabel: { color: '#7D7B74', fontSize: 7, fontFamily: 'Helvetica-Bold', letterSpacing: 1.4 },
-  detailValue: { color: '#202020', fontSize: 11, fontFamily: 'Helvetica-Bold', lineHeight: 1.35, marginTop: 5 },
-  detailSub: { color: '#6B6B6B', fontSize: 9, marginTop: 3, lineHeight: 1.35 },
-  stub: { borderTopWidth: 1, borderTopColor: '#B7B4AA', borderStyle: 'dashed', paddingHorizontal: 28, paddingVertical: 15, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  stubMeta: { color: '#6B6B6B', fontSize: 8, lineHeight: 1.5 },
-  refLabel: { color: '#7D7B74', fontSize: 7, fontFamily: 'Helvetica-Bold', letterSpacing: 1.3, textAlign: 'right' },
-  ref: { color: '#202020', fontSize: 12, fontFamily: 'Helvetica-Bold', letterSpacing: 0.5, marginTop: 4 },
-  footer: { backgroundColor: '#F5F4EF', paddingVertical: 10, paddingHorizontal: 28, flexDirection: 'row', justifyContent: 'space-between' },
-  footerText: { color: '#6B6B6B', fontSize: 7 },
+  page: { backgroundColor: '#F1EFE9', fontFamily: 'Helvetica', padding: 24, justifyContent: 'center' },
+  ticket: { height: 322, flexDirection: 'row', overflow: 'hidden', borderRadius: 16, backgroundColor: '#FFFFFF' },
+  main: { flex: 1, justifyContent: 'space-between', backgroundColor: '#17233B', padding: 24 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  logo: { width: 66, height: 34, objectFit: 'contain' },
+  headerRule: { height: 1, marginTop: 15, backgroundColor: '#FFFFFF', opacity: 0.16 },
+  brandNote: { color: '#E8E4D9', fontSize: 7, letterSpacing: 1.2, textAlign: 'right' },
+  eventLabel: { color: '#F2BD2E', fontFamily: 'Helvetica-Bold', fontSize: 8, letterSpacing: 1.8 },
+  eventTheme: { marginTop: 11, color: '#D8DDE7', fontSize: 8, letterSpacing: 1.4 },
+  eventTitle: { maxWidth: 320, marginTop: 7, color: '#FFFFFF', fontFamily: 'Helvetica-Bold', fontSize: 25, lineHeight: 1.12 },
+  attendeePanel: { marginTop: 22, paddingTop: 13, borderTopWidth: 1, borderTopColor: '#39455E' },
+  overline: { color: '#B8C1D0', fontFamily: 'Helvetica-Bold', fontSize: 7, letterSpacing: 1.4 },
+  attendeeName: { marginTop: 5, color: '#FFFFFF', fontFamily: 'Helvetica-Bold', fontSize: 16 },
+  attendeeMeta: { marginTop: 4, color: '#C8CFDA', fontSize: 8 },
+  detailRow: { flexDirection: 'row', marginTop: 17, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#39455E' },
+  detailColumn: { flex: 1, paddingRight: 9 },
+  detailColumnRight: { flex: 1, paddingLeft: 12, borderLeftWidth: 1, borderLeftColor: '#39455E' },
+  detailLabel: { color: '#F2BD2E', fontFamily: 'Helvetica-Bold', fontSize: 7, letterSpacing: 1 },
+  detailValue: { marginTop: 5, color: '#FFFFFF', fontFamily: 'Helvetica-Bold', fontSize: 9, lineHeight: 1.3 },
+  detailSub: { marginTop: 3, color: '#C8CFDA', fontSize: 8, lineHeight: 1.3 },
+  stub: { width: 173, justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 18, borderLeftWidth: 1, borderLeftColor: '#C9C4B8', borderLeftStyle: 'dashed', backgroundColor: '#F8F6F0' },
+  stubTop: { width: '100%' },
+  stubLabel: { color: '#867039', fontFamily: 'Helvetica-Bold', fontSize: 7, letterSpacing: 1.5 },
+  admit: { marginTop: 7, color: '#17233B', fontFamily: 'Helvetica-Bold', fontSize: 17, lineHeight: 1.08 },
+  stubCopy: { marginTop: 5, color: '#73716B', fontSize: 7, lineHeight: 1.35 },
+  qrBlock: { alignItems: 'center', marginVertical: 6 },
+  qr: { width: 82, height: 82 },
+  qrCaption: { marginTop: 4, color: '#867039', fontFamily: 'Helvetica-Bold', fontSize: 6, letterSpacing: 0.7 },
+  stubBottom: { width: '100%' },
+  refBlock: { width: '100%', paddingTop: 8, borderTopWidth: 1, borderTopColor: '#DED9CD' },
+  refLabel: { color: '#867039', fontFamily: 'Helvetica-Bold', fontSize: 6, letterSpacing: 1 },
+  ref: { marginTop: 4, color: '#17233B', fontFamily: 'Helvetica-Bold', fontSize: 8, letterSpacing: 0.2 },
+  footer: { marginTop: 5, color: '#858178', fontSize: 6 },
 })
 
-function TicketDocument({ data }: { data: TicketData }) {
+function TicketDocument({ data, qrCode }: { data: TicketData; qrCode: string }) {
+  const logoPath = path.join(process.cwd(), 'public', 'kamp_logo.png')
   return (
     <Document title={`KAMP Ticket - ${data.eventTitle}`} author="KAMP - Kolade Adepoju Mentoring Program">
-      <Page size="A5" style={styles.page}>
+      <Page size="A5" orientation="landscape" style={styles.page}>
         <View style={styles.ticket}>
-          <View style={styles.hero}>
-            <View style={styles.goldRail} />
-            <View style={styles.eyebrowRow}>
-              <Text style={styles.brand}>KAMP</Text>
-              <Text style={styles.label}>ADMIT ONE</Text>
-            </View>
-            {data.eventTheme && <Text style={styles.theme}>{data.eventTheme.toUpperCase()}</Text>}
-            <Text style={styles.eventTitle}>{data.eventTitle}</Text>
-            <Text style={styles.ticketMark}>EVENT TICKET</Text>
-          </View>
-          <View style={styles.body}>
-            <Text style={styles.attendeeLabel}>THIS TICKET BELONGS TO</Text>
-            <Text style={styles.attendeeName}>{data.attendeeName}</Text>
-            <Text style={styles.attendeeMeta}>{data.attendeeUniversity} - {data.studyLevel}</Text>
-            <View style={styles.details}>
-              <View style={styles.dateColumn}>
-                <Text style={styles.detailLabel}>DATE + TIME</Text>
-                <Text style={styles.detailValue}>{data.eventDate}</Text>
-                <Text style={styles.detailSub}>{data.eventTime}</Text>
+          <View style={styles.main}>
+            <View>
+              <View style={styles.header}>
+                <Image src={logoPath} style={styles.logo} />
+                <Text style={styles.brandNote}>KOLADE ADEPOJU{ '\n' }MENTORING PROGRAM</Text>
               </View>
-              <View style={styles.venueColumn}>
-                <Text style={styles.detailLabel}>LOCATION</Text>
-                <Text style={styles.detailValue}>{data.eventLocation}</Text>
-                <Text style={styles.detailSub}>{data.eventUniversity}</Text>
+              <View style={styles.headerRule} />
+              <Text style={styles.eventLabel}>KAMP EVENT · ADMIT ONE</Text>
+              {data.eventTheme && <Text style={styles.eventTheme}>{data.eventTheme.toUpperCase()}</Text>}
+              <Text style={styles.eventTitle}>{data.eventTitle}</Text>
+            </View>
+            <View>
+              <View style={styles.attendeePanel}>
+                <Text style={styles.overline}>THIS PASS IS ISSUED TO</Text>
+                <Text style={styles.attendeeName}>{data.attendeeName}</Text>
+                <Text style={styles.attendeeMeta}>{[data.attendeeUniversity, data.studyLevel].filter(Boolean).join(' · ')}</Text>
+              </View>
+              <View style={styles.detailRow}>
+                <View style={styles.detailColumn}>
+                  <Text style={styles.detailLabel}>DATE & TIME</Text>
+                  <Text style={styles.detailValue}>{data.eventDate}</Text>
+                  <Text style={styles.detailSub}>{data.eventTime}</Text>
+                </View>
+                <View style={styles.detailColumnRight}>
+                  <Text style={styles.detailLabel}>VENUE</Text>
+                  <Text style={styles.detailValue}>{data.eventLocation}</Text>
+                  <Text style={styles.detailSub}>{data.eventUniversity}</Text>
+                </View>
               </View>
             </View>
           </View>
           <View style={styles.stub}>
-            <Text style={styles.stubMeta}>Present this ticket at entry{`\n`}Valid for one attendee</Text>
-            <View>
-              <Text style={styles.refLabel}>TICKET REFERENCE</Text>
-              <Text style={styles.ref}>{data.ticketRef}</Text>
+            <View style={styles.stubTop}>
+              <Text style={styles.stubLabel}>YOUR ENTRY PASS</Text>
+              <Text style={styles.admit}>You’re{ '\n' }on the list.</Text>
+              <Text style={styles.stubCopy}>One entry · One attendee</Text>
             </View>
-          </View>
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>wearekamp.org</Text>
-            <Text style={styles.footerText}>Issued {data.issuedAt}</Text>
+            <View style={styles.qrBlock}>
+              <Image src={qrCode} style={styles.qr} />
+              <Text style={styles.qrCaption}>SCAN AT THE WELCOME DESK</Text>
+            </View>
+            <View style={styles.stubBottom}>
+              <View style={styles.refBlock}>
+                <Text style={styles.refLabel}>UNIQUE TICKET CODE</Text>
+                <Text style={styles.ref}>{data.ticketRef}</Text>
+              </View>
+              <Text style={styles.footer}>Issued {data.issuedAt}</Text>
+              <Text style={styles.footer}>wearekamp.org</Text>
+            </View>
           </View>
         </View>
       </Page>
@@ -103,11 +127,17 @@ function TicketDocument({ data }: { data: TicketData }) {
 }
 
 export async function generateTicketPDF(data: TicketData): Promise<Buffer> {
-  return Buffer.from(await renderToBuffer(<TicketDocument data={data} />))
+  const qrCode = await QRCode.toDataURL(data.ticketRef, {
+    errorCorrectionLevel: 'M',
+    margin: 1,
+    width: 256,
+    color: { dark: '#17233B', light: '#F8F6F0' },
+  })
+  return Buffer.from(await renderToBuffer(<TicketDocument data={data} qrCode={qrCode} />))
 }
 
 export function generateTicketRef(): string {
-  const year = new Date().getFullYear()
-  const random = Math.random().toString(36).substring(2, 6).toUpperCase()
+  const year = String(new Date().getFullYear()).slice(-2)
+  const random = randomBytes(10).toString('hex').toUpperCase()
   return `KAMP-${year}-${random}`
 }

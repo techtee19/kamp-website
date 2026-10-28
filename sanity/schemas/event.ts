@@ -96,7 +96,9 @@ export const eventSchema = defineType({
     }),
     defineField({
       name: 'isPublished',
-      title: 'Published',
+      title: 'Show on website',
+      description:
+        'Enable this and publish the document to show it on the Events page. The Sanity webhook also creates this event’s registration table in PostgreSQL.',
       type: 'boolean',
       initialValue: false,
     }),

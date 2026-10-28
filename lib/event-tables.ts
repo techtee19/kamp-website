@@ -74,8 +74,9 @@ export async function createEventRegistrationTable(
         full_name   TEXT NOT NULL,
         email       TEXT NOT NULL UNIQUE,
         phone       TEXT NOT NULL,
-        university  TEXT NOT NULL,
-        study_level TEXT NOT NULL,
+        university  TEXT,
+        study_level TEXT,
+        member_id   TEXT REFERENCES public.members(member_id),
         status      TEXT NOT NULL DEFAULT 'confirmed'
                     CHECK (status IN ('confirmed', 'waitlisted', 'cancelled')),
         ticket_ref  TEXT UNIQUE,
@@ -85,6 +86,7 @@ export async function createEventRegistrationTable(
       )
     `)
     await tx.unsafe(`ALTER TABLE ${quotedTable} ENABLE ROW LEVEL SECURITY`)
+    await tx.unsafe(`CREATE UNIQUE INDEX "${tableName}_member_id_key" ON ${quotedTable} (member_id) WHERE member_id IS NOT NULL`)
 
     await tx`
       INSERT INTO event_tables_registry (event_id, event_slug, event_title, table_name)
@@ -111,8 +113,10 @@ export async function insertRegistrationAtomic(params: {
   fullName: string
   email: string
   phone: string
-  university: string
-  studyLevel: string
+  university: string | null
+  studyLevel: string | null
+  memberId?: string
+  memberChallengeId?: string
   ticketRef: string
   tableName: string
   capacity?: number
@@ -133,10 +137,24 @@ export async function insertRegistrationAtomic(params: {
       `
       if (registeredTable.length === 0) throw new Error('Event registration table not found')
 
+      if (params.memberId && params.memberChallengeId) {
+        const proof = await tx`
+          SELECT 1 FROM event_member_verifications
+          WHERE challenge_id = ${params.memberChallengeId}::uuid
+            AND event_id = ${params.eventId}
+            AND member_id = ${params.memberId}
+            AND verified_at IS NOT NULL
+            AND consumed_at IS NULL
+            AND expires_at > NOW()
+          FOR UPDATE
+        `
+        if (proof.length === 0) throw new Error('Member verification expired. Please verify again.')
+      }
+
       await tx.unsafe(
         `INSERT INTO ${quotedTable}
-          (event_id, event_title, full_name, email, phone, university, study_level, status, ticket_ref)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, 'confirmed', $8)`,
+          (event_id, event_title, full_name, email, phone, university, study_level, member_id, status, ticket_ref)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'confirmed', $9)`,
         [
           params.eventId,
           params.eventTitle,
@@ -145,9 +163,17 @@ export async function insertRegistrationAtomic(params: {
           params.phone,
           params.university,
           params.studyLevel,
+          params.memberId ?? null,
           params.ticketRef,
         ]
       )
+
+      if (params.memberChallengeId) {
+        await tx`
+          UPDATE event_member_verifications SET consumed_at = NOW()
+          WHERE challenge_id = ${params.memberChallengeId}::uuid
+        `
+      }
 
       // Count after the insert, then roll the insert back if it exceeded the
       // limit. A duplicate hits the unique email constraint first, even when
@@ -161,13 +187,14 @@ export async function insertRegistrationAtomic(params: {
     })
   } catch (err) {
     const emailConstraint = `${params.tableName}_email_key`
+    const memberConstraint = `${params.tableName}_member_id_key`
     if (
       typeof err === 'object' &&
       err !== null &&
       'code' in err &&
       err.code === '23505' &&
       'constraint_name' in err &&
-      err.constraint_name === emailConstraint
+      (err.constraint_name === emailConstraint || err.constraint_name === memberConstraint)
     ) {
       throw new DuplicateRegistrationError()
     }

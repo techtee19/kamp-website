@@ -12,7 +12,7 @@ const csp = [
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: blob: https://cdn.sanity.io",
   `connect-src 'self' https://api.paystack.co https://*.sanity.io${isDev ? ' ws: http://localhost:*' : ''}`,
-  'frame-src https://checkout.paystack.com',
+  "frame-src 'self' https://checkout.paystack.com",
   "base-uri 'self'",
   "form-action 'self'",
   "object-src 'none'",

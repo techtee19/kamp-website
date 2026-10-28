@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { registrationSchema } from '@/lib/validations'
+import { db } from '@/lib/db'
 import { client } from '@/sanity/lib/client'
 import { EVENT_BY_ID_QUERY } from '@/sanity/lib/queries'
 import { sendRegistrationConfirmation } from '@/lib/email'
@@ -46,8 +47,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { eventId, fullName, email, phone, university, studyLevel } = parsed.data
-    const normalisedEmail = email.toLowerCase()
+    const { eventId } = parsed.data
 
     // 2. Check capacity if the event has a limit
     const event = await client.withConfig({ useCdn: false }).fetch<{
@@ -73,6 +73,53 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    let attendee: {
+      fullName: string
+      email: string
+      phone: string
+      university: string | null
+      studyLevel: string | null
+      memberId?: string
+      memberChallengeId?: string
+    }
+
+    if ('memberChallengeId' in parsed.data) {
+      const [member] = await db`
+        SELECT verification.member_id, members.first_name, members.last_name, members.email, members.phone,
+          COALESCE(members.university, members.occupation, members.organization, 'KAMP member') AS affiliation,
+          COALESCE(members.study_level, members.kamp_position, REPLACE(members.membership_type, '_', ' ')) AS level
+        FROM event_member_verifications AS verification
+        JOIN members ON members.member_id = verification.member_id
+        WHERE verification.challenge_id = ${parsed.data.memberChallengeId}::uuid
+          AND verification.event_id = ${eventId}
+          AND verification.verified_at IS NOT NULL
+          AND verification.consumed_at IS NULL
+          AND verification.expires_at > NOW()
+          AND members.status = 'active'
+        LIMIT 1
+      `
+      if (!member) {
+        return NextResponse.json({ error: 'Your member verification expired. Please verify your ID again.' }, { status: 400 })
+      }
+      attendee = {
+        fullName: `${member.first_name} ${member.last_name}`,
+        email: String(member.email).toLowerCase(),
+        phone: String(member.phone),
+        university: member.affiliation ? String(member.affiliation) : null,
+        studyLevel: member.level ? String(member.level) : null,
+        memberId: String(member.member_id),
+        memberChallengeId: parsed.data.memberChallengeId,
+      }
+    } else {
+      attendee = {
+        fullName: parsed.data.fullName,
+        email: parsed.data.email.toLowerCase(),
+        phone: parsed.data.phone,
+        university: parsed.data.university,
+        studyLevel: parsed.data.studyLevel,
+      }
+    }
+
     const eventTitle = event.title
     let tableName = await getEventTableName(eventId)
     if (!tableName) {
@@ -88,11 +135,7 @@ export async function POST(req: NextRequest) {
       await insertRegistrationAtomic({
         eventId,
         eventTitle,
-        fullName,
-        email: normalisedEmail,
-        phone,
-        university,
-        studyLevel,
+        ...attendee,
         ticketRef,
         tableName,
         capacity: event.capacity,
@@ -130,11 +173,11 @@ export async function POST(req: NextRequest) {
         minute: '2-digit',
       })
       const ticketData: TicketData = {
-        attendeeName: fullName,
-        attendeeEmail: normalisedEmail,
-        attendeePhone: phone,
-        attendeeUniversity: university,
-        studyLevel,
+        attendeeName: attendee.fullName,
+        attendeeEmail: attendee.email,
+        attendeePhone: attendee.phone,
+        attendeeUniversity: attendee.university ?? '',
+        studyLevel: attendee.studyLevel ?? '',
         eventTitle,
         eventTheme: event.theme,
         eventDate: formattedDate,
@@ -158,12 +201,12 @@ export async function POST(req: NextRequest) {
 
       try {
         await sendRegistrationConfirmation({
-          to: normalisedEmail,
-          recipientName: fullName,
+          to: attendee.email,
+          recipientName: attendee.fullName,
           eventTitle,
           eventDate: formattedDate,
           eventLocation: event.location,
-          university,
+          university: attendee.university ?? 'KAMP member',
           ticketRef,
           ticketPDF,
         })

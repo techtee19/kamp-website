@@ -1,8 +1,10 @@
 import { z } from 'zod'
 
 // ── Registration ──────────────────────────────────────────────
-export const registrationSchema = z.object({
-  eventId: z.string().min(1, 'Event ID is required').max(128, 'Invalid event ID'),
+const registrationEventId = z.string().min(1, 'Event ID is required').max(128, 'Invalid event ID')
+
+const guestRegistrationSchema = z.object({
+  eventId: registrationEventId,
   fullName: z.string().trim().min(2, 'Full name must be at least 2 characters').max(120, 'Name is too long'),
   email: z.string().trim().max(254, 'Email address is too long').pipe(z.email('Please enter a valid email address')),
   phone: z
@@ -16,6 +18,13 @@ export const registrationSchema = z.object({
     error: () => ({ message: 'Please select a valid study level' }),
   }),
 })
+
+const kampMemberRegistrationSchema = z.object({
+  eventId: registrationEventId,
+  memberChallengeId: z.uuid('Verify your KAMP member ID before registering'),
+})
+
+export const registrationSchema = z.union([guestRegistrationSchema, kampMemberRegistrationSchema])
 export type RegistrationInput = z.infer<typeof registrationSchema>
 
 // ── Donation ──────────────────────────────────────────────────
