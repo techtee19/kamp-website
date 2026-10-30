@@ -14,10 +14,10 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ slu
   if (!event) return NextResponse.json({ error: 'Event not found' }, { status: 404, headers: { 'Cache-Control': 'no-store' } })
 
   const table = quoteEventTableName(event.table_name)
-  const registrations = await db.unsafe(`SELECT full_name, email, phone, member_id, university, study_level, status, ticket_ref, created_at FROM ${table} ORDER BY created_at ASC`)
+  const registrations = await db.unsafe(`SELECT full_name, email, phone, attendee_type, member_id, university, study_level, occupation, organization, status, ticket_ref, created_at FROM ${table} ORDER BY created_at ASC`)
   const csv = buildCsv(
-    ['Full name', 'Email', 'Phone', 'KAMP member ID', 'Institution / affiliation', 'Level / role', 'Status', 'Ticket reference', 'Date registered'],
-    registrations.map((registration) => [registration.full_name, registration.email, registration.phone, registration.member_id, registration.university, registration.study_level, registration.status, registration.ticket_ref, new Date(registration.created_at as string).toLocaleDateString('en-NG')])
+    ['Full name', 'Email', 'Phone', 'Attendee type', 'KAMP member ID', 'Tertiary institution', 'Study level', 'Profession / current activity', 'Organization', 'Status', 'Ticket reference', 'Date registered'],
+    registrations.map((registration) => [registration.full_name, registration.email, registration.phone, registration.attendee_type, registration.member_id, registration.university, registration.study_level, registration.occupation, registration.organization, registration.status, registration.ticket_ref, new Date(registration.created_at as string).toLocaleDateString('en-NG')])
   )
   const safeSlug = String(event.event_slug).replace(/[^a-z0-9-]/gi, '-')
 

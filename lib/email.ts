@@ -58,7 +58,7 @@ export async function sendRegistrationConfirmation(opts: {
             <p style="margin: 0; font-size: 18px; font-weight: bold; color: #1B2A4A;">${esc(opts.eventTitle)}</p>
             <p style="margin: 8px 0 0; color: #595959;">📅 ${esc(opts.eventDate)}</p>
             <p style="margin: 4px 0 0; color: #595959;">📍 ${esc(opts.eventLocation)}</p>
-            <p style="margin: 4px 0 0; color: #595959;">🎓 ${esc(opts.university)}</p>
+            <p style="margin: 4px 0 0; color: #595959;">👤 ${esc(opts.university)}</p>
           </div>
           <div style="background: #1A1A1A; padding: 14px 20px; border-radius: 6px; margin-bottom: 24px;">
             <p style="margin: 0; font-size: 10px; color: #C49A22; letter-spacing: 2px; text-transform: uppercase;">Ticket Reference</p>

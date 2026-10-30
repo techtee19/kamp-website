@@ -6,8 +6,11 @@ interface Registrant {
   id: number
   fullName: string
   email: string
+  attendeeType: string
   university: string
   studyLevel: string
+  occupation: string
+  organization: string
   memberId: string
   ticketRef: string
   checkedIn: boolean
@@ -19,7 +22,7 @@ export default function CheckinList({ registrations, eventSlug }: { registration
   const [loadingId, setLoadingId] = useState<number | null>(null)
   const [error, setError] = useState('')
   const normalized = query.trim().toLocaleLowerCase()
-  const filtered = normalized ? list.filter((person) => [person.fullName, person.email, person.ticketRef, person.memberId].some((value) => value.toLocaleLowerCase().includes(normalized))) : list
+  const filtered = normalized ? list.filter((person) => [person.fullName, person.email, person.ticketRef, person.memberId, person.attendeeType, person.occupation, person.organization].some((value) => value.toLocaleLowerCase().includes(normalized))) : list
   const checkedInCount = list.filter((person) => person.checkedIn).length
 
   async function toggle(person: Registrant) {
@@ -54,7 +57,7 @@ export default function CheckinList({ registrations, eventSlug }: { registration
     {error && <p role="alert" className="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
     <div className="space-y-2">{filtered.length === 0 ? <p className="py-10 text-center text-sm text-brand-grey">No attendees found.</p> : filtered.map((person) => <button type="button" key={person.id} onClick={() => void toggle(person)} disabled={loadingId !== null} aria-pressed={person.checkedIn} className={`flex min-h-20 w-full items-center gap-4 rounded-xl border p-4 text-left transition disabled:cursor-wait disabled:opacity-70 ${person.checkedIn ? 'border-green-200 bg-green-50' : 'border-brand-card bg-white hover:border-brand-gold'}`}>
       <span aria-hidden="true" className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-lg font-bold ${person.checkedIn ? 'bg-green-600 text-white' : 'border-2 border-brand-grey/40 text-transparent'}`}>{person.checkedIn ? '✓' : '·'}</span>
-      <span className="min-w-0 flex-1"><span className={`block truncate text-sm font-semibold ${person.checkedIn ? 'text-green-800' : 'text-brand-black'}`}>{person.fullName}</span><span className="mt-1 block truncate text-xs text-brand-grey">{person.email}</span><span className="mt-1 block truncate text-xs text-brand-grey">{[person.memberId, person.university, person.studyLevel].filter(Boolean).join(' · ')}</span></span>
+      <span className="min-w-0 flex-1"><span className={`block truncate text-sm font-semibold ${person.checkedIn ? 'text-green-800' : 'text-brand-black'}`}>{person.fullName}</span><span className="mt-1 block truncate text-xs capitalize text-brand-grey">{person.attendeeType.replace('_', ' ')}{person.memberId ? ` · ${person.memberId}` : ''}</span><span className="mt-1 block truncate text-xs text-brand-grey">{[person.university, person.studyLevel, person.occupation, person.organization].filter(Boolean).join(' · ')}</span></span>
       <span className="hidden shrink-0 font-mono text-xs text-brand-gold sm:block">{person.ticketRef || '—'}</span>
       <span className="sr-only">{person.checkedIn ? 'Checked in' : 'Not checked in'}</span>
     </button>)}</div>

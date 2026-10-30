@@ -31,6 +31,7 @@ export default function RegistrationForm({
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [emailSent, setEmailSent] = useState<boolean | null>(null)
   const [registrationMode, setRegistrationMode] = useState<'guest' | 'member'>('guest')
+  const [attendeeType, setAttendeeType] = useState<'student' | 'professional' | 'non_professional'>('student')
   const [memberId, setMemberId] = useState('')
   const [challengeId, setChallengeId] = useState('')
   const [verificationCode, setVerificationCode] = useState('')
@@ -92,8 +93,11 @@ export default function RegistrationForm({
               fullName: form.get('fullName'),
               email: form.get('email'),
               phone: form.get('phone'),
-              university: form.get('university'),
-              studyLevel: form.get('studyLevel'),
+              attendeeType: form.get('attendeeType'),
+              university: form.get('university') || undefined,
+              studyLevel: form.get('studyLevel') || undefined,
+              occupation: form.get('occupation') || undefined,
+              organization: form.get('organization') || undefined,
             }),
       })
 
@@ -244,23 +248,40 @@ export default function RegistrationForm({
         Phone number
         <input name="phone" required type="tel" maxLength={24} disabled={submitting} className={inputClass} />
       </label>
-      <label className="text-sm font-medium">
-        Tertiary institution
-        <InstitutionCombobox name="university" required disabled={submitting} />
-      </label>
       <label className="text-sm font-medium md:col-span-2">
-        Level/year of study
-        <select name="studyLevel" required disabled={submitting} defaultValue="" className={inputClass}>
-          <option value="" disabled>
-            Select your level
-          </option>
-          {studyLevels.map((level) => (
-            <option key={level} value={level}>
-              {level === 'Postgrad' ? 'Postgraduate' : level}
-            </option>
-          ))}
+        Which best describes you?
+        <select name="attendeeType" required value={attendeeType} onChange={(event) => setAttendeeType(event.target.value as typeof attendeeType)} disabled={submitting} className={inputClass}>
+          <option value="student">Student</option>
+          <option value="professional">Professional</option>
+          <option value="non_professional">Non-professional</option>
         </select>
       </label>
+      {attendeeType === 'student' ? (
+        <>
+          <label className="text-sm font-medium">
+            Tertiary institution
+            <InstitutionCombobox name="university" required disabled={submitting} />
+          </label>
+          <label className="text-sm font-medium">
+            Level/year of study
+            <select name="studyLevel" required disabled={submitting} defaultValue="" className={inputClass}>
+              <option value="" disabled>Select your level</option>
+              {studyLevels.map((level) => <option key={level} value={level}>{level === 'Postgrad' ? 'Postgraduate' : level}</option>)}
+            </select>
+          </label>
+        </>
+      ) : (
+        <>
+          <label className="text-sm font-medium">
+            {attendeeType === 'professional' ? 'Profession or role' : 'Current activity'}
+            <input name="occupation" required maxLength={120} disabled={submitting} className={inputClass} placeholder={attendeeType === 'professional' ? 'e.g. Software engineer' : 'e.g. Job seeker, entrepreneur'} />
+          </label>
+          <label className="text-sm font-medium">
+            Organization <span className="font-normal text-brand-grey">(optional)</span>
+            <input name="organization" maxLength={160} disabled={submitting} className={inputClass} placeholder="Company or organization" />
+          </label>
+        </>
+      )}
 
       {capacity ? (
         <p className="text-xs text-brand-grey md:col-span-2">

@@ -74,8 +74,12 @@ export async function createEventRegistrationTable(
         full_name   TEXT NOT NULL,
         email       TEXT NOT NULL UNIQUE,
         phone       TEXT NOT NULL,
+        attendee_type TEXT NOT NULL DEFAULT 'student'
+                    CHECK (attendee_type IN ('student', 'professional', 'non_professional')),
         university  TEXT,
         study_level TEXT,
+        occupation  TEXT,
+        organization TEXT,
         member_id   TEXT REFERENCES public.members(member_id),
         status      TEXT NOT NULL DEFAULT 'confirmed'
                     CHECK (status IN ('confirmed', 'waitlisted', 'cancelled')),
@@ -113,8 +117,11 @@ export async function insertRegistrationAtomic(params: {
   fullName: string
   email: string
   phone: string
+  attendeeType: 'student' | 'professional' | 'non_professional'
   university: string | null
   studyLevel: string | null
+  occupation: string | null
+  organization: string | null
   memberId?: string
   memberChallengeId?: string
   ticketRef: string
@@ -153,16 +160,19 @@ export async function insertRegistrationAtomic(params: {
 
       await tx.unsafe(
         `INSERT INTO ${quotedTable}
-          (event_id, event_title, full_name, email, phone, university, study_level, member_id, status, ticket_ref)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'confirmed', $9)`,
+          (event_id, event_title, full_name, email, phone, attendee_type, university, study_level, occupation, organization, member_id, status, ticket_ref)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'confirmed', $12)`,
         [
           params.eventId,
           params.eventTitle,
           params.fullName,
           params.email.toLowerCase(),
           params.phone,
+          params.attendeeType,
           params.university,
           params.studyLevel,
+          params.occupation,
+          params.organization,
           params.memberId ?? null,
           params.ticketRef,
         ]

@@ -14,7 +14,7 @@ export default async function EventCheckinPage({ params }: { params: Promise<{ s
   let registrations
   try {
     const table = quoteEventTableName(event.table_name)
-    registrations = await db.unsafe(`SELECT id, full_name, email, university, study_level, member_id, ticket_ref, checked_in FROM ${table} WHERE status = 'confirmed' ORDER BY full_name ASC`)
+    registrations = await db.unsafe(`SELECT id, full_name, email, attendee_type, university, study_level, occupation, organization, member_id, ticket_ref, checked_in FROM ${table} WHERE status = 'confirmed' ORDER BY full_name ASC`)
   } catch (error) {
     console.error('Admin event check-in page query failed:', error)
     throw error
@@ -22,6 +22,6 @@ export default async function EventCheckinPage({ params }: { params: Promise<{ s
   return <div className="p-4 sm:p-6 md:p-8">
     <Link href={`/admin/events/${encodeURIComponent(event.event_slug as string)}`} className="mb-4 inline-block text-sm text-brand-grey transition hover:text-brand-black">← Back to registrations</Link>
     <header className="mb-6"><h1 className="font-display text-xl font-bold text-brand-black sm:text-2xl">Check-in: {event.event_title as string}</h1></header>
-    <CheckinList eventSlug={event.event_slug as string} registrations={registrations.map((registration) => ({ id: Number(registration.id), fullName: registration.full_name as string, email: registration.email as string, university: (registration.university as string | null) ?? '', studyLevel: (registration.study_level as string | null) ?? '', memberId: (registration.member_id as string | null) ?? '', ticketRef: (registration.ticket_ref as string | null) ?? '', checkedIn: Boolean(registration.checked_in) }))} />
+    <CheckinList eventSlug={event.event_slug as string} registrations={registrations.map((registration) => ({ id: Number(registration.id), fullName: registration.full_name as string, email: registration.email as string, attendeeType: String(registration.attendee_type ?? 'student'), university: (registration.university as string | null) ?? '', studyLevel: (registration.study_level as string | null) ?? '', occupation: (registration.occupation as string | null) ?? '', organization: (registration.organization as string | null) ?? '', memberId: (registration.member_id as string | null) ?? '', ticketRef: (registration.ticket_ref as string | null) ?? '', checkedIn: Boolean(registration.checked_in) }))} />
   </div>
 }

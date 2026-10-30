@@ -13,10 +13,31 @@ const guestRegistrationSchema = z.object({
     .min(10, 'Phone number must be at least 10 digits')
     .max(24, 'Phone number is too long')
     .regex(/^[0-9+\-\s()]+$/, 'Please enter a valid phone number'),
-  university: z.string().trim().min(2, 'University name is required').max(160, 'University name is too long'),
+  attendeeType: z.enum(['student', 'professional', 'non_professional']).default('student'),
+  university: z.string().trim().min(2, 'University name is required').max(160, 'University name is too long').optional(),
   studyLevel: z.enum(['100L', '200L', '300L', '400L', '500L', 'Postgrad', 'Other'], {
     error: () => ({ message: 'Please select a valid study level' }),
-  }),
+  }).optional(),
+  occupation: z.string().trim().max(120, 'Profession or activity is too long').optional(),
+  organization: z.string().trim().max(160, 'Organization name is too long').optional(),
+}).superRefine((data, context) => {
+  if (data.attendeeType === 'student') {
+    if (!data.university || data.university.length < 2) {
+      context.addIssue({ code: 'custom', path: ['university'], message: 'Enter your tertiary institution' })
+    }
+    if (!data.studyLevel) {
+      context.addIssue({ code: 'custom', path: ['studyLevel'], message: 'Select your level or year of study' })
+    }
+    return
+  }
+
+  if (!data.occupation || data.occupation.length < 2) {
+    context.addIssue({
+      code: 'custom',
+      path: ['occupation'],
+      message: data.attendeeType === 'professional' ? 'Enter your profession or role' : 'Tell us your current activity',
+    })
+  }
 })
 
 const kampMemberRegistrationSchema = z.object({

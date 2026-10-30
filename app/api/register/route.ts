@@ -77,8 +77,11 @@ export async function POST(req: NextRequest) {
       fullName: string
       email: string
       phone: string
+      attendeeType: 'student' | 'professional' | 'non_professional'
       university: string | null
       studyLevel: string | null
+      occupation: string | null
+      organization: string | null
       memberId?: string
       memberChallengeId?: string
     }
@@ -86,8 +89,7 @@ export async function POST(req: NextRequest) {
     if ('memberChallengeId' in parsed.data) {
       const [member] = await db`
         SELECT verification.member_id, members.first_name, members.last_name, members.email, members.phone,
-          COALESCE(members.university, members.occupation, members.organization, 'KAMP member') AS affiliation,
-          COALESCE(members.study_level, members.kamp_position, REPLACE(members.membership_type, '_', ' ')) AS level
+          members.membership_type, members.university, members.study_level, members.occupation, members.organization
         FROM event_member_verifications AS verification
         JOIN members ON members.member_id = verification.member_id
         WHERE verification.challenge_id = ${parsed.data.memberChallengeId}::uuid
@@ -105,8 +107,11 @@ export async function POST(req: NextRequest) {
         fullName: `${member.first_name} ${member.last_name}`,
         email: String(member.email).toLowerCase(),
         phone: String(member.phone),
-        university: member.affiliation ? String(member.affiliation) : null,
-        studyLevel: member.level ? String(member.level) : null,
+        attendeeType: member.membership_type as 'student' | 'professional' | 'non_professional',
+        university: member.university ? String(member.university) : null,
+        studyLevel: member.study_level ? String(member.study_level) : null,
+        occupation: member.occupation ? String(member.occupation) : null,
+        organization: member.organization ? String(member.organization) : null,
         memberId: String(member.member_id),
         memberChallengeId: parsed.data.memberChallengeId,
       }
@@ -115,8 +120,11 @@ export async function POST(req: NextRequest) {
         fullName: parsed.data.fullName,
         email: parsed.data.email.toLowerCase(),
         phone: parsed.data.phone,
-        university: parsed.data.university,
-        studyLevel: parsed.data.studyLevel,
+        attendeeType: parsed.data.attendeeType,
+        university: parsed.data.university ?? null,
+        studyLevel: parsed.data.studyLevel ?? null,
+        occupation: parsed.data.occupation ?? null,
+        organization: parsed.data.organization ?? null,
       }
     }
 
@@ -176,8 +184,8 @@ export async function POST(req: NextRequest) {
         attendeeName: attendee.fullName,
         attendeeEmail: attendee.email,
         attendeePhone: attendee.phone,
-        attendeeUniversity: attendee.university ?? '',
-        studyLevel: attendee.studyLevel ?? '',
+        attendeeUniversity: [attendee.university, attendee.occupation, attendee.organization].filter(Boolean).join(' · '),
+        studyLevel: attendee.studyLevel ?? (attendee.attendeeType === 'student' ? '' : attendee.attendeeType === 'professional' ? 'Professional' : 'Non-professional'),
         eventTitle,
         eventTheme: event.theme,
         eventDate: formattedDate,
@@ -206,7 +214,7 @@ export async function POST(req: NextRequest) {
           eventTitle,
           eventDate: formattedDate,
           eventLocation: event.location,
-          university: attendee.university ?? 'KAMP member',
+          university: [attendee.university, attendee.occupation, attendee.organization].filter(Boolean).join(' · ') || 'KAMP member',
           ticketRef,
           ticketPDF,
         })
