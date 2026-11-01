@@ -52,30 +52,51 @@ export async function createEventRegistrationTable(
       SELECT table_name FROM event_tables_registry WHERE event_id = ${eventId} LIMIT 1
     `
 
-    if (existing.length > 0) {
-      const tableName = existing[0].table_name as string
-      assertSafeTableName(tableName)
-      await tx`
-        UPDATE event_tables_registry
-        SET event_slug = ${eventSlug}, event_title = ${eventTitle}
-        WHERE event_id = ${eventId}
-      `
-      return { tableName, created: false }
-    }
-
-    const tableName = slugToTableName(eventSlug, eventId)
+    const tableName = existing.length > 0
+      ? existing[0].table_name as string
+      : slugToTableName(eventSlug, eventId)
+    assertSafeTableName(tableName)
     const quotedTable = `"${tableName}"`
+    const [relation] = await tx`
+      SELECT to_regclass(format('public.%I', ${tableName})) IS NOT NULL AS exists
+    `
+    const created = !relation.exists
+    const [shape] = await tx`
+      SELECT NOT EXISTS (
+        SELECT required.column_name
+        FROM (VALUES
+          ('event_id'), ('event_title'), ('full_name'), ('email'), ('phone'),
+          ('attendee_type'), ('university'), ('study_level'), ('occupation'),
+          ('organization'), ('member_id'), ('status'), ('ticket_ref')
+        ) AS required(column_name)
+        WHERE NOT EXISTS (
+          SELECT 1 FROM information_schema.columns AS column_info
+          WHERE column_info.table_schema = 'public'
+            AND column_info.table_name = ${tableName}
+            AND column_info.column_name = required.column_name
+        )
+      ) AND NOT EXISTS (
+        SELECT 1 FROM information_schema.columns AS column_info
+        WHERE column_info.table_schema = 'public'
+          AND column_info.table_name = ${tableName}
+          AND column_info.column_name IN ('university', 'study_level')
+          AND column_info.is_nullable = 'NO'
+      ) AS schema_ready
+    `
 
-    await tx.unsafe(`
-      CREATE TABLE ${quotedTable} (
+    // A registry row can outlive its registration table if the table was
+    // removed manually. Recreate it while holding the event lock so the
+    // registration endpoint can recover instead of returning a 500.
+    if (!relation.exists || !shape.schema_ready) {
+      await tx.unsafe(`
+      CREATE TABLE IF NOT EXISTS ${quotedTable} (
         id          SERIAL PRIMARY KEY,
         event_id    TEXT NOT NULL,
         event_title TEXT NOT NULL,
         full_name   TEXT NOT NULL,
         email       TEXT NOT NULL UNIQUE,
         phone       TEXT NOT NULL,
-        attendee_type TEXT NOT NULL DEFAULT 'student'
-                    CHECK (attendee_type IN ('student', 'professional', 'non_professional')),
+        attendee_type TEXT NOT NULL DEFAULT 'student',
         university  TEXT,
         study_level TEXT,
         occupation  TEXT,
@@ -86,29 +107,92 @@ export async function createEventRegistrationTable(
         ticket_ref  TEXT UNIQUE,
         checked_in  BOOLEAN NOT NULL DEFAULT FALSE,
         checked_in_at TIMESTAMPTZ,
-        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        CONSTRAINT "${tableName.slice(0, 43)}_attendee_type_check"
+          CHECK (attendee_type IN ('student', 'professional', 'non_professional'))
       )
-    `)
-    await tx.unsafe(`ALTER TABLE ${quotedTable} ENABLE ROW LEVEL SECURITY`)
-    await tx.unsafe(`CREATE UNIQUE INDEX "${tableName}_member_id_key" ON ${quotedTable} (member_id) WHERE member_id IS NOT NULL`)
+      `)
+      // Bring older per-event tables up to the current shape as well. This
+      // keeps a table provisioned before the latest fields were deployed usable.
+      await tx.unsafe(`ALTER TABLE ${quotedTable} ADD COLUMN IF NOT EXISTS attendee_type TEXT NOT NULL DEFAULT 'student'`)
+      await tx.unsafe(`ALTER TABLE ${quotedTable} ADD COLUMN IF NOT EXISTS occupation TEXT`)
+      await tx.unsafe(`ALTER TABLE ${quotedTable} ADD COLUMN IF NOT EXISTS organization TEXT`)
+      await tx.unsafe(`ALTER TABLE ${quotedTable} ADD COLUMN IF NOT EXISTS member_id TEXT REFERENCES public.members(member_id)`)
+      await tx.unsafe(`ALTER TABLE ${quotedTable} ADD COLUMN IF NOT EXISTS ticket_ref TEXT`)
+      await tx.unsafe(`ALTER TABLE ${quotedTable} ADD COLUMN IF NOT EXISTS checked_in BOOLEAN NOT NULL DEFAULT FALSE`)
+      await tx.unsafe(`ALTER TABLE ${quotedTable} ADD COLUMN IF NOT EXISTS checked_in_at TIMESTAMPTZ`)
+      await tx.unsafe(`ALTER TABLE ${quotedTable} ALTER COLUMN university DROP NOT NULL`)
+      await tx.unsafe(`ALTER TABLE ${quotedTable} ALTER COLUMN study_level DROP NOT NULL`)
+      await tx.unsafe(`ALTER TABLE ${quotedTable} ENABLE ROW LEVEL SECURITY`)
+      await tx.unsafe(`CREATE UNIQUE INDEX IF NOT EXISTS "${tableName}_email_key" ON ${quotedTable} (email)`)
+      await tx.unsafe(`CREATE UNIQUE INDEX IF NOT EXISTS "${tableName}_ticket_ref_key" ON ${quotedTable} (ticket_ref)`)
+      await tx.unsafe(`CREATE UNIQUE INDEX IF NOT EXISTS "${tableName}_member_id_key" ON ${quotedTable} (member_id) WHERE member_id IS NOT NULL`)
+      const attendeeTypeConstraint = `${tableName.slice(0, 43)}_attendee_type_check`
+      await tx.unsafe(`
+      DO $ensure_attendee_type$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint
+          WHERE conrelid = ${`'public.${tableName}'`}::regclass
+            AND conname = '${attendeeTypeConstraint}'
+        ) THEN
+          ALTER TABLE ${quotedTable}
+            ADD CONSTRAINT "${attendeeTypeConstraint}"
+            CHECK (attendee_type IN ('student', 'professional', 'non_professional'));
+        END IF;
+      END;
+      $ensure_attendee_type$;
+      `)
+    }
+
+    if (existing.length > 0) {
+      await tx`
+        UPDATE event_tables_registry
+        SET event_slug = ${eventSlug}, event_title = ${eventTitle}
+        WHERE event_id = ${eventId}
+      `
+      return { tableName, created }
+    }
 
     await tx`
       INSERT INTO event_tables_registry (event_id, event_slug, event_title, table_name)
       VALUES (${eventId}, ${eventSlug}, ${eventTitle}, ${tableName})
     `
 
-    return { tableName, created: true }
+    return { tableName, created }
   })
 }
 
 export async function getEventTableName(eventId: string): Promise<string | null> {
   const result = await db`
-    SELECT table_name FROM event_tables_registry WHERE event_id = ${eventId} LIMIT 1
+    SELECT registry.table_name,
+      to_regclass(format('public.%I', registry.table_name)) IS NOT NULL AS table_exists,
+      NOT EXISTS (
+        SELECT required.column_name
+        FROM (VALUES
+          ('event_id'), ('event_title'), ('full_name'), ('email'), ('phone'),
+          ('attendee_type'), ('university'), ('study_level'), ('occupation'),
+          ('organization'), ('member_id'), ('status'), ('ticket_ref')
+        ) AS required(column_name)
+        WHERE NOT EXISTS (
+          SELECT 1 FROM information_schema.columns AS column_info
+          WHERE column_info.table_schema = 'public'
+            AND column_info.table_name = registry.table_name
+            AND column_info.column_name = required.column_name
+        )
+      ) AND NOT EXISTS (
+        SELECT 1 FROM information_schema.columns AS column_info
+        WHERE column_info.table_schema = 'public'
+          AND column_info.table_name = registry.table_name
+          AND column_info.column_name IN ('university', 'study_level')
+          AND column_info.is_nullable = 'NO'
+      ) AS schema_ready
+    FROM event_tables_registry AS registry WHERE registry.event_id = ${eventId} LIMIT 1
   `
   if (result.length === 0) return null
   const tableName = result[0].table_name as string
   assertSafeTableName(tableName)
-  return tableName
+  return result[0].table_exists && result[0].schema_ready ? tableName : null
 }
 
 export async function insertRegistrationAtomic(params: {

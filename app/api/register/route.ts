@@ -19,6 +19,7 @@ export const runtime = 'nodejs'
 const MAX_REQUEST_BYTES = 8 * 1024
 
 export async function POST(req: NextRequest) {
+  let registrationPhase = 'request validation'
   try {
     if (!client) {
       console.error('[/api/register] Missing NEXT_PUBLIC_SANITY_PROJECT_ID')
@@ -29,6 +30,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 0. Rate limit by client IP (backend.md §8)
+    registrationPhase = 'rate limiting'
     if (!(await rateLimit(`event-register:${getClientIp(req)}`, 5, 60_000))) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
@@ -37,6 +39,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Parse and validate body
+    registrationPhase = 'request parsing'
     const body = await readJsonRequest(req, MAX_REQUEST_BYTES)
     const parsed = registrationSchema.safeParse(body)
 
@@ -50,6 +53,7 @@ export async function POST(req: NextRequest) {
     const { eventId } = parsed.data
 
     // 2. Check capacity if the event has a limit
+    registrationPhase = 'Sanity event lookup'
     const event = await client.withConfig({ useCdn: false }).fetch<{
       title: string
       slug: { current: string }
@@ -87,6 +91,7 @@ export async function POST(req: NextRequest) {
     }
 
     if ('memberChallengeId' in parsed.data) {
+      registrationPhase = 'verified member lookup'
       const [member] = await db`
         SELECT verification.member_id, members.first_name, members.last_name, members.email, members.phone,
           members.membership_type, members.university, members.study_level, members.occupation, members.organization
@@ -129,6 +134,7 @@ export async function POST(req: NextRequest) {
     }
 
     const eventTitle = event.title
+    registrationPhase = 'event registration table setup'
     let tableName = await getEventTableName(eventId)
     if (!tableName) {
       const result = await createEventRegistrationTable(eventId, event.slug.current, eventTitle)
@@ -140,6 +146,7 @@ export async function POST(req: NextRequest) {
     // Capacity checks and inserts run under one transaction-level event lock;
     // the database's email constraint handles duplicate submissions.
     try {
+      registrationPhase = 'registration database insert'
       await insertRegistrationAtomic({
         eventId,
         eventTitle,
@@ -237,7 +244,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     const bodyError = requestBodyErrorResponse(err)
     if (bodyError) return NextResponse.json({ error: bodyError.message }, { status: bodyError.status })
-    console.error('[/api/register] Error:', err)
+    console.error(`[/api/register] Error during ${registrationPhase}:`, err)
     return NextResponse.json(
       { error: 'Something went wrong. Please try again.' },
       { status: 500 }
