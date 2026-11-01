@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function AdminEventsPage() {
   const registry = await db`SELECT event_id, event_slug, event_title, table_name, created_at FROM event_tables_registry ORDER BY created_at DESC`
-  const events = await Promise.all(registry.map(async (event) => {
+  const registeredEvents = await Promise.all(registry.map(async (event) => {
     const registrations = await getEventRegistrationCount(event.table_name)
     return {
       event_id: event.event_id as string,
@@ -17,6 +17,9 @@ export default async function AdminEventsPage() {
       registrationTableAvailable: registrations.available,
     }
   }))
+  // Registry rows can remain after an event's registration table is removed.
+  // Keep the admin list limited to events that still have usable registrations.
+  const events = registeredEvents.filter((event) => event.registrationTableAvailable)
 
   return <div className="p-5 sm:p-8">
     <header className="mb-6"><h1 className="font-display text-2xl font-bold text-brand-black">Events</h1><p className="mt-1 text-sm text-brand-grey">Events with registration tables</p></header>

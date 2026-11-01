@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Suspense } from 'react'
+import { cache, Suspense } from 'react'
 import { db } from '@/lib/db'
 import {
   getGenderBreakdown,
@@ -21,6 +21,7 @@ import MembershipTypeBreakdown from '@/components/admin/charts/MembershipTypeBre
 import { CalendarDays, ChartNoAxesCombined, UserRoundCheck, UsersRound } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
+const getDashboardUniversities = cache(getUniversities)
 
 export default function AdminDashboardPage() {
   return (
@@ -40,9 +41,7 @@ export default function AdminDashboardPage() {
         <DashboardOverview />
       </Suspense>
 
-      <Suspense fallback={<AnalyticsLoading />}>
-        <DashboardAnalytics />
-      </Suspense>
+      <DashboardAnalytics />
 
       <Suspense fallback={<RecentMembersLoading />}>
         <RecentMembers />
@@ -52,7 +51,8 @@ export default function AdminDashboardPage() {
 }
 
 async function DashboardOverview() {
-  const [memberCount, newThisMonth, eventCount, yoyGrowth, totalRegistrations] = await Promise.all([
+  try {
+  const [memberCount, newThisMonth, eventCount, yoyGrowth] = await Promise.all([
     db`SELECT COUNT(*)::int AS count FROM members WHERE status = 'active'`,
     db`SELECT COUNT(*)::int AS count FROM members WHERE joined_at >= date_trunc('month', NOW())`,
     db`SELECT COUNT(*)::int AS count
@@ -64,7 +64,6 @@ async function DashboardOverview() {
           AND event_table.tablename = registry.table_name
       )`,
     getYearOnYearGrowth(),
-    getTotalEventRegistrations(),
   ])
 
   const growthLabel = yoyGrowth.growthPercent === null
@@ -74,70 +73,94 @@ async function DashboardOverview() {
     { label: 'Active members', value: Number(memberCount[0].count).toLocaleString(), detail: `+${Number(newThisMonth[0].count).toLocaleString()} joined this month`, Icon: UsersRound, highlight: false },
     { label: 'Member growth', value: growthLabel, detail: `${yoyGrowth.currentYearCount.toLocaleString()} this year vs ${yoyGrowth.previousYearCount.toLocaleString()} by this date last year`, Icon: ChartNoAxesCombined, highlight: true },
     { label: 'Events', value: Number(eventCount[0].count).toLocaleString(), detail: 'with registration tables', Icon: CalendarDays, highlight: false },
-    { label: 'Event registrations', value: totalRegistrations.count.toLocaleString(), detail: totalRegistrations.unavailableTables > 0 ? `${totalRegistrations.unavailableTables} event registration table(s) unavailable` : 'across all events', Icon: UserRoundCheck, highlight: false },
   ]
 
   return (
     <section aria-label="Overview statistics" className="mb-9 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
       {stats.map(({ Icon, ...stat }) => <article key={stat.label} className={`rounded-2xl border p-4 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-5 ${stat.highlight ? 'border-brand-black bg-brand-black' : 'border-brand-card bg-white'}`}><div className="mb-4 flex items-center justify-between gap-3"><p className={`text-[11px] font-semibold uppercase tracking-[0.12em] ${stat.highlight ? 'text-white/60' : 'text-brand-grey'}`}>{stat.label}</p><span className={`grid size-9 place-items-center rounded-xl ${stat.highlight ? 'bg-white/10 text-brand-gold' : 'bg-brand-cream text-brand-ink'}`}><Icon aria-hidden="true" size={17} strokeWidth={1.7} /></span></div><p className={`font-display text-3xl font-bold tracking-[-0.035em] sm:text-[2rem] ${stat.highlight ? 'text-brand-gold' : 'text-brand-black'}`}>{stat.value}</p><p className={`mt-2 min-h-9 text-xs leading-relaxed ${stat.highlight ? 'text-white/55' : 'text-brand-grey'}`}>{stat.detail}</p></article>)}
+      <Suspense fallback={<EventRegistrationsLoading />}><EventRegistrationsOverview /></Suspense>
     </section>
   )
+  } catch (error) {
+    console.error('[admin dashboard] Overview statistics failed:', error)
+    return <UnavailablePanel title="Overview statistics" />
+  }
 }
 
-async function DashboardAnalytics() {
-  const [monthlySignups, universities, topStates, studyLevels, genderData, membershipTypes] = await Promise.all([
-    getMonthlySignups(),
-    getUniversities(),
-    getTopStates(),
-    getStudyLevelBreakdown(),
-    getGenderBreakdown(),
-    getMembershipTypeBreakdown(),
-  ])
+function DashboardAnalytics() {
+  return <section aria-label="Member analytics" className="mb-9 space-y-4">
+    <div className="grid gap-5 xl:grid-cols-2">
+      <Suspense fallback={<AnalyticsPanelLoading />}><SignupTrendPanel /></Suspense>
+      <Suspense fallback={<AnalyticsPanelLoading />}><UniversityPanel /></Suspense>
+    </div>
+    <div className="grid gap-5 xl:grid-cols-2">
+      <Suspense fallback={<AnalyticsPanelLoading />}><StatesPanel /></Suspense>
+      <Suspense fallback={<AnalyticsPanelLoading />}><GenderPanel /></Suspense>
+    </div>
+    <div className="grid gap-5 xl:grid-cols-2">
+      <Suspense fallback={<AnalyticsPanelLoading />}><MembershipTypePanel /></Suspense>
+      <Suspense fallback={<AnalyticsPanelLoading />}><StudyLevelPanel /></Suspense>
+    </div>
+    <Suspense fallback={<AnalyticsDirectoryLoading />}><UniversityDirectoryPanel /></Suspense>
+  </section>
+}
 
-  return (
-    <section aria-label="Member analytics" className="mb-9 space-y-4">
-      <div className="grid gap-5 xl:grid-cols-2">
-        <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6">
-          <header className="mb-3"><h2 className="font-semibold text-brand-black">Member signups</h2><p className="mt-1 text-xs text-brand-grey">Monthly trend over the last 12 months</p></header>
-          <SignupTrendChart data={monthlySignups} />
-        </article>
-        <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6">
-          <header className="mb-3"><h2 className="font-semibold text-brand-black">Top universities</h2><p className="mt-1 text-xs text-brand-grey">Institutions with the most student members</p></header>
-          <UniversityChart data={universities.slice(0, 10)} />
-        </article>
-      </div>
+async function EventRegistrationsOverview() {
+  try {
+    const total = await getTotalEventRegistrations()
+    return <article className="rounded-2xl border border-brand-card bg-white p-4 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-5"><div className="mb-4 flex items-center justify-between gap-3"><p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-grey">Event registrations</p><span className="grid size-9 place-items-center rounded-xl bg-brand-cream text-brand-ink"><UserRoundCheck aria-hidden="true" size={17} strokeWidth={1.7} /></span></div><p className="font-display text-3xl font-bold tracking-[-0.035em] sm:text-[2rem] text-brand-black">{total.count.toLocaleString()}</p><p className="mt-2 min-h-9 text-xs leading-relaxed text-brand-grey">{total.unavailableTables > 0 ? `${total.unavailableTables} event registration table(s) unavailable` : 'Across all events'}</p></article>
+  } catch (error) {
+    console.error('[admin dashboard] Event registration total failed:', error)
+    return <UnavailablePanel title="Event registrations" />
+  }
+}
 
-      <div className="grid gap-5 xl:grid-cols-2">
-        <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6">
-          <header className="mb-3"><h2 className="font-semibold text-brand-black">Top states of origin</h2><p className="mt-1 text-xs text-brand-grey">Member distribution by state</p></header>
-          <StatesChart data={topStates} />
-        </article>
-        <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6">
-          <header className="mb-5"><h2 className="font-semibold text-brand-black">Gender split</h2><p className="mt-1 text-xs text-brand-grey">Share of all registered members</p></header>
-          <GenderBreakdown data={genderData} />
-        </article>
-      </div>
+async function SignupTrendPanel() {
+  try { return <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6"><header className="mb-3"><h2 className="font-semibold text-brand-black">Member signups</h2><p className="mt-1 text-xs text-brand-grey">Monthly trend over the last 12 months</p></header><SignupTrendChart data={await getMonthlySignups()} /></article> }
+  catch (error) { console.error('[admin dashboard] Signup trend failed:', error); return <UnavailablePanel title="Member signups" /> }
+}
 
-      <div className="grid gap-5 xl:grid-cols-2">
-        <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6">
-          <header className="mb-5"><h2 className="font-semibold text-brand-black">Membership categories</h2><p className="mt-1 text-xs text-brand-grey">Students, professionals, and non-professionals</p></header>
-          <MembershipTypeBreakdown data={membershipTypes} />
-        </article>
-        <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6">
-          <header className="mb-5"><h2 className="font-semibold text-brand-black">Level of study</h2><p className="mt-1 text-xs text-brand-grey">Student member distribution by current study level</p></header>
-          <StudyLevelBreakdown data={studyLevels} />
-        </article>
-      </div>
+async function UniversityPanel() {
+  try { const universities = await getDashboardUniversities(); return <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6"><header className="mb-3"><h2 className="font-semibold text-brand-black">Top universities</h2><p className="mt-1 text-xs text-brand-grey">Institutions with the most student members</p></header><UniversityChart data={universities.slice(0, 10)} /></article> }
+  catch (error) { console.error('[admin dashboard] University chart failed:', error); return <UnavailablePanel title="Top universities" /> }
+}
 
-      <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6">
-        <header className="mb-4 flex flex-wrap items-end justify-between gap-2"><div><h2 className="font-semibold text-brand-black">All universities</h2><p className="mt-1 text-xs text-brand-grey">Student members grouped by institution</p></div><p className="text-xs font-medium text-brand-grey">{universities.length.toLocaleString()} institutions · {universities.reduce((total, university) => total + university.count, 0).toLocaleString()} members</p></header>
-        <UniversityDirectory data={universities} />
-      </article>
-    </section>
-  )
+async function UniversityDirectoryPanel() {
+  try { const universities = await getDashboardUniversities(); return <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6"><header className="mb-4 flex flex-wrap items-end justify-between gap-2"><div><h2 className="font-semibold text-brand-black">All universities</h2><p className="mt-1 text-xs text-brand-grey">Student members grouped by institution</p></div><p className="text-xs font-medium text-brand-grey">{universities.length.toLocaleString()} institutions · {universities.reduce((total, university) => total + university.count, 0).toLocaleString()} members</p></header><UniversityDirectory data={universities} /></article> }
+  catch (error) { console.error('[admin dashboard] University directory failed:', error); return <UnavailablePanel title="All universities" /> }
+}
+
+async function StatesPanel() {
+  try { return <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6"><header className="mb-3"><h2 className="font-semibold text-brand-black">Top states of origin</h2><p className="mt-1 text-xs text-brand-grey">Member distribution by state</p></header><StatesChart data={await getTopStates()} /></article> }
+  catch (error) { console.error('[admin dashboard] State chart failed:', error); return <UnavailablePanel title="Top states of origin" /> }
+}
+
+async function GenderPanel() {
+  try { return <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6"><header className="mb-5"><h2 className="font-semibold text-brand-black">Gender split</h2><p className="mt-1 text-xs text-brand-grey">Share of all registered members</p></header><GenderBreakdown data={await getGenderBreakdown()} /></article> }
+  catch (error) { console.error('[admin dashboard] Gender breakdown failed:', error); return <UnavailablePanel title="Gender split" /> }
+}
+
+async function MembershipTypePanel() {
+  try { return <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6"><header className="mb-5"><h2 className="font-semibold text-brand-black">Membership categories</h2><p className="mt-1 text-xs text-brand-grey">Students, professionals, and non-professionals</p></header><MembershipTypeBreakdown data={await getMembershipTypeBreakdown()} /></article> }
+  catch (error) { console.error('[admin dashboard] Membership breakdown failed:', error); return <UnavailablePanel title="Membership categories" /> }
+}
+
+async function StudyLevelPanel() {
+  try { return <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6"><header className="mb-5"><h2 className="font-semibold text-brand-black">Level of study</h2><p className="mt-1 text-xs text-brand-grey">Student member distribution by current study level</p></header><StudyLevelBreakdown data={await getStudyLevelBreakdown()} /></article> }
+  catch (error) { console.error('[admin dashboard] Study level breakdown failed:', error); return <UnavailablePanel title="Level of study" /> }
+}
+
+function UnavailablePanel({ title }: { title: string }) {
+  return <article className="flex min-h-72 flex-col justify-center rounded-2xl border border-brand-card bg-white p-6"><h2 className="font-semibold text-brand-black">{title}</h2><p className="mt-2 text-sm text-brand-grey">This section could not load right now. Refresh the page to try again.</p></article>
 }
 async function RecentMembers() {
-  const recentMembers = await db`SELECT member_id, first_name, last_name, membership_type, kamp_position, university, study_level, occupation, organization, joined_at FROM members ORDER BY joined_at DESC LIMIT 5`
+  let recentMembers
+  try {
+    recentMembers = await db`SELECT member_id, first_name, last_name, membership_type, kamp_position, university, study_level, occupation, organization, joined_at FROM members ORDER BY joined_at DESC LIMIT 5`
+  } catch (error) {
+    console.error('[admin dashboard] Recent members failed:', error)
+    return <UnavailablePanel title="Recent members" />
+  }
 
   return (
     <section className="overflow-hidden rounded-2xl border border-brand-card bg-white shadow-[0_1px_2px_rgba(32,32,32,0.03)]">
@@ -153,14 +176,18 @@ function OverviewLoading() {
   return <div aria-label="Loading overview" aria-busy="true" className="mb-9 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">{Array.from({ length: 4 }, (_, index) => <div key={index} className="h-32 animate-pulse rounded-2xl bg-brand-card" />)}</div>
 }
 
-function AnalyticsLoading() {
-  return <section aria-label="Loading analytics" aria-busy="true" className="mb-9 grid gap-4 xl:grid-cols-2">{Array.from({ length: 4 }, (_, index) => <div key={index} className="h-80 animate-pulse rounded-2xl bg-brand-card" />)}</section>
+function EventRegistrationsLoading() {
+  return <div aria-label="Loading event registration total" aria-busy="true" className="h-44 animate-pulse rounded-2xl bg-brand-card sm:h-44" />
+}
+
+function AnalyticsPanelLoading() {
+  return <div aria-label="Loading analytics panel" aria-busy="true" className="h-72 animate-pulse rounded-2xl bg-brand-card" />
+}
+
+function AnalyticsDirectoryLoading() {
+  return <div aria-label="Loading university directory" aria-busy="true" className="h-96 animate-pulse rounded-2xl bg-brand-card" />
 }
 
 function RecentMembersLoading() {
   return <div aria-label="Loading recent members" aria-busy="true" className="h-72 animate-pulse rounded-2xl bg-brand-card" />
-}
-
-function UniversitiesLoading() {
-  return <section aria-label="Loading university membership" aria-busy="true" className="mb-9 space-y-4"><div className="h-80 animate-pulse rounded-2xl bg-brand-card" /><div className="h-96 animate-pulse rounded-2xl bg-brand-card" /></section>
 }
