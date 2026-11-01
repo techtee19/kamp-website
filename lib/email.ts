@@ -96,6 +96,28 @@ export async function sendEventMemberVerificationCode(opts: { to: string; firstN
   return result
 }
 
+export async function sendEventCheckinAccessInvitation(opts: { to: string; eventTitle: string; loginUrl: string }) {
+  const result = await resend().emails.send({
+    from: FROM(),
+    to: opts.to,
+    subject: `KAMP check-in access: ${opts.eventTitle}`,
+    html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#202020;line-height:1.6"><div style="background:#1B2A4A;padding:26px;text-align:center;color:#fff"><h1 style="margin:0;color:#C49A22">KAMP</h1><p style="margin:6px 0 0">Event registration team</p></div><div style="padding:28px"><h2 style="color:#1B2A4A">You have event check-in access</h2><p>You have been added as a check-in operator for <strong>${esc(opts.eventTitle)}</strong>.</p><p>Use your email address to request a one-time sign-in code. This access is limited to this event’s attendee check-in screen.</p><p style="margin:24px 0"><a href="${esc(opts.loginUrl)}" style="display:inline-block;background:#1B2A4A;color:#fff;padding:13px 22px;border-radius:24px;text-decoration:none;font-weight:bold">Open event check-in</a></p><p>The code expires after 10 minutes. Your check-in session expires after 12 hours. If you were not expecting this access, contact the KAMP event lead.</p></div></div>`,
+  })
+  if (result.error) throw new Error(`Resend event check-in invitation failed: ${result.error.message}`)
+  return result
+}
+
+export async function sendEventCheckinLoginCode(opts: { to: string; eventTitle: string; code: string }) {
+  const result = await resend().emails.send({
+    from: FROM(),
+    to: opts.to,
+    subject: `Your KAMP check-in sign-in code for ${opts.eventTitle}`,
+    html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#202020;line-height:1.6"><div style="background:#1B2A4A;padding:26px;text-align:center;color:#fff"><h1 style="margin:0;color:#C49A22">KAMP</h1><p style="margin:6px 0 0">Event check-in</p></div><div style="padding:28px"><h2 style="color:#1B2A4A">Your one-time sign-in code</h2><p>Use this code to access event check-in for <strong>${esc(opts.eventTitle)}</strong>:</p><p style="padding:18px;text-align:center;background:#F5F0E8;border-radius:8px;font-size:30px;font-weight:bold;letter-spacing:8px;color:#1B2A4A">${esc(opts.code)}</p><p>This code expires in 10 minutes and can only be used once. If you didn’t request it, you can ignore this email.</p></div></div>`,
+  })
+  if (result.error) throw new Error(`Resend event check-in code failed: ${result.error.message}`)
+  return result
+}
+
 export async function sendMembershipWelcome(opts: {
   to: string
   firstName: string

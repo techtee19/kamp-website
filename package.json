@@ -22,6 +22,7 @@
     "@sanity/image-url": "2",
     "@sanity/vision": "^5.31.1",
     "@vercel/analytics": "^2.0.1",
+    "@zxing/browser": "^0.2.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.28.0",
     "next": "16.3.0",

@@ -8,11 +8,12 @@ import {
   getStudyLevelBreakdown,
   getTotalEventRegistrations,
   getTopStates,
-  getTopUniversities,
+  getUniversities,
   getYearOnYearGrowth,
 } from '@/lib/admin-analytics'
 import SignupTrendChart from '@/components/admin/charts/SignupTrendChart'
 import UniversityChart from '@/components/admin/charts/UniversityChart'
+import UniversityDirectory from '@/components/admin/UniversityDirectory'
 import StatesChart from '@/components/admin/charts/StatesChart'
 import GenderBreakdown from '@/components/admin/charts/GenderBreakdown'
 import StudyLevelBreakdown from '@/components/admin/charts/StudyLevelBreakdown'
@@ -84,9 +85,9 @@ async function DashboardOverview() {
 }
 
 async function DashboardAnalytics() {
-  const [monthlySignups, topUniversities, topStates, studyLevels, genderData, membershipTypes] = await Promise.all([
+  const [monthlySignups, universities, topStates, studyLevels, genderData, membershipTypes] = await Promise.all([
     getMonthlySignups(),
-    getTopUniversities(),
+    getUniversities(),
     getTopStates(),
     getStudyLevelBreakdown(),
     getGenderBreakdown(),
@@ -101,8 +102,8 @@ async function DashboardAnalytics() {
           <SignupTrendChart data={monthlySignups} />
         </article>
         <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6">
-          <header className="mb-3"><h2 className="font-semibold text-brand-black">Top universities</h2><p className="mt-1 text-xs text-brand-grey">Institutions with the most members</p></header>
-          <UniversityChart data={topUniversities} />
+          <header className="mb-3"><h2 className="font-semibold text-brand-black">Top universities</h2><p className="mt-1 text-xs text-brand-grey">Institutions with the most student members</p></header>
+          <UniversityChart data={universities.slice(0, 10)} />
         </article>
       </div>
 
@@ -127,10 +128,14 @@ async function DashboardAnalytics() {
           <StudyLevelBreakdown data={studyLevels} />
         </article>
       </div>
+
+      <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6">
+        <header className="mb-4 flex flex-wrap items-end justify-between gap-2"><div><h2 className="font-semibold text-brand-black">All universities</h2><p className="mt-1 text-xs text-brand-grey">Student members grouped by institution</p></div><p className="text-xs font-medium text-brand-grey">{universities.length.toLocaleString()} institutions · {universities.reduce((total, university) => total + university.count, 0).toLocaleString()} members</p></header>
+        <UniversityDirectory data={universities} />
+      </article>
     </section>
   )
 }
-
 async function RecentMembers() {
   const recentMembers = await db`SELECT member_id, first_name, last_name, membership_type, kamp_position, university, study_level, occupation, organization, joined_at FROM members ORDER BY joined_at DESC LIMIT 5`
 
@@ -154,4 +159,8 @@ function AnalyticsLoading() {
 
 function RecentMembersLoading() {
   return <div aria-label="Loading recent members" aria-busy="true" className="h-72 animate-pulse rounded-2xl bg-brand-card" />
+}
+
+function UniversitiesLoading() {
+  return <section aria-label="Loading university membership" aria-busy="true" className="mb-9 space-y-4"><div className="h-80 animate-pulse rounded-2xl bg-brand-card" /><div className="h-96 animate-pulse rounded-2xl bg-brand-card" /></section>
 }

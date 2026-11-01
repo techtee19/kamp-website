@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { NextRequest, NextResponse } from 'next/server'
+import { after, NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { membershipSchema } from '@/lib/validations'
 import { rateLimit, getClientIp } from '@/lib/ratelimit'
@@ -11,6 +11,9 @@ import { createLeadershipMemberId, isLeadershipInviteToken, LEADERSHIP_ROLES } f
 import { createCommunityLinkToken, createTrackedCommunityUrl, hashCommunityLinkToken, getSiteOrigin, getWhatsAppCommunityLink } from '@/lib/community'
 
 export const runtime = 'nodejs'
+// Registration commits quickly, then card rendering and Resend delivery run
+// after the response so a slow mail provider cannot make the form appear to fail.
+export const maxDuration = 30
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024
 const MAX_REQUEST_BYTES = MAX_PHOTO_BYTES + 32_768
 const MAX_IMAGE_DIMENSION = 8_000
@@ -204,25 +207,25 @@ export async function POST(req: NextRequest) {
     }
 
     const trackedCommunityUrl = createTrackedCommunityUrl(communityToken, getSiteOrigin(req.nextUrl.origin))
-    let emailSent = false
-    try {
-      const affiliation = member.membership_type === 'student'
-        ? member.university ?? 'Student'
-        : [member.occupation, member.organization].filter(Boolean).join(' · ') || 'KAMP Community'
-      const cardPDF = await generateMemberCardPDF({ firstName: member.first_name, lastName: member.last_name, memberId: member.member_id, membershipType: member.membership_type, affiliation, kampPosition: member.kamp_position, yearJoined: member.year_joined, passportDataUri: photoDataUri })
-      await sendMembershipWelcome({ to: email, firstName: member.first_name, memberId: member.member_id, cardPDF, ...(communityTrackingReady ? { communityJoinUrl: trackedCommunityUrl } : {}) })
-      emailSent = true
-      if (communityTrackingReady) try {
-        await db`UPDATE member_community_invite_links SET email_sent_at = NOW() WHERE token_hash = ${communityTokenHash}`
+    after(async () => {
+      try {
+        const affiliation = member.membership_type === 'student'
+          ? member.university ?? 'Student'
+          : [member.occupation, member.organization].filter(Boolean).join(' · ') || 'KAMP Community'
+        const cardPDF = await generateMemberCardPDF({ firstName: member.first_name, lastName: member.last_name, memberId: member.member_id, membershipType: member.membership_type, affiliation, kampPosition: member.kamp_position, yearJoined: member.year_joined, passportDataUri: photoDataUri })
+        await sendMembershipWelcome({ to: email, firstName: member.first_name, memberId: member.member_id, cardPDF, ...(communityTrackingReady ? { communityJoinUrl: trackedCommunityUrl } : {}) })
+        if (communityTrackingReady) {
+          await db`UPDATE member_community_invite_links SET email_sent_at = NOW() WHERE token_hash = ${communityTokenHash}`
+        }
       } catch (error) {
-        console.error('Could not record community link email delivery:', error)
+        console.error(`Membership welcome email failed for ${member.member_id}:`, error)
       }
-    } catch (error) { console.error('Membership welcome email failed:', error) }
+    })
 
     return NextResponse.json({
       success: true,
       memberId: member.member_id,
-      emailSent,
+      emailPending: true,
       communityToken: communityTrackingReady ? communityToken : null,
       communityLink: communityTrackingReady ? trackedCommunityUrl : getWhatsAppCommunityLink(),
     }, { status: 201 })

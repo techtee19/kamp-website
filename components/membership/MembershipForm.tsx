@@ -19,7 +19,7 @@ const inputBaseClass = 'mt-2 min-h-12 w-full rounded-xl border bg-white px-4 py-
 const inputClass = (invalid: boolean) => `${inputBaseClass} ${invalid ? 'border-red-400 focus:border-red-500 focus:ring-red-100' : 'border-brand-ink/15 hover:border-brand-ink/30 focus:border-brand-gold focus:ring-brand-gold/15'}`
 
 export default function MembershipForm({ leadershipInvite }: { leadershipInvite?: { token: string; email: string; role: string } }) {
-  const [success, setSuccess] = useState<{ memberId: string; emailSent: boolean; communityToken: string | null; communityLink: string } | null>(null)
+  const [success, setSuccess] = useState<{ memberId: string; emailPending: boolean; communityToken: string | null; communityLink: string } | null>(null)
   const [serverError, setServerError] = useState('')
   const [validationMessage, setValidationMessage] = useState('')
   const [validationDetails, setValidationDetails] = useState<string[]>([])
@@ -71,7 +71,14 @@ export default function MembershipForm({ leadershipInvite }: { leadershipInvite?
       formData.set('passportPhoto', passportPhoto)
       if (leadershipInvite) formData.set('leadershipInviteToken', leadershipInvite.token)
       const response = await fetch('/api/membership', { method: 'POST', body: formData })
-      const result = await response.json()
+      const responseText = await response.text()
+      let result: { memberId?: string; emailPending?: boolean; communityToken?: string | null; communityLink?: string; details?: Record<string, string[]>; error?: string }
+      try {
+        result = JSON.parse(responseText)
+      } catch {
+        setServerError(`The server returned an unexpected response (${response.status}). Your application may still have been saved. Check your email before trying again, or contact KAMP.`)
+        return
+      }
       if (!response.ok) {
         if (result.details) {
           const details = Object.entries(result.details as Record<string, string[]>).flatMap(([field, messages]) => {
@@ -88,9 +95,13 @@ export default function MembershipForm({ leadershipInvite }: { leadershipInvite?
         setServerError(result.error ?? 'Registration failed. Please try again.')
         return
       }
-      setSuccess({ memberId: result.memberId, emailSent: result.emailSent, communityToken: result.communityToken, communityLink: result.communityLink })
+      if (!result.memberId || !result.communityLink) {
+        setServerError('The server response was incomplete. Your application may still have been saved. Check your email before trying again, or contact KAMP.')
+        return
+      }
+      setSuccess({ memberId: result.memberId, emailPending: result.emailPending ?? true, communityToken: result.communityToken ?? null, communityLink: result.communityLink })
     } catch {
-      setServerError('We could not reach the server. Please check your connection and try again.')
+      setServerError('We did not receive a response. Your application may still have been saved. Check your email before trying again, or contact KAMP.')
     }
   }
 
@@ -99,7 +110,7 @@ export default function MembershipForm({ leadershipInvite }: { leadershipInvite?
       <span className="mx-auto grid size-14 place-items-center rounded-full bg-emerald-100"><CheckCircle2 className="size-7 text-emerald-700" /></span>
       <div className="mt-5 text-center"><p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-800">Registration complete</p><h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.03em] text-brand-ink">Welcome to KAMP</h2><p className="mt-2 text-sm leading-relaxed text-brand-grey">Your membership is active. Keep this member ID for your records.</p></div>
       <p className="mt-5 rounded-xl border border-emerald-200 bg-white px-4 py-4 text-center font-mono text-lg font-bold tracking-wide text-brand-ink sm:text-xl">{success.memberId}</p>
-      <p className="mt-4 flex items-start gap-2 text-sm leading-relaxed text-brand-grey"><ShieldCheck aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-emerald-700" />{success.emailSent ? 'Your membership card and welcome message are on their way by email.' : 'Your membership is saved, but we could not send the email. Please contact KAMP with your member ID.'}</p>
+      <p className="mt-4 flex items-start gap-2 text-sm leading-relaxed text-brand-grey"><ShieldCheck aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-emerald-700" />{success.emailPending ? 'Your membership card and welcome message are being prepared and will arrive by email shortly.' : 'Your membership is saved, but we could not confirm email delivery. Please contact KAMP with your member ID if it does not arrive.'}</p>
       <div className="mt-6 rounded-xl border border-emerald-200 bg-white p-5">
         <h3 className="font-semibold text-brand-ink">Join your KAMP community</h3>
         <p className="mt-1 mb-4 text-sm leading-relaxed text-brand-grey">Connect with other members for community updates and opportunities. We’ve also included the WhatsApp link in your welcome email.</p>

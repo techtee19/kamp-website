@@ -53,16 +53,21 @@ export async function getMonthlySignups(): Promise<SignupMonth[]> {
   return rows.map((row) => ({ month: String(row.month), count: Number(row.count) }))
 }
 
-export async function getTopUniversities(): Promise<UniversityCount[]> {
+export async function getUniversities(): Promise<UniversityCount[]> {
   const rows = await db`
     SELECT
       MIN(BTRIM(university)) AS full_name,
       COUNT(*)::int AS count
     FROM members
     WHERE membership_type = 'student' AND university IS NOT NULL AND BTRIM(university) <> ''
-    GROUP BY LOWER(REGEXP_REPLACE(BTRIM(university), '\\s+', ' ', 'g'))
+    GROUP BY LOWER(BTRIM(REGEXP_REPLACE(
+      REGEXP_REPLACE(
+        BTRIM(TRANSLATE(university, CHR(160) || CHR(8239) || CHR(8217) || CHR(8216) || CHR(8211) || CHR(8212) || CHR(8209), '       ')),
+        '[[:punct:]]+', ' ', 'g'
+      ),
+      '[[:space:]]+', ' ', 'g'
+    )))
     ORDER BY COUNT(*) DESC, full_name ASC
-    LIMIT 10
   `
 
   return rows.map((row) => {
