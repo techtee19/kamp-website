@@ -24,8 +24,9 @@ export async function POST(request: NextRequest) {
     if (leader) {
       const token = generateToken()
       await db`INSERT INTO leader_login_tokens (leader_id, token_hash, expires_at) VALUES (${leader.id}, ${hashToken(token)}, NOW() + INTERVAL '15 minutes')`
-      const base = process.env.NEXTAUTH_URL || request.nextUrl.origin
-      const loginUrl = new URL('/leaders/verify', base)
+      // Build on the host the leader actually used. The absolute path ensures
+      // the email never inherits an /admin path from a misconfigured base URL.
+      const loginUrl = new URL('/leaders/verify', request.nextUrl.origin)
       loginUrl.searchParams.set('token', token)
       try { await sendLeaderLoginLink({ to: String(leader.email), fullName: String(leader.full_name), loginUrl: loginUrl.toString() }) }
       catch (emailError) { console.error('[leaders/request-link] Sign-in token issued, email delivery failed:', emailError) }

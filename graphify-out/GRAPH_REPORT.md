@@ -1,17 +1,17 @@
 # Graph Report - kamp-website  (2026-11-06)
 
 ## Corpus Check
-- 239 files · ~83,692 words
+- 240 files · ~83,717 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 8 file(s) not represented in the graph (top: .ico 3, (none) 2, .example 1)
 
 ## Summary
-- 1075 nodes · 2450 edges · 83 communities (52 shown, 31 thin omitted)
+- 1079 nodes · 2453 edges · 89 communities (58 shown, 31 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 13 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `5e458aeb`
+- Built from commit: `3d424e5d`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -19,8 +19,8 @@
 - membership/route.ts
 - Admin Dashboard Analytics
 - migrate-gallery.mjs
-- event-tables.ts
-- requestBodyErrorResponse
+- register/route.ts
+- readJsonRequest
 - Sanity Studio Setup
 - email.ts
 - readJsonRequest
@@ -31,9 +31,9 @@
 - Application Dependencies
 - TypeScript Configuration
 - getAdminSession
+- (site)/events/[slug]/page.tsx
 - db
-- Check-in Authentication
-- member-code/route.ts
+- checkin/page.tsx
 - Leadership and Engagement Migrations
 - Community Email Campaigns
 - Navigation and Footer
@@ -41,10 +41,10 @@
 - request-code/route.ts
 - Event Check-in Migrations
 - Leadership Invitations
-- react
+- [memberId]/page.tsx
 - Events Listing
 - validations.ts
-- queries.ts
+- programs/page.tsx
 - members/page.tsx
 - Donation Form
 - leader-validations.ts
@@ -60,16 +60,22 @@
 - Check-in Login Screen
 - Application Root Layout
 - [[...tool]]/layout.tsx
+- sanity.ts
 - Vercel Deployment Config
+- admin-data.ts
 - Prettier Configuration
 - Sanity Studio Page
 - Member Table Migration
 - Database Check Scripts
 - Database Type Definitions
 - Admin Dashboard Loading
-- ticket.tsx
+- (protected)/events/[slug]/page.tsx
 - Site Loading Skeletons
+- (protected)/leaders/page.tsx
+- nigerian-institutions.ts
 - Rate Limit Migration
+- eslint.config.mjs
+- allowBuilds
 - 018_leaders_portal.sql
 - PostCSS Configuration
 - requireLeader
@@ -91,23 +97,23 @@
 ## Surprising Connections (you probably didn't know these)
 - `LeaderRequestsAdminPage()` --calls--> `db`  [EXTRACTED]
   app/admin/(protected)/requests/page.tsx → lib/db.ts
-- `LeaderReportsAdminPage()` --calls--> `db`  [EXTRACTED]
-  app/admin/(protected)/reports/page.tsx → lib/db.ts
-- `GET()` --calls--> `db`  [EXTRACTED]
-  app/admin/api/reports/export/route.ts → lib/db.ts
-- `GET()` --calls--> `db`  [EXTRACTED]
-  app/admin/api/requests/export/route.ts → lib/db.ts
-- `EventCardProps` --references--> `EventDocument`  [EXTRACTED]
-  components/events/EventCard.tsx → types/sanity.ts
+- `POST()` --calls--> `db`  [EXTRACTED]
+  app/leaders/api/request-link/route.ts → lib/db.ts
+- `POST()` --calls--> `getClientIp()`  [EXTRACTED]
+  app/leaders/api/request-link/route.ts → lib/ratelimit.ts
+- `POST()` --calls--> `rateLimit()`  [EXTRACTED]
+  app/leaders/api/request-link/route.ts → lib/ratelimit.ts
+- `POST()` --calls--> `readJsonRequest()`  [EXTRACTED]
+  app/leaders/api/request-link/route.ts → lib/request-body.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (83 total, 31 thin omitted)
+## Communities (89 total, 31 thin omitted)
 
 ### Community 0 - "membership/route.ts"
 Cohesion: 0.06
-Nodes (48): campaignCounts(), dynamic, POST(), runtime, dynamic, POST(), runtime, dynamic (+40 more)
+Nodes (45): campaignCounts(), dynamic, POST(), runtime, dynamic, POST(), runtime, dynamic (+37 more)
 
 ### Community 1 - "Admin Dashboard Analytics"
 Cohesion: 0.08
@@ -117,13 +123,13 @@ Nodes (49): AdminDashboardPage(), AnalyticsDirectoryLoading(), AnalyticsPanelLoa
 Cohesion: 0.05
 Nodes (40): files, migrate(), KampEvent, kampEvents, emerge2025, featuredPhotos, GALLERY_IMAGE_DIR, KampGalleryAlbum (+32 more)
 
-### Community 3 - "event-tables.ts"
-Cohesion: 0.23
-Nodes (10): EventSnapshot, EventWebhookPayload, POST(), runtime, assertSafeTableName(), createEventRegistrationTable(), DuplicateRegistrationError, EventFullError (+2 more)
+### Community 3 - "register/route.ts"
+Cohesion: 0.12
+Nodes (22): POST(), runtime, EventSnapshot, EventWebhookPayload, POST(), runtime, dynamic, GET() (+14 more)
 
-### Community 4 - "requestBodyErrorResponse"
-Cohesion: 0.19
-Nodes (12): createSchema, DELETE(), dynamic, eventSlugSchema, POST(), revokeSchema, runtime, dynamic (+4 more)
+### Community 4 - "readJsonRequest"
+Cohesion: 0.10
+Nodes (38): createSchema, DELETE(), dynamic, eventSlugSchema, POST(), revokeSchema, runtime, dynamic (+30 more)
 
 ### Community 5 - "Sanity Studio Setup"
 Cohesion: 0.09
@@ -131,51 +137,51 @@ Nodes (20): sanity@^5.31.1, @sanity/image-url@2, @sanity/vision@^5.31.1, sanity,
 
 ### Community 6 - "email.ts"
 Cohesion: 0.10
-Nodes (37): POST(), POST(), runtime, POST(), runtime, POST(), runtime, LeaderLoginPage() (+29 more)
+Nodes (40): POST(), POST(), runtime, POST(), runtime, POST(), runtime, POST() (+32 more)
 
 ### Community 7 - "readJsonRequest"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (29): POST(), runtime, verifyPassword(), dynamic, POST(), runtime, POST(), POST() (+21 more)
 
 ### Community 8 - "About and Contact Content"
-Cohesion: 0.15
-Nodes (14): AboutPage(), FounderCard, revalidate, TeamCard, values, ContactPage(), revalidate, ContactForm() (+6 more)
+Cohesion: 0.13
+Nodes (19): AboutPage(), FounderCard, revalidate, TeamCard, values, ContactPage(), revalidate, ContactForm() (+11 more)
 
 ### Community 9 - "Package Development Dependencies"
-Cohesion: 0.10
-Nodes (27): eslintConfig, devDependencies, eslint@^9, eslint-config-next@16.3.0, prettier@^3.9.6, prettier-plugin-tailwindcss@^0.8.1, tailwindcss@^4, @tailwindcss/postcss@^4 (+19 more)
+Cohesion: 0.12
+Nodes (22): devDependencies, prettier@^3.9.6, prettier-plugin-tailwindcss@^0.8.1, tailwindcss@^4, @tailwindcss/postcss@^4, @types/node@^20, @types/qrcode@^1.5.6, @types/react@^19 (+14 more)
 
 ### Community 10 - "Gallery Experience"
-Cohesion: 0.14
-Nodes (18): GalleryIntro(), GalleryPage(), revalidate, GalleryAlbum(), GalleryAlbumProps, slots, GalleryAlbums(), GalleryAlbumsProps (+10 more)
+Cohesion: 0.23
+Nodes (11): GalleryIntro(), GalleryPage(), revalidate, GalleryAlbum(), GalleryAlbumProps, slots, GalleryAlbums(), GalleryAlbumsProps (+3 more)
 
 ### Community 11 - "Homepage Sections"
 Cohesion: 0.13
-Nodes (16): actions, fallbackStats, HomePage(), partners, revalidate, GetInvolvedTabs(), tabs, HeroImageRotator() (+8 more)
+Nodes (17): actions, fallbackStats, HomePage(), partners, revalidate, Operator, GetInvolvedTabs(), tabs (+9 more)
 
 ### Community 12 - "Application Dependencies"
-Cohesion: 0.09
-Nodes (23): dependencies, clsx@^2.1.1, next@16.3.0, next-auth@^4.24.15, react@19.2.8, react-dom@19.2.8, @react-email/components@^1.0.12, react-icons@^5.7.0 (+15 more)
+Cohesion: 0.08
+Nodes (25): dependencies, clsx@^2.1.1, next@16.3.0, next-auth@^4.24.15, qrcode@^1.5.4, react@19.2.8, react-dom@19.2.8, @react-email/components@^1.0.12 (+17 more)
 
 ### Community 13 - "TypeScript Configuration"
 Cohesion: 0.10
 Nodes (19): compilerOptions, allowImportingTsExtensions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib (+11 more)
 
 ### Community 14 - "getAdminSession"
-Cohesion: 0.10
-Nodes (30): GET(), PATCH(), dynamic, POST(), runtime, POST(), bodySchema, dynamic (+22 more)
+Cohesion: 0.18
+Nodes (16): GET(), dynamic, POST(), runtime, POST(), dynamic, GET(), dynamic (+8 more)
 
-### Community 15 - "db"
-Cohesion: 0.26
-Nodes (8): AdminLeaderReportDetail(), dynamic, dynamic, LeaderReportsAdminPage(), db, globalForDb, inspect(), testConnection()
+### Community 15 - "(site)/events/[slug]/page.tsx"
+Cohesion: 0.16
+Nodes (13): descriptionComponents, EventDetailPage(), formatDate(), formatTime(), revalidate, RegistrationForm(), RegistrationFormProps, studyLevels (+5 more)
 
-### Community 16 - "Check-in Authentication"
-Cohesion: 0.13
-Nodes (21): dynamic, POST(), runtime, dynamic, POST(), runtime, dynamic, POST() (+13 more)
+### Community 16 - "db"
+Cohesion: 0.11
+Nodes (25): AdminLeaderReportDetail(), dynamic, dynamic, LeaderReportsAdminPage(), dynamic, POST(), runtime, dynamic (+17 more)
 
-### Community 17 - "member-code/route.ts"
-Cohesion: 0.33
-Nodes (8): POST(), requestSchema, runtime, codeHash(), createEventMemberChallenge(), createMemberVerificationCode(), verifyMemberVerificationCode(), EVENT_BY_ID_QUERY
+### Community 17 - "checkin/page.tsx"
+Cohesion: 0.22
+Nodes (9): dynamic, EventCheckinPage(), CameraTicketScanner(), controlsStop(), start(), CheckinList(), Registrant, @zxing/browser@^0.2.1 (+1 more)
 
 ### Community 18 - "Leadership and Engagement Migrations"
 Cohesion: 0.17
@@ -194,32 +200,32 @@ Cohesion: 0.18
 Nodes (9): BG, chip(), emblem(), flame(), fs, path, sharp, SRC (+1 more)
 
 ### Community 22 - "request-code/route.ts"
-Cohesion: 0.29
-Nodes (8): dynamic, POST(), requestSchema, runtime, codeHash(), createCheckinLoginCode(), verifyCheckinLoginCode(), zod
+Cohesion: 0.33
+Nodes (7): dynamic, POST(), requestSchema, runtime, codeHash(), createCheckinLoginCode(), verifyCheckinLoginCode()
 
 ### Community 23 - "Event Check-in Migrations"
 Cohesion: 0.28
 Nodes (11): idx_registry_event_id, idx_registry_event_slug, public.event_tables_registry, event_checkin_audit_event_created_idx, event_checkin_login_codes_operator_idx, event_checkin_operators_email_idx, event_checkin_sessions_operator_idx, public.event_checkin_audit (+3 more)
 
 ### Community 24 - "Leadership Invitations"
-Cohesion: 0.29
-Nodes (6): dynamic, InvitationError, invitationSchema, POST(), runtime, isLeadershipRole()
+Cohesion: 0.33
+Nodes (5): dynamic, InvitationError, invitationSchema, POST(), runtime
 
-### Community 25 - "react"
-Cohesion: 0.06
-Nodes (38): dynamic, GET(), runtime, dynamic, GET(), runtime, dynamic, EventCheckinPage() (+30 more)
+### Community 25 - "[memberId]/page.tsx"
+Cohesion: 0.19
+Nodes (7): dynamic, MemberProfilePage(), DeleteMemberButton(), EditMemberPosition(), ResendCardButton(), CATEGORY_CODES, MembershipCategory
 
 ### Community 26 - "Events Listing"
-Cohesion: 0.22
-Nodes (10): EventCard(), EventsPage(), formatEventDate(), revalidate, EventCardProps, FeaturedEventsCarousel(), formatEventDate(), PAST_EVENTS_QUERY (+2 more)
+Cohesion: 0.31
+Nodes (8): EventCard(), EventsPage(), formatEventDate(), revalidate, FeaturedEventsCarousel(), formatEventDate(), PAST_EVENTS_QUERY, UPCOMING_EVENTS_QUERY
 
 ### Community 27 - "validations.ts"
-Cohesion: 0.05
-Nodes (43): GET(), normalize(), CommunityJoinPage(), metadata, dynamic, LeadershipInvitationPage(), metadata, benefits (+35 more)
+Cohesion: 0.07
+Nodes (31): CommunityJoinPage(), metadata, dynamic, LeadershipInvitationPage(), metadata, benefits, MembershipPage(), metadata (+23 more)
 
-### Community 28 - "queries.ts"
-Cohesion: 0.12
-Nodes (19): descriptionComponents, EventDetailPage(), formatDate(), formatTime(), revalidate, executiveRoles, focusAreas, journey (+11 more)
+### Community 28 - "programs/page.tsx"
+Cohesion: 0.18
+Nodes (9): executiveRoles, focusAreas, journey, ProgramCard, revalidate, @portabletext/react@^8.0.0, @portabletext/react, PROGRAMS_QUERY (+1 more)
 
 ### Community 29 - "members/page.tsx"
 Cohesion: 0.43
@@ -269,9 +275,17 @@ Nodes (3): CheckinLoginPage(), dynamic, CheckinLoginForm()
 Cohesion: 0.29
 Nodes (4): metadata, urbanist, @vercel/analytics@^2.0.1, @vercel/analytics
 
+### Community 44 - "sanity.ts"
+Cohesion: 0.19
+Nodes (9): EventCardProps, GalleryLightboxProps, EventDocument, SanityBlock, SanityGalleryImage, SanityImage, SanityImageAsset, SanityResolvedImage (+1 more)
+
 ### Community 45 - "Vercel Deployment Config"
 Cohesion: 0.29
 Nodes (6): maxDuration, framework, functions, app/api/paystack/webhook/route.ts, regions, $schema
+
+### Community 46 - "admin-data.ts"
+Cohesion: 0.24
+Nodes (9): dynamic, GET(), runtime, dynamic, GET(), runtime, buildCsv(), csvCell() (+1 more)
 
 ### Community 47 - "Prettier Configuration"
 Cohesion: 0.33
@@ -293,9 +307,25 @@ Nodes (3): postgres@^3.4.9, postgres, db
 Cohesion: 0.50
 Nodes (3): ContactSubmissionRow, DonationRow, RegistrationRow
 
-### Community 53 - "ticket.tsx"
-Cohesion: 0.16
-Nodes (12): dynamic, GET(), runtime, generateTicketPDF(), PREVIEW_TICKET_REF, styles, TicketData, TicketDocument() (+4 more)
+### Community 53 - "(protected)/events/[slug]/page.tsx"
+Cohesion: 0.31
+Nodes (7): AdminEventRegistrationsPage(), dynamic, CheckinOperatorManager(), addOperator(), load(), revoke(), SendReminderButton()
+
+### Community 55 - "(protected)/leaders/page.tsx"
+Cohesion: 0.39
+Nodes (4): dynamic, LeadersAdminPage(), CreateLeader(), LeaderStatusButton()
+
+### Community 56 - "nigerian-institutions.ts"
+Cohesion: 0.32
+Nodes (5): GET(), normalize(), INSTITUTION_NAMES, NIGERIAN_INSTITUTIONS, NigerianInstitution
+
+### Community 58 - "eslint.config.mjs"
+Cohesion: 0.33
+Nodes (5): eslintConfig, eslint@^9, eslint-config-next@16.3.0, eslint, eslint-config-next
+
+### Community 59 - "allowBuilds"
+Cohesion: 0.50
+Nodes (3): allowBuilds, esbuild, unrs-resolver
 
 ### Community 77 - "018_leaders_portal.sql"
 Cohesion: 0.32
@@ -319,17 +349,17 @@ Nodes (7): AdminLoginPage(), LeaderVerifyPage(), VerifyLeaderLink(), csp, nextCo
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `next` connect `next` to `membership/route.ts`, `Admin Dashboard Analytics`, `migrate-gallery.mjs`, `event-tables.ts`, `requestBodyErrorResponse`, `email.ts`, `readJsonRequest`, `About and Contact Content`, `Package Development Dependencies`, `Gallery Experience`, `Homepage Sections`, `Application Dependencies`, `getAdminSession`, `db`, `Check-in Authentication`, `member-code/route.ts`, `Community Email Campaigns`, `Navigation and Footer`, `request-code/route.ts`, `Leadership Invitations`, `react`, `Events Listing`, `validations.ts`, `queries.ts`, `members/page.tsx`, `leader-validations.ts`, `lucide-react`, `GalleryMarquee.tsx`, `(protected)/requests/[id]/page.tsx`, `Admin Navigation`, `requests/page.tsx`, `success/page.tsx`, `leaders/layout.tsx`, `Check-in Login Screen`, `Application Root Layout`, `[[...tool]]/layout.tsx`, `ticket.tsx`, `requireLeader`, `LeaderPortalNav.tsx`?**
-  _High betweenness centrality (0.318) - this node is a cross-community bridge._
+- **Why does `next` connect `next` to `membership/route.ts`, `Admin Dashboard Analytics`, `migrate-gallery.mjs`, `register/route.ts`, `readJsonRequest`, `email.ts`, `readJsonRequest`, `About and Contact Content`, `Package Development Dependencies`, `Gallery Experience`, `Homepage Sections`, `Application Dependencies`, `getAdminSession`, `(site)/events/[slug]/page.tsx`, `db`, `checkin/page.tsx`, `Community Email Campaigns`, `Navigation and Footer`, `request-code/route.ts`, `Leadership Invitations`, `[memberId]/page.tsx`, `Events Listing`, `validations.ts`, `programs/page.tsx`, `members/page.tsx`, `leader-validations.ts`, `lucide-react`, `GalleryMarquee.tsx`, `(protected)/requests/[id]/page.tsx`, `Admin Navigation`, `requests/page.tsx`, `success/page.tsx`, `leaders/layout.tsx`, `Check-in Login Screen`, `Application Root Layout`, `[[...tool]]/layout.tsx`, `sanity.ts`, `admin-data.ts`, `(protected)/events/[slug]/page.tsx`, `(protected)/leaders/page.tsx`, `nigerian-institutions.ts`, `requireLeader`, `LeaderPortalNav.tsx`?**
+  _High betweenness centrality (0.345) - this node is a cross-community bridge._
 - **Should `membership/route.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.05794556628621598 - nodes in this community are weakly interconnected._
-- **Why does `db` connect `db` to `membership/route.ts`, `Admin Dashboard Analytics`, `migrate-gallery.mjs`, `event-tables.ts`, `requestBodyErrorResponse`, `email.ts`, `readJsonRequest`, `getAdminSession`, `Check-in Authentication`, `member-code/route.ts`, `Community Email Campaigns`, `request-code/route.ts`, `Leadership Invitations`, `react`, `members/page.tsx`, `(protected)/requests/[id]/page.tsx`, `requests/page.tsx`, `Check-in Login Screen`, `requireLeader`?**
-  _High betweenness centrality (0.112) - this node is a cross-community bridge._
+  _Cohesion score 0.055178652193577565 - nodes in this community are weakly interconnected._
+- **Why does `db` connect `db` to `membership/route.ts`, `Admin Dashboard Analytics`, `migrate-gallery.mjs`, `register/route.ts`, `readJsonRequest`, `email.ts`, `readJsonRequest`, `getAdminSession`, `checkin/page.tsx`, `Community Email Campaigns`, `request-code/route.ts`, `Leadership Invitations`, `[memberId]/page.tsx`, `members/page.tsx`, `(protected)/requests/[id]/page.tsx`, `requests/page.tsx`, `Check-in Login Screen`, `admin-data.ts`, `(protected)/events/[slug]/page.tsx`, `(protected)/leaders/page.tsx`, `requireLeader`?**
+  _High betweenness centrality (0.100) - this node is a cross-community bridge._
 - **Should `Admin Dashboard Analytics` be split into smaller, more focused modules?**
   _Cohesion score 0.07948568088836938 - nodes in this community are weakly interconnected._
-- **Why does `react` connect `react` to `membership/route.ts`, `Admin Dashboard Analytics`, `migrate-gallery.mjs`, `email.ts`, `About and Contact Content`, `Package Development Dependencies`, `Gallery Experience`, `Homepage Sections`, `Application Dependencies`, `Community Email Campaigns`, `Navigation and Footer`, `Events Listing`, `validations.ts`, `members/page.tsx`, `Donation Form`, `leader-validations.ts`, `GalleryMarquee.tsx`, `(protected)/requests/[id]/page.tsx`, `Admin Navigation`, `success/page.tsx`, `Check-in Login Screen`, `ticket.tsx`, `next`?**
-  _High betweenness centrality (0.086) - this node is a cross-community bridge._
+- **Why does `react` connect `Homepage Sections` to `membership/route.ts`, `Admin Dashboard Analytics`, `migrate-gallery.mjs`, `register/route.ts`, `email.ts`, `About and Contact Content`, `Package Development Dependencies`, `Gallery Experience`, `Application Dependencies`, `(site)/events/[slug]/page.tsx`, `db`, `checkin/page.tsx`, `Community Email Campaigns`, `Navigation and Footer`, `[memberId]/page.tsx`, `Events Listing`, `validations.ts`, `members/page.tsx`, `Donation Form`, `leader-validations.ts`, `GalleryMarquee.tsx`, `(protected)/requests/[id]/page.tsx`, `Admin Navigation`, `success/page.tsx`, `Check-in Login Screen`, `sanity.ts`, `(protected)/events/[slug]/page.tsx`, `(protected)/leaders/page.tsx`, `next`?**
+  _High betweenness centrality (0.083) - this node is a cross-community bridge._
 - **Should `migrate-gallery.mjs` be split into smaller, more focused modules?**
   _Cohesion score 0.054901960784313725 - nodes in this community are weakly interconnected._
-- **Should `Sanity Studio Setup` be split into smaller, more focused modules?**
-  _Cohesion score 0.09206349206349207 - nodes in this community are weakly interconnected._
+- **Should `register/route.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.11895161290322581 - nodes in this community are weakly interconnected._
