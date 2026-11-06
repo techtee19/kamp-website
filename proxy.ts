@@ -3,6 +3,22 @@ import { NextRequest, NextResponse } from 'next/server'
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
 
+  if (pathname === '/leaders' || pathname.startsWith('/leaders/')) {
+    const publicPaths = new Set([
+      '/leaders/login',
+      '/leaders/verify',
+      '/leaders/api/request-link',
+      '/leaders/api/verify',
+    ])
+    if (publicPaths.has(pathname)) return NextResponse.next()
+    if (!req.cookies.get('kamp_leader_session')?.value) {
+      if (pathname.startsWith('/leaders/api/')) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
+      return NextResponse.redirect(new URL('/leaders/login', req.url))
+    }
+  }
+
   if (pathname === '/admin') {
     return NextResponse.redirect(new URL('/admin/login', req.url))
   }
@@ -22,4 +38,4 @@ export function proxy(req: NextRequest) {
   return NextResponse.next()
 }
 
-export const config = { matcher: ['/admin', '/admin/:path*'] }
+export const config = { matcher: ['/admin', '/admin/:path*', '/leaders', '/leaders/:path*'] }
