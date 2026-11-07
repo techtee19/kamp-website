@@ -47,10 +47,27 @@ export async function createEventRegistrationTable(
     // Serialize table creation for the same Sanity event across webhook retries
     // and the registration route's fallback path.
     await tx`SELECT pg_advisory_xact_lock(hashtextextended(${eventId}, 0))`
+    // Also serialize events competing for a reused slug so the registry's
+    // unique constraint cannot race the stale-row cleanup below.
+    await tx`SELECT pg_advisory_xact_lock(hashtextextended(${`event-slug:${eventSlug}`}, 0))`
 
     const existing = await tx`
       SELECT table_name FROM event_tables_registry WHERE event_id = ${eventId} LIMIT 1
     `
+
+    // Sanity permits reusing a slug after an older event is deleted. Retire
+    // that old registry row so its UNIQUE slug no longer blocks the new event.
+    // The old registration table itself is deliberately left untouched.
+    const [slugCollision] = await tx`
+      SELECT event_id, table_name
+      FROM event_tables_registry
+      WHERE event_slug = ${eventSlug} AND event_id <> ${eventId}
+      LIMIT 1
+    `
+    if (slugCollision) {
+      assertSafeTableName(String(slugCollision.table_name))
+      await tx`DELETE FROM event_tables_registry WHERE event_id = ${String(slugCollision.event_id)}`
+    }
 
     const tableName = existing.length > 0
       ? existing[0].table_name as string
@@ -58,7 +75,7 @@ export async function createEventRegistrationTable(
     assertSafeTableName(tableName)
     const quotedTable = `"${tableName}"`
     const [relation] = await tx`
-      SELECT to_regclass(format('public.%I', ${tableName})) IS NOT NULL AS exists
+      SELECT to_regclass(${`public."${tableName}"`}) IS NOT NULL AS exists
     `
     const created = !relation.exists
     const [shape] = await tx`

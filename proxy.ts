@@ -22,4 +22,7 @@ export function proxy(req: NextRequest) {
   return NextResponse.next()
 }
 
+// Leaders Portal pages and APIs perform their own signed-session checks in
+// their route layout/handlers. Keep them out of the admin proxy so admin
+// redirects can never capture the separate leaders sign-in flow.
 export const config = { matcher: ['/admin', '/admin/:path*'] }

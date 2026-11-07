@@ -2,12 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { CalendarDays, LayoutDashboard, Users } from 'lucide-react'
+import { CalendarDays, ClipboardList, LayoutDashboard, ShieldCheck, Users } from 'lucide-react'
 
 const items = [
   { label: 'Dashboard', href: '/admin/dashboard', Icon: LayoutDashboard },
   { label: 'Members', href: '/admin/members', Icon: Users },
   { label: 'Events', href: '/admin/events', Icon: CalendarDays },
+  { label: 'Leaders', href: '/admin/leaders', Icon: ShieldCheck },
+  { label: 'Reports', href: '/admin/reports', Icon: ClipboardList },
+  { label: 'Requests', href: '/admin/requests', Icon: ClipboardList },
 ]
 
 export default function AdminNavigation() {

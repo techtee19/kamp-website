@@ -14,6 +14,7 @@ function resend(): Resend {
 
 const FROM = () => process.env.EMAIL_FROM!
 const ADMIN = () => process.env.ADMIN_EMAIL!
+export const getCEOEmail = () => process.env.CEO_EMAIL?.trim() || ADMIN()
 
 // Escape user-supplied values before interpolating them into email HTML.
 // Without this, a visitor could inject markup (e.g. a fake <a> link) into the
@@ -25,6 +26,66 @@ function esc(value: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;')
+}
+
+async function sendLeadersEmail(to: string, subject: string, content: string) {
+  const result = await resend().emails.send({
+    from: FROM(),
+    to,
+    subject,
+    html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#202020;line-height:1.65"><header style="background:#202020;padding:26px 30px;text-align:center"><p style="margin:0;color:#efbc2b;font-size:22px;font-weight:700;letter-spacing:5px">KAMP</p><p style="margin:6px 0 0;color:#fff;font-size:12px;letter-spacing:1px">LEADERS PORTAL</p></header><div style="height:3px;background:#efbc2b"></div><main style="padding:30px;background:#fff">${content}</main><footer style="padding:16px;background:#f5f4ef;text-align:center;color:#6b6b6b;font-size:12px">Kolade Adepoju Mentoring Program</footer></div>`,
+  })
+  if (result.error) throw new Error(`Resend leaders email failed: ${result.error.message}`)
+  return result
+}
+
+export async function sendLeaderInvite(opts: { to: string; fullName: string; role: string; campus: string; portalUrl: string }) {
+  return sendLeadersEmail(opts.to, 'Your KAMP Leaders Portal access', `
+    <p style="margin:0 0 8px;color:#8b806d;font-size:11px;font-weight:700;letter-spacing:2px">A NOTE FROM KAMP</p>
+    <h1 style="margin:0;color:#202020;font-size:28px;letter-spacing:-1px">Welcome, ${esc(opts.fullName)}.</h1>
+    <p style="margin:16px 0;color:#5f5b52">You have been invited to the KAMP Leaders Portal as a <strong>${esc(opts.role)}</strong> for <strong>${esc(opts.campus)}</strong>.</p>
+    <p style="margin:0 0 22px;color:#5f5b52">Use the portal to share campus updates, submit reports, and request support from the KAMP leadership team. When you sign in, we’ll email a secure one-time link to this address.</p>
+    <p style="margin:0"><a href="${esc(opts.portalUrl)}" style="display:inline-block;padding:13px 21px;border-radius:999px;background:#202020;color:#fff;text-decoration:none;font-weight:700">Open the Leaders Portal</a></p>
+  `)
+}
+
+export async function sendLeaderLoginLink(opts: { to: string; fullName: string; loginUrl: string }) {
+  return sendLeadersEmail(opts.to, 'Your secure KAMP sign-in link', `
+    <p style="margin:0 0 8px;color:#8b806d;font-size:11px;font-weight:700;letter-spacing:2px">SECURE SIGN-IN</p>
+    <h1 style="margin:0;color:#202020;font-size:28px;letter-spacing:-1px">Hello, ${esc(opts.fullName)}.</h1>
+    <p style="margin:16px 0;color:#5f5b52">Use this one-time link to open your KAMP Leaders Portal. It expires in 15 minutes and can only be used once.</p>
+    <p style="margin:0"><a href="${esc(opts.loginUrl)}" style="display:inline-block;padding:13px 21px;border-radius:999px;background:#202020;color:#fff;text-decoration:none;font-weight:700">Continue to the portal</a></p>
+    <p style="margin:20px 0 0;color:#777;font-size:13px">If you didn’t request this link, you can ignore this message.</p>
+  `)
+}
+
+export async function sendNewSubmissionNotice(opts: {
+  to: string
+  submissionType: 'report' | 'request'
+  title: string
+  leaderName: string
+  campus: string
+  details: Array<{ label: string; value: string }>
+  adminUrl: string
+}) {
+  const details = opts.details.map(({ label, value }) => `<tr><td style="padding:7px 12px 7px 0;color:#777;font-size:13px;vertical-align:top">${esc(label)}</td><td style="padding:7px 0;color:#202020;font-size:13px">${esc(value)}</td></tr>`).join('')
+  return sendLeadersEmail(opts.to, `New KAMP ${opts.submissionType}: ${opts.title}`, `
+    <p style="margin:0 0 8px;color:#8b806d;font-size:11px;font-weight:700;letter-spacing:2px">NEW ${opts.submissionType.toUpperCase()}</p>
+    <h1 style="margin:0;color:#202020;font-size:26px;letter-spacing:-.7px">${esc(opts.title)}</h1>
+    <p style="margin:12px 0 18px;color:#5f5b52">Submitted by ${esc(opts.leaderName)} · ${esc(opts.campus)}</p>
+    <table style="width:100%;border-collapse:collapse;border-top:1px solid #ece9e1;border-bottom:1px solid #ece9e1">${details}</table>
+    <p style="margin:22px 0 0"><a href="${esc(opts.adminUrl)}" style="display:inline-block;padding:13px 21px;border-radius:999px;background:#202020;color:#fff;text-decoration:none;font-weight:700">Review in admin</a></p>
+  `)
+}
+
+export async function sendRequestStatusUpdate(opts: { to: string; leaderName: string; title: string; status: string; reviewNote: string | null; portalUrl: string }) {
+  return sendLeadersEmail(opts.to, `KAMP request update: ${opts.title}`, `
+    <p style="margin:0 0 8px;color:#8b806d;font-size:11px;font-weight:700;letter-spacing:2px">REQUEST UPDATE</p>
+    <h1 style="margin:0;color:#202020;font-size:27px;letter-spacing:-.8px">Your request has been updated.</h1>
+    <p style="margin:16px 0;color:#5f5b52">Hello ${esc(opts.leaderName)}, <strong>${esc(opts.title)}</strong> is now <strong>${esc(opts.status.replaceAll('_', ' '))}</strong>.</p>
+    ${opts.reviewNote ? `<div style="margin:18px 0;padding:16px 18px;border-radius:16px;background:#f5f4ef"><p style="margin:0 0 5px;color:#8b806d;font-size:11px;font-weight:700;letter-spacing:1px">NOTE FROM THE REVIEW TEAM</p><p style="margin:0;color:#202020;white-space:pre-wrap">${esc(opts.reviewNote)}</p></div>` : ''}
+    <p style="margin:0"><a href="${esc(opts.portalUrl)}" style="display:inline-block;padding:13px 21px;border-radius:999px;background:#202020;color:#fff;text-decoration:none;font-weight:700">View your request</a></p>
+  `)
 }
 
 // ── Registration confirmation ─────────────────────────────────
