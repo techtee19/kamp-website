@@ -33,3 +33,17 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     return NextResponse.json({ error: 'Could not save this review.' }, { status: 503 })
   }
 }
+
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  if (!(await getAdminSession())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!isSameOriginAdminRequest(request)) return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403 })
+  const { id } = await params
+  if (!/^\d+$/.test(id)) return NextResponse.json({ error: 'Request not found.' }, { status: 404 })
+  try {
+    const [row] = await db`DELETE FROM leader_requests WHERE id = ${Number(id)} RETURNING id`
+    return row ? NextResponse.json({ success: true }) : NextResponse.json({ error: 'Request not found.' }, { status: 404 })
+  } catch (error) {
+    console.error('[admin/requests] Failed to delete request:', error)
+    return NextResponse.json({ error: 'Could not delete this request.' }, { status: 503 })
+  }
+}
