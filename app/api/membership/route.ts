@@ -55,7 +55,9 @@ class LeadershipRegistrationError extends Error {
 }
 
 export async function POST(req: NextRequest) {
+  let phase = 'request validation'
   try {
+    phase = 'rate limit check'
     if (!(await rateLimit(`membership:${getClientIp(req)}`, 3, 60_000))) {
       return NextResponse.json({ error: 'Too many attempts. Please try again shortly.' }, { status: 429 })
     }
@@ -121,6 +123,7 @@ export async function POST(req: NextRequest) {
     const communityTokenHash = hashCommunityLinkToken(communityToken)
 
     let member
+    phase = 'member database transaction'
     try {
       member = await db.begin(async (tx) => {
         let memberId: string
@@ -189,6 +192,7 @@ export async function POST(req: NextRequest) {
     }
 
     let communityTrackingReady = false
+    phase = 'community tracking setup'
     try {
       await db.begin(async (tx) => {
         await tx`
@@ -207,20 +211,26 @@ export async function POST(req: NextRequest) {
     }
 
     const trackedCommunityUrl = createTrackedCommunityUrl(communityToken, getSiteOrigin(req.nextUrl.origin))
-    after(async () => {
-      try {
-        const affiliation = member.membership_type === 'student'
-          ? member.university ?? 'Student'
-          : [member.occupation, member.organization].filter(Boolean).join(' · ') || 'KAMP Community'
-        const cardPDF = await generateMemberCardPDF({ firstName: member.first_name, lastName: member.last_name, memberId: member.member_id, membershipType: member.membership_type, affiliation, kampPosition: member.kamp_position, yearJoined: member.year_joined, passportDataUri: photoDataUri })
-        await sendMembershipWelcome({ to: email, firstName: member.first_name, memberId: member.member_id, cardPDF, ...(communityTrackingReady ? { communityJoinUrl: trackedCommunityUrl } : {}) })
-        if (communityTrackingReady) {
-          await db`UPDATE member_community_invite_links SET email_sent_at = NOW() WHERE token_hash = ${communityTokenHash}`
+    try {
+      after(async () => {
+        try {
+          const affiliation = member.membership_type === 'student'
+            ? member.university ?? 'Student'
+            : [member.occupation, member.organization].filter(Boolean).join(' · ') || 'KAMP Community'
+          const cardPDF = await generateMemberCardPDF({ firstName: member.first_name, lastName: member.last_name, memberId: member.member_id, membershipType: member.membership_type, affiliation, kampPosition: member.kamp_position, yearJoined: member.year_joined, passportDataUri: photoDataUri })
+          await sendMembershipWelcome({ to: email, firstName: member.first_name, memberId: member.member_id, cardPDF, ...(communityTrackingReady ? { communityJoinUrl: trackedCommunityUrl } : {}) })
+          if (communityTrackingReady) {
+            await db`UPDATE member_community_invite_links SET email_sent_at = NOW() WHERE token_hash = ${communityTokenHash}`
+          }
+        } catch (error) {
+          console.error('[membership] Welcome email background task failed:', error)
         }
-      } catch (error) {
-        console.error(`Membership welcome email failed for ${member.member_id}:`, error)
-      }
-    })
+      })
+    } catch (error) {
+      // The member transaction has already committed. A background-task scheduling
+      // problem must not tell the person to submit again and create a duplicate.
+      console.error('[membership] Could not schedule welcome email; member record was saved:', error)
+    }
 
     return NextResponse.json({
       success: true,
@@ -236,7 +246,15 @@ export async function POST(req: NextRequest) {
     if (typeof error === 'object' && error !== null && 'code' in error && error.code === '23505') {
       return NextResponse.json({ error: 'An account with this email already exists. Check your inbox for your original member ID card.' }, { status: 409 })
     }
-    console.error('[/api/membership] Error:', error)
+    const databaseError = typeof error === 'object' && error !== null
+      ? error as { code?: unknown; constraint_name?: unknown; severity?: unknown }
+      : null
+    console.error('[/api/membership] Registration failed', {
+      phase,
+      code: typeof databaseError?.code === 'string' ? databaseError.code : undefined,
+      constraint: typeof databaseError?.constraint_name === 'string' ? databaseError.constraint_name : undefined,
+      severity: typeof databaseError?.severity === 'string' ? databaseError.severity : undefined,
+    })
     return NextResponse.json({ error: 'We could not complete your registration. Please try again.' }, { status: 500 })
   }
 }
