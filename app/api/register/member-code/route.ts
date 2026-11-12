@@ -10,6 +10,7 @@ import { client } from '@/sanity/lib/client'
 import { EVENT_BY_ID_QUERY } from '@/sanity/lib/queries'
 
 export const runtime = 'nodejs'
+export const maxDuration = 30
 const requestSchema = z.object({
   eventId: z.string().min(1).max(128),
   memberId: z.string().trim().min(5).max(64),
@@ -28,7 +29,9 @@ export async function POST(request: NextRequest) {
     }
     const normalizedMemberId = memberId.toUpperCase()
     const ip = getClientIp(request)
-    if (!(await rateLimit(`event-member-code-ip:${ip}`, 5, 10 * 60_000)) ||
+    // A campus network may put many unrelated members behind one public IP.
+    // Keep a per-member cap, but don't let a handful of people block that campus.
+    if (!(await rateLimit(`event-member-code-ip:${ip}`, 60, 10 * 60_000)) ||
         !(await rateLimit(`event-member-code-id:${normalizedMemberId}`, 3, 10 * 60_000))) {
       return NextResponse.json({ error: 'Too many code requests. Please wait a few minutes and try again.' }, { status: 429 })
     }
@@ -49,9 +52,13 @@ export async function POST(request: NextRequest) {
         codeHash: challenge.codeHash,
       })
       try {
-        await sendEventMemberVerificationCode({ to: String(member.email), firstName: String(member.first_name), code: challenge.code })
+        const sent = await sendEventMemberVerificationCode({ to: String(member.email), firstName: String(member.first_name), code: challenge.code })
+        console.info('[event-member-code] Verification email accepted by Resend', {
+          eventId,
+          messageId: sent.data?.id ?? null,
+        })
       } catch (error) {
-        console.error('Failed to send event member verification code:', error)
+        console.error('Failed to send event member verification code:', error instanceof Error ? error.message : 'Unknown email provider error')
         await db`DELETE FROM event_member_verifications WHERE challenge_id = ${challenge.challengeId}::uuid`
         return NextResponse.json({ error: 'We could not send a verification email right now. Please try again later.' }, { status: 503 })
       }

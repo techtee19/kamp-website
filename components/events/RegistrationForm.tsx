@@ -209,6 +209,12 @@ export default function RegistrationForm({
                     Six-digit email code
                     <input value={verificationCode} onChange={(event) => setVerificationCode(event.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" required maxLength={6} disabled={verifyingCode || submitting} className={inputClass} />
                   </label>
+                  <div className="grid gap-2 md:col-span-2">
+                    <p className="text-xs leading-relaxed text-brand-grey">Check your inbox and spam/junk folder. If it still hasn’t arrived, confirm the email on your KAMP membership and request a new code.</p>
+                    <button type="button" onClick={requestMemberCode} disabled={requestingCode || submitting} className="justify-self-start rounded-full border border-brand-ink/20 bg-white px-4 py-2 text-sm font-medium text-brand-ink disabled:opacity-60">
+                      {requestingCode ? 'Sending code…' : 'Send a new code'}
+                    </button>
+                  </div>
                   <button type="button" onClick={verifyMemberCode} disabled={verifyingCode || verificationCode.length !== 6 || !challengeId} className="justify-self-start rounded-full bg-brand-ink px-6 py-3 text-sm text-brand-white disabled:opacity-60 md:col-span-2">
                     {verifyingCode ? 'Verifying…' : 'Verify member ID'}
                   </button>
