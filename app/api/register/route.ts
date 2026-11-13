@@ -90,47 +90,34 @@ export async function POST(req: NextRequest) {
       memberChallengeId?: string
     }
 
-    if ('memberChallengeId' in parsed.data) {
-      registrationPhase = 'verified member lookup'
-      const [member] = await db`
-        SELECT verification.member_id, members.first_name, members.last_name, members.email, members.phone,
-          members.membership_type, members.university, members.study_level, members.occupation, members.organization
-        FROM event_member_verifications AS verification
-        JOIN members ON members.member_id = verification.member_id
-        WHERE verification.challenge_id = ${parsed.data.memberChallengeId}::uuid
-          AND verification.event_id = ${eventId}
-          AND verification.verified_at IS NOT NULL
-          AND verification.consumed_at IS NULL
-          AND verification.expires_at > NOW()
-          AND members.status = 'active'
-        LIMIT 1
-      `
-      if (!member) {
-        return NextResponse.json({ error: 'Your member verification expired. Please verify your ID again.' }, { status: 400 })
-      }
-      attendee = {
-        fullName: `${member.first_name} ${member.last_name}`,
-        email: String(member.email).toLowerCase(),
-        phone: String(member.phone),
-        attendeeType: member.membership_type as 'student' | 'professional' | 'non_professional',
-        university: member.university ? String(member.university) : null,
-        studyLevel: member.study_level ? String(member.study_level) : null,
-        occupation: member.occupation ? String(member.occupation) : null,
-        organization: member.organization ? String(member.organization) : null,
-        memberId: String(member.member_id),
-        memberChallengeId: parsed.data.memberChallengeId,
-      }
-    } else {
-      attendee = {
-        fullName: parsed.data.fullName,
-        email: parsed.data.email.toLowerCase(),
-        phone: parsed.data.phone,
-        attendeeType: parsed.data.attendeeType,
-        university: parsed.data.university ?? null,
-        studyLevel: parsed.data.studyLevel ?? null,
-        occupation: parsed.data.occupation ?? null,
-        organization: parsed.data.organization ?? null,
-      }
+    registrationPhase = 'verified member lookup'
+    const [member] = await db`
+      SELECT verification.member_id, members.first_name, members.last_name, members.email, members.phone,
+        members.membership_type, members.university, members.study_level, members.occupation, members.organization
+      FROM event_member_verifications AS verification
+      JOIN members ON members.member_id = verification.member_id
+      WHERE verification.challenge_id = ${parsed.data.memberChallengeId}::uuid
+        AND verification.event_id = ${eventId}
+        AND verification.verified_at IS NOT NULL
+        AND verification.consumed_at IS NULL
+        AND verification.expires_at > NOW()
+        AND members.status = 'active'
+      LIMIT 1
+    `
+    if (!member) {
+      return NextResponse.json({ error: 'Your member verification expired. Please verify your ID again.' }, { status: 400 })
+    }
+    attendee = {
+      fullName: `${member.first_name} ${member.last_name}`,
+      email: String(member.email).toLowerCase(),
+      phone: String(member.phone),
+      attendeeType: member.membership_type as 'student' | 'professional' | 'non_professional',
+      university: member.university ? String(member.university) : null,
+      studyLevel: member.study_level ? String(member.study_level) : null,
+      occupation: member.occupation ? String(member.occupation) : null,
+      organization: member.organization ? String(member.organization) : null,
+      memberId: String(member.member_id),
+      memberChallengeId: parsed.data.memberChallengeId,
     }
 
     const eventTitle = event.title

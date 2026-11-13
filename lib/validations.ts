@@ -3,49 +3,12 @@ import { z } from 'zod'
 // ── Registration ──────────────────────────────────────────────
 const registrationEventId = z.string().min(1, 'Event ID is required').max(128, 'Invalid event ID')
 
-const guestRegistrationSchema = z.object({
-  eventId: registrationEventId,
-  fullName: z.string().trim().min(2, 'Full name must be at least 2 characters').max(120, 'Name is too long'),
-  email: z.string().trim().max(254, 'Email address is too long').pipe(z.email('Please enter a valid email address')),
-  phone: z
-    .string()
-    .trim()
-    .min(10, 'Phone number must be at least 10 digits')
-    .max(24, 'Phone number is too long')
-    .regex(/^[0-9+\-\s()]+$/, 'Please enter a valid phone number'),
-  attendeeType: z.enum(['student', 'professional', 'non_professional']).default('student'),
-  university: z.string().trim().min(2, 'University name is required').max(160, 'University name is too long').optional(),
-  studyLevel: z.enum(['100L', '200L', '300L', '400L', '500L', 'Postgrad', 'Other'], {
-    error: () => ({ message: 'Please select a valid study level' }),
-  }).optional(),
-  occupation: z.string().trim().max(120, 'Profession or activity is too long').optional(),
-  organization: z.string().trim().max(160, 'Organization name is too long').optional(),
-}).superRefine((data, context) => {
-  if (data.attendeeType === 'student') {
-    if (!data.university || data.university.length < 2) {
-      context.addIssue({ code: 'custom', path: ['university'], message: 'Enter your tertiary institution' })
-    }
-    if (!data.studyLevel) {
-      context.addIssue({ code: 'custom', path: ['studyLevel'], message: 'Select your level or year of study' })
-    }
-    return
-  }
-
-  if (!data.occupation || data.occupation.length < 2) {
-    context.addIssue({
-      code: 'custom',
-      path: ['occupation'],
-      message: data.attendeeType === 'professional' ? 'Enter your profession or role' : 'Tell us your current activity',
-    })
-  }
-})
-
 const kampMemberRegistrationSchema = z.object({
   eventId: registrationEventId,
   memberChallengeId: z.uuid('Verify your KAMP member ID before registering'),
 })
 
-export const registrationSchema = z.union([guestRegistrationSchema, kampMemberRegistrationSchema])
+export const registrationSchema = kampMemberRegistrationSchema
 export type RegistrationInput = z.infer<typeof registrationSchema>
 
 // ── Donation ──────────────────────────────────────────────────

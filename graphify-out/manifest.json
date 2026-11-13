@@ -367,10 +367,10 @@
     "semantic_hash": "28c02b2f7b64cec8569064f2ed6d93df"
   },
   "app/api/register/route.ts": {
-    "mtime": 1793549974.47355,
-    "seen": 1793833188.2654314,
-    "ast_hash": "5bcc8e6d92743646b8b3d4a38b710916",
-    "semantic_hash": "5bcc8e6d92743646b8b3d4a38b710916"
+    "mtime": 1794602989.477509,
+    "seen": 1794603012.8252597,
+    "ast_hash": "f25ec05599542811dcca1a8e704abbe7",
+    "semantic_hash": ""
   },
   "app/api/sanity/webhook/route.ts": {
     "mtime": 1791581716.499204,
@@ -589,9 +589,9 @@
     "semantic_hash": "df19e6e4e5ca1f3b0af6c97245601a33"
   },
   "components/events/RegistrationForm.tsx": {
-    "mtime": 1794481845.241191,
-    "seen": 1794481900.5830488,
-    "ast_hash": "a991e473f14b04d00219bf29b76d0685",
+    "mtime": 1794602943.0973196,
+    "seen": 1794602978.1037362,
+    "ast_hash": "b91e7faf219669a3a3723f568642195e",
     "semantic_hash": ""
   },
   "components/gallery/GalleryFilter.tsx": {
@@ -931,10 +931,10 @@
     "semantic_hash": "ddfa8d0ddd0c139b27ffec104e04b201"
   },
   "lib/validations.ts": {
-    "mtime": 1793388871.8437903,
-    "seen": 1793833188.3369467,
-    "ast_hash": "5bca29aa83bdce29fe76030fdd0b2341",
-    "semantic_hash": "5bca29aa83bdce29fe76030fdd0b2341"
+    "mtime": 1794602824.81079,
+    "seen": 1794602978.1046784,
+    "ast_hash": "adccc96e3f750b6a82809b023baf0b1b",
+    "semantic_hash": ""
   },
   "next.config.ts": {
     "mtime": 1793522734.6154983,
