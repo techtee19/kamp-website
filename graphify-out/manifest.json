@@ -355,16 +355,16 @@
     "semantic_hash": "8665b4a5491a3cb7e412eba1a9ed8c8a"
   },
   "app/api/register/member-code/route.ts": {
-    "mtime": 1794481797.8389213,
-    "seen": 1794481900.582799,
-    "ast_hash": "26d80473c5800c1971be0a02728b21c9",
+    "mtime": 1794828624.6505706,
+    "seen": 1794828671.3300006,
+    "ast_hash": "e98e892ece0b35772b51379d3a94cfd3",
     "semantic_hash": ""
   },
   "app/api/register/member-verify/route.ts": {
-    "mtime": 1793229059.2820108,
-    "seen": 1793833188.264877,
-    "ast_hash": "28c02b2f7b64cec8569064f2ed6d93df",
-    "semantic_hash": "28c02b2f7b64cec8569064f2ed6d93df"
+    "mtime": 1794828625.1168382,
+    "seen": 1794828671.330004,
+    "ast_hash": "28525f11441446070c2e53480608814a",
+    "semantic_hash": ""
   },
   "app/api/register/route.ts": {
     "mtime": 1794602989.477509,
@@ -829,9 +829,9 @@
     "semantic_hash": "14d8be112c61314d342ca04b7a091b25"
   },
   "lib/db-migrate.ts": {
-    "mtime": 1794082890.167176,
-    "seen": 1794255901.35259,
-    "ast_hash": "2dc0496219dafde0a020cf60132f17bc",
+    "mtime": 1794828625.7412403,
+    "seen": 1794828671.3303103,
+    "ast_hash": "9a2df9a4da56603ccbeb79acb5c4bca4",
     "semantic_hash": ""
   },
   "lib/db-test.ts": {
@@ -847,9 +847,9 @@
     "semantic_hash": "115b4e62d1519f85059cea5945a77954"
   },
   "lib/email.ts": {
-    "mtime": 1794824638.7749424,
-    "seen": 1794824681.7598689,
-    "ast_hash": "b84ab2b68b9c7384f8a912b64a5e854c",
+    "mtime": 1794828625.4288023,
+    "seen": 1794828671.3303175,
+    "ast_hash": "90a09ade6184ef4d3eb58cad57bdaf1c",
     "semantic_hash": ""
   },
   "lib/event-data.ts": {
@@ -859,10 +859,10 @@
     "semantic_hash": "dacd6004d9e422ec8d54f06722cfeb2d"
   },
   "lib/event-member-verification.ts": {
-    "mtime": 1793229059.3821037,
-    "seen": 1793833188.326218,
-    "ast_hash": "aca7a72a80f1dd51c54f026db822ddbb",
-    "semantic_hash": "aca7a72a80f1dd51c54f026db822ddbb"
+    "mtime": 1794828624.3915496,
+    "seen": 1794828671.3303223,
+    "ast_hash": "cd787a45fc4a52c0ab6dd5c473094f33",
+    "semantic_hash": ""
   },
   "lib/event-tables.ts": {
     "mtime": 1794082890.178725,
@@ -2303,6 +2303,12 @@
     "mtime": 1794826596.2287872,
     "seen": 1794826639.2954233,
     "ast_hash": "05997f5c2bfb15c750cab325bb4adbc4",
+    "semantic_hash": ""
+  },
+  "migrations/019_event_member_otp_audit.sql": {
+    "mtime": 1794828643.6725335,
+    "seen": 1794828671.330429,
+    "ast_hash": "02e8ef1e42f5d818c5dced4922a14d73",
     "semantic_hash": ""
   },
   "pnpm-lock.yaml": {

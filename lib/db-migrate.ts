@@ -23,6 +23,7 @@ const files = [
   { name: '016_event_attendee_categories.sql', path: 'migrations/016_event_attendee_categories.sql' },
   { name: '017_event_checkin_operators.sql', path: 'migrations/017_event_checkin_operators.sql' },
   { name: '018_leaders_portal.sql', path: 'migrations/018_leaders_portal.sql' },
+  { name: '019_event_member_otp_audit.sql', path: 'migrations/019_event_member_otp_audit.sql' },
 ]
 
 async function migrate() {

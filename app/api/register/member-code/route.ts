@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { sendEventMemberVerificationCode } from '@/lib/email'
-import { createEventMemberChallenge, createMemberVerificationCode } from '@/lib/event-member-verification'
+import { createEventMemberChallenge, createMemberVerificationCode, recordEventMemberOtpAttempt } from '@/lib/event-member-verification'
 import { getClientIp, rateLimit } from '@/lib/ratelimit'
 import { readJsonRequest, requestBodyErrorResponse } from '@/lib/request-body'
 import { client } from '@/sanity/lib/client'
@@ -17,14 +17,23 @@ const requestSchema = z.object({
 })
 
 export async function POST(request: NextRequest) {
+  let auditEventId: string | null = null
   try {
     const body = requestSchema.safeParse(await readJsonRequest(request, 2 * 1024))
-    if (!body.success) return NextResponse.json({ error: 'Enter a valid KAMP member ID.' }, { status: 400 })
+    if (!body.success) {
+      await recordEventMemberOtpAttempt({ outcome: 'invalid_request' })
+      return NextResponse.json({ error: 'Enter a valid KAMP member ID.' }, { status: 400 })
+    }
 
     const { eventId, memberId } = body.data
-    if (!client) return NextResponse.json({ error: 'Member registration is temporarily unavailable.' }, { status: 503 })
+    auditEventId = eventId
+    if (!client) {
+      await recordEventMemberOtpAttempt({ eventId, outcome: 'service_unavailable' })
+      return NextResponse.json({ error: 'Member registration is temporarily unavailable.' }, { status: 503 })
+    }
     const event = await client.withConfig({ useCdn: false }).fetch<{ status?: string; registrationClosed?: boolean } | null>(EVENT_BY_ID_QUERY, { id: eventId })
     if (!event || event.status === 'past' || event.registrationClosed) {
+      await recordEventMemberOtpAttempt({ eventId, outcome: 'event_unavailable' })
       return NextResponse.json({ error: 'Registration for this event is closed.' }, { status: 409 })
     }
     const normalizedMemberId = memberId.toUpperCase()
@@ -33,6 +42,7 @@ export async function POST(request: NextRequest) {
     // Keep a per-member cap, but don't let a handful of people block that campus.
     if (!(await rateLimit(`event-member-code-ip:${ip}`, 60, 10 * 60_000)) ||
         !(await rateLimit(`event-member-code-id:${normalizedMemberId}`, 3, 10 * 60_000))) {
+      await recordEventMemberOtpAttempt({ eventId, outcome: 'rate_limited' })
       return NextResponse.json({ error: 'Too many code requests. Please wait a few minutes and try again.' }, { status: 429 })
     }
 
@@ -57,18 +67,22 @@ export async function POST(request: NextRequest) {
           eventId,
           messageId: sent.data?.id ?? null,
         })
+        await recordEventMemberOtpAttempt({ eventId, outcome: 'email_accepted', providerMessageId: sent.data?.id ?? null })
       } catch (error) {
         console.error('Failed to send event member verification code:', error instanceof Error ? error.message : 'Unknown email provider error')
         await db`DELETE FROM event_member_verifications WHERE challenge_id = ${challenge.challengeId}::uuid`
+        await recordEventMemberOtpAttempt({ eventId, outcome: 'email_rejected' })
         return NextResponse.json({ error: 'We could not send a verification email right now. Please try again later.' }, { status: 503 })
       }
       return NextResponse.json({ success: true, challengeId: challenge.challengeId }, { headers: { 'Cache-Control': 'no-store' } })
     }
 
+    await recordEventMemberOtpAttempt({ eventId, outcome: 'member_not_found' })
     return NextResponse.json({ success: true, challengeId: randomUUID() }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (error) {
     const bodyError = requestBodyErrorResponse(error)
     if (bodyError) return NextResponse.json({ error: bodyError.message }, { status: bodyError.status })
+    await recordEventMemberOtpAttempt({ eventId: auditEventId, outcome: 'system_error' })
     console.error('[/api/register/member-code] Error:', error)
     return NextResponse.json({ error: 'Could not request a verification code. Please try again.' }, { status: 500 })
   }

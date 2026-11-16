@@ -18,10 +18,10 @@ export const getCEOEmail = () => process.env.CEO_EMAIL?.trim() || ADMIN()
 
 export function getAdminNotificationEmails(): string[] {
   const configured = process.env.ADMIN_NOTIFICATION_EMAILS?.split(',').map((email) => email.trim().toLowerCase()).filter(Boolean) ?? []
-  const fallback = [process.env.CEO_EMAIL, process.env.ADMIN_EMAIL]
+  const leadership = [process.env.CEO_EMAIL, process.env.ADMIN_EMAIL]
     .map((email) => email?.trim().toLowerCase())
     .filter((email): email is string => Boolean(email))
-  const recipients = configured.length ? configured : fallback
+  const recipients = [...configured, ...leadership]
   return [...new Set(recipients.filter((email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)))]
 }
 

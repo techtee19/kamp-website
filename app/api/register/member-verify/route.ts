@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { verifyMemberVerificationCode } from '@/lib/event-member-verification'
+import { recordEventMemberOtpAttempt, verifyMemberVerificationCode } from '@/lib/event-member-verification'
 import { getClientIp, rateLimit } from '@/lib/ratelimit'
 import { readJsonRequest, requestBodyErrorResponse } from '@/lib/request-body'
 
@@ -13,14 +13,20 @@ const requestSchema = z.object({
 })
 
 export async function POST(request: NextRequest) {
+  let auditEventId: string | null = null
   try {
     if (!(await rateLimit(`event-member-verify:${getClientIp(request)}`, 10, 10 * 60_000))) {
+      await recordEventMemberOtpAttempt({ outcome: 'rate_limited' })
       return NextResponse.json({ error: 'Too many attempts. Please wait a few minutes and try again.' }, { status: 429 })
     }
     const body = requestSchema.safeParse(await readJsonRequest(request, 2 * 1024))
-    if (!body.success) return NextResponse.json({ error: 'Enter the six-digit code from your email.' }, { status: 400 })
+    if (!body.success) {
+      await recordEventMemberOtpAttempt({ outcome: 'invalid_request' })
+      return NextResponse.json({ error: 'Enter the six-digit code from your email.' }, { status: 400 })
+    }
 
     const { eventId, challengeId, code } = body.data
+    auditEventId = eventId
     const result = await db.begin(async (tx) => {
       const [challenge] = await tx`
         SELECT code_hash, attempts, member_id FROM event_member_verifications
@@ -48,7 +54,11 @@ export async function POST(request: NextRequest) {
       return member
     })
 
-    if (!result) return NextResponse.json({ error: 'That code is invalid or expired. Request a new code and try again.' }, { status: 400 })
+    if (!result) {
+      await recordEventMemberOtpAttempt({ eventId, outcome: 'code_invalid' })
+      return NextResponse.json({ error: 'That code is invalid or expired. Request a new code and try again.' }, { status: 400 })
+    }
+    await recordEventMemberOtpAttempt({ eventId, outcome: 'code_verified' })
     return NextResponse.json({
       success: true,
       challengeId,
@@ -63,6 +73,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const bodyError = requestBodyErrorResponse(error)
     if (bodyError) return NextResponse.json({ error: bodyError.message }, { status: bodyError.status })
+    await recordEventMemberOtpAttempt({ eventId: auditEventId, outcome: 'system_error' })
     console.error('[/api/register/member-verify] Error:', error)
     return NextResponse.json({ error: 'Could not verify your code. Please try again.' }, { status: 500 })
   }
