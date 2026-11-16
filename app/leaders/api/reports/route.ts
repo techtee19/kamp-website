@@ -4,7 +4,7 @@ import { getLeader } from '@/lib/leader-auth'
 import { leaderReportSchema } from '@/lib/leader-validations'
 import { isSameOriginLeaderRequest } from '@/lib/leader-request'
 import { getClientIp, rateLimit } from '@/lib/ratelimit'
-import { getCEOEmail, sendNewSubmissionNotice } from '@/lib/email'
+import { sendNewSubmissionNotices } from '@/lib/email'
 import { readJsonRequest } from '@/lib/request-body'
 
 export const runtime = 'nodejs'
@@ -25,8 +25,8 @@ export async function POST(request: NextRequest) {
       VALUES (${leader.id}, ${d.reportType}, ${d.title}, ${d.reportDate}, ${d.eventsHeld ?? null}, ${d.attendance ?? null}, ${d.summary}, ${d.achievements || null}, ${d.challenges || null}, ${d.nextSteps || null}, ${d.links || null})
       RETURNING id
     `
-    try { await sendNewSubmissionNotice({ to: getCEOEmail(), submissionType: 'report', title: d.title, leaderName: String(leader.full_name), campus: String(leader.campus), details: [{ label: 'Report type', value: d.reportType }, { label: 'Date', value: d.reportDate }, { label: 'Summary', value: d.summary }], adminUrl: `${process.env.NEXTAUTH_URL || request.nextUrl.origin}/admin/reports/${report.id}` }) }
-    catch (emailError) { console.error('[leaders/reports] Report saved, CEO notification email failed:', emailError) }
+    try { await sendNewSubmissionNotices({ submissionType: 'report', title: d.title, leaderName: String(leader.full_name), campus: String(leader.campus), details: [{ label: 'Report type', value: d.reportType }, { label: 'Date', value: d.reportDate }, { label: 'Summary', value: d.summary }], adminUrl: `${process.env.NEXTAUTH_URL || request.nextUrl.origin}/admin/reports/${report.id}` }) }
+    catch (emailError) { console.error('[leaders/reports] Report saved, admin notification email failed:', emailError) }
     return NextResponse.json({ success: true, id: report.id }, { status: 201 })
   } catch (error) {
     console.error('[leaders/reports] Submission failed:', error)

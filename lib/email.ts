@@ -16,6 +16,15 @@ const FROM = () => process.env.EMAIL_FROM!
 const ADMIN = () => process.env.ADMIN_EMAIL!
 export const getCEOEmail = () => process.env.CEO_EMAIL?.trim() || ADMIN()
 
+export function getAdminNotificationEmails(): string[] {
+  const configured = process.env.ADMIN_NOTIFICATION_EMAILS?.split(',').map((email) => email.trim().toLowerCase()).filter(Boolean) ?? []
+  const fallback = [process.env.CEO_EMAIL, process.env.ADMIN_EMAIL]
+    .map((email) => email?.trim().toLowerCase())
+    .filter((email): email is string => Boolean(email))
+  const recipients = configured.length ? configured : fallback
+  return [...new Set(recipients.filter((email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)))]
+}
+
 // Escape user-supplied values before interpolating them into email HTML.
 // Without this, a visitor could inject markup (e.g. a fake <a> link) into the
 // admin notification or into their own confirmation email.
@@ -76,6 +85,19 @@ export async function sendNewSubmissionNotice(opts: {
     <table style="width:100%;border-collapse:collapse;border-top:1px solid #ece9e1;border-bottom:1px solid #ece9e1">${details}</table>
     <p style="margin:22px 0 0"><a href="${esc(opts.adminUrl)}" style="display:inline-block;padding:13px 21px;border-radius:999px;background:#202020;color:#fff;text-decoration:none;font-weight:700">Review in admin</a></p>
   `)
+}
+
+export async function sendNewSubmissionNotices(opts: Omit<Parameters<typeof sendNewSubmissionNotice>[0], 'to'>) {
+  const recipients = getAdminNotificationEmails()
+  if (!recipients.length) throw new Error('No admin notification email recipients are configured')
+
+  // Send individual copies so admin addresses are not exposed to one another.
+  const results = await Promise.allSettled(
+    recipients.map((to) => sendNewSubmissionNotice({ ...opts, to }))
+  )
+  const failed = results.filter((result) => result.status === 'rejected').length
+  if (failed) throw new Error(`Admin submission notification failed for ${failed} of ${recipients.length} recipients`)
+  return { sent: recipients.length }
 }
 
 export async function sendRequestStatusUpdate(opts: { to: string; leaderName: string; title: string; status: string; reviewNote: string | null; portalUrl: string }) {
