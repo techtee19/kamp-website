@@ -1,7 +1,9 @@
 'use client'
 
+import Link from 'next/link'
+import { eventSlug } from '@/lib/registration-flow'
 import { useEffect, useRef, useState } from 'react'
-import { useForm, Controller, type FieldErrors } from 'react-hook-form'
+import { useForm, useWatch, Controller, type FieldErrors } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowRight, CheckCircle2, LoaderCircle, ShieldCheck } from 'lucide-react'
 import InstitutionCombobox from '@/components/ui/InstitutionCombobox'
@@ -20,19 +22,19 @@ const inputClass = (invalid: boolean) => `${inputBaseClass} ${invalid ? 'border-
 
 export default function MembershipForm({ leadershipInvite }: { leadershipInvite?: { token: string; email: string; role: string } }) {
   const [success, setSuccess] = useState<{ memberId: string; emailPending: boolean; communityToken: string | null; communityLink: string } | null>(null)
+  const [returnEvent, setReturnEvent] = useState<string | null>(null)
   const [serverError, setServerError] = useState('')
   const [validationMessage, setValidationMessage] = useState('')
   const [validationDetails, setValidationDetails] = useState<string[]>([])
   const validationSummaryRef = useRef<HTMLDivElement>(null)
   const [passportPhoto, setPassportPhoto] = useState<File | null>(null)
   const [photoError, setPhotoError] = useState('')
-  const { register, control, handleSubmit, watch, setError, formState: { errors, isSubmitting } } = useForm<MembershipInput>({
+  const { register, control, handleSubmit, setError, formState: { errors, isSubmitting } } = useForm<MembershipInput>({
     resolver: zodResolver(membershipSchema), mode: 'onBlur',
     defaultValues: { firstName: '', lastName: '', email: leadershipInvite?.email ?? '', phone: '', membershipType: 'student', kampPosition: 'General Member', kampPositionOther: '', dateOfBirth: '', university: '', gender: undefined, stateOfOrigin: undefined, studyLevel: undefined, occupation: '', organization: '', whyJoin: '' },
   })
-  const membershipType = watch('membershipType')
-  const kampPosition = watch('kampPosition')
-  const whyJoin = watch('whyJoin') ?? ''
+  const [membershipType, kampPosition, whyJoinValue] = useWatch({ control, name: ['membershipType', 'kampPosition', 'whyJoin'] })
+  const whyJoin = whyJoinValue ?? ''
 
   useEffect(() => {
     if (validationMessage) validationSummaryRef.current?.focus()
@@ -99,6 +101,7 @@ export default function MembershipForm({ leadershipInvite }: { leadershipInvite?
         setServerError('The server response was incomplete. Your application may still have been saved. Check your email before trying again, or contact KAMP.')
         return
       }
+      setReturnEvent(eventSlug(new URLSearchParams(window.location.search).get('event')))
       setSuccess({ memberId: result.memberId, emailPending: result.emailPending ?? true, communityToken: result.communityToken ?? null, communityLink: result.communityLink })
     } catch {
       setServerError('We did not receive a response. Your application may still have been saved. Check your email before trying again, or contact KAMP.')
@@ -110,7 +113,13 @@ export default function MembershipForm({ leadershipInvite }: { leadershipInvite?
       <span className="mx-auto grid size-14 place-items-center rounded-full bg-emerald-100"><CheckCircle2 className="size-7 text-emerald-700" /></span>
       <div className="mt-5 text-center"><p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-800">Registration complete</p><h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.03em] text-brand-ink">Welcome to KAMP</h2><p className="mt-2 text-sm leading-relaxed text-brand-grey">Your membership is active. Keep this member ID for your records.</p></div>
       <p className="mt-5 rounded-xl border border-emerald-200 bg-white px-4 py-4 text-center font-mono text-lg font-bold tracking-wide text-brand-ink sm:text-xl">{success.memberId}</p>
-      <p className="mt-4 flex items-start gap-2 text-sm leading-relaxed text-brand-grey"><ShieldCheck aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-emerald-700" />{success.emailPending ? 'Your membership card and welcome message are being prepared and will arrive by email shortly.' : 'Your membership is saved, but we could not confirm email delivery. Please contact KAMP with your member ID if it does not arrive.'}</p>
+      <p className="mt-4 flex items-start gap-2 text-sm leading-relaxed text-brand-grey"><ShieldCheck aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-emerald-700" />{success.emailPending ? 'Your membership is saved. Your welcome email may take a few minutes to arrive. Please check your inbox and spam folder.' : 'Your membership is saved, but we could not confirm email delivery. Please contact KAMP with your member ID if it does not arrive.'}</p>
+      {returnEvent && <Link href={`/events/${returnEvent}#register`} onClick={() => {
+        try { sessionStorage.setItem(`kamp:event-otp:${returnEvent}`, JSON.stringify({ memberId: success.memberId, challengeId: '', retryAt: 0 })) } catch { /* Member ID remains visible on this page. */ }
+      }} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-brand-ink px-5 py-3 text-sm font-semibold text-white">
+        Continue to event registration <ArrowRight aria-hidden="true" className="size-4" />
+      </Link>}
+      <Link href="/membership/support" className="mt-4 block text-sm underline underline-offset-4">Get help with your welcome email</Link>
       <div className="mt-6 rounded-xl border border-emerald-200 bg-white p-5">
         <h3 className="font-semibold text-brand-ink">Join your KAMP community</h3>
         <p className="mt-1 mb-4 text-sm leading-relaxed text-brand-grey">Connect with other members for community updates and opportunities. We’ve also included the WhatsApp link in your welcome email.</p>

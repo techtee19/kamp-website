@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
+import { publicEventsTag } from '@/sanity/lib/client'
 import { parseBody } from 'next-sanity/webhook'
 import { createEventRegistrationTable } from '@/lib/event-tables'
 import { readRequestBytes, RequestBodyTooLargeError } from '@/lib/request-body'
@@ -57,6 +58,7 @@ export async function POST(req: NextRequest) {
 
     const paths = ['/', '/events', '/events/[slug]']
     for (const slug of slugs) paths.push(`/events/${slug}`)
+    revalidateTag(publicEventsTag, { expire: 0 })
     revalidatePath('/')
     revalidatePath('/events')
     revalidatePath('/events/[slug]', 'page')

@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import RegistrationForm from '@/components/events/RegistrationForm'
-import { freshClient } from '@/sanity/lib/client'
+import { freshClient, publicEventCache } from '@/sanity/lib/client'
 import { EVENT_BY_SLUG_QUERY, EVENT_SLUGS_QUERY } from '@/sanity/lib/queries'
 import type { EventDocument } from '@/types/sanity'
 
@@ -56,7 +56,7 @@ export default async function EventDetailPage({
   // Without Sanity configured there is nothing to look up, so the route 404s
   // rather than throwing during a build.
   const event = freshClient
-    ? await freshClient.fetch<EventDocument | null>(EVENT_BY_SLUG_QUERY, { slug })
+    ? await freshClient.fetch<EventDocument | null>(EVENT_BY_SLUG_QUERY, { slug }, publicEventCache)
     : null
 
   if (!event) notFound()
@@ -103,7 +103,7 @@ export default async function EventDetailPage({
 
           <div>
             {canRegister ? (
-              <><p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-gold">Reserve your place</p><h2 className="mt-2 font-display text-3xl font-semibold tracking-tight md:text-4xl">Register for {event.title}</h2><p className="mt-3 text-sm leading-relaxed text-brand-grey">Complete the form below and we&apos;ll confirm your registration by email.</p><div className="mt-7"><RegistrationForm eventId={event._id} eventDate={formatDate(event.date)} eventLocation={event.location} capacity={event.capacity} /></div></>
+              <><p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-gold">Reserve your place</p><h2 className="mt-2 font-display text-3xl font-semibold tracking-tight md:text-4xl">Register for {event.title}</h2><p className="mt-3 text-sm leading-relaxed text-brand-grey">Complete the form below and we&apos;ll confirm your registration by email.</p><div id="register" className="mt-7 scroll-mt-28"><RegistrationForm eventId={event._id} eventSlug={slug} /></div></>
             ) : hasConcluded ? (
               <div className="rounded-xl border-l-4 border-brand-gold bg-brand-card p-7 md:p-9"><p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-gold">Event complete</p><h2 className="mt-3 font-display text-3xl font-semibold">This KAMP experience has passed.</h2><p className="mt-4 text-sm leading-relaxed text-brand-grey">Explore our upcoming events to find your next room for growth, connection, and meaningful leadership.</p><Link href="/events" className="mt-6 inline-flex rounded-full bg-brand-ink px-5 py-2.5 text-sm text-brand-white">View upcoming events</Link></div>
             ) : (

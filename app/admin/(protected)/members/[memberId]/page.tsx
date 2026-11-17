@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
+import { getAdminSession } from '@/lib/admin-session'
 import { isMemberId } from '@/lib/member-id'
 import { db } from '@/lib/db'
 import DeleteMemberButton from '@/components/admin/DeleteMemberButton'
@@ -9,6 +10,7 @@ import EditMemberPosition from '@/components/admin/EditMemberPosition'
 export const dynamic = 'force-dynamic'
 
 export default async function MemberProfilePage({ params }: { params: Promise<{ memberId: string }> }) {
+  if (!(await getAdminSession())) redirect('/admin/login')
   const { memberId } = await params
   if (!isMemberId(memberId)) notFound()
   const [member] = await db`
@@ -18,6 +20,10 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
     FROM members WHERE member_id = ${memberId} LIMIT 1
   `
   if (!member) notFound()
+  const [delivery] = await db`
+    SELECT id, status, provider_message_id, error_category, error_code, attempts, failed_at, next_retry_at
+    FROM registration_email_jobs WHERE kind = 'welcome' AND reference = ${memberId}
+  `
 
   const dateOfBirth = member.date_of_birth
     ? new Date(`${String(member.date_of_birth).slice(0, 10)}T00:00:00`).toLocaleDateString('en-NG', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -45,6 +51,17 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
       <dl className="grid grid-cols-1 sm:grid-cols-2">{fields.map(([label, value], index) => <div key={label} className={`border-b border-brand-card px-6 py-4 ${index % 2 ? 'bg-brand-cream/40' : ''}`}><dt className="mb-1 text-xs uppercase tracking-widest text-brand-grey">{label}</dt><dd className="break-words text-sm font-medium text-brand-black">{String(value ?? '—')}</dd></div>)}</dl>
       {member.why_join && <div className="border-t border-brand-card px-6 py-4"><h3 className="mb-2 text-xs uppercase tracking-widest text-brand-grey">Why they joined</h3><p className="whitespace-pre-wrap text-sm leading-relaxed text-brand-black">{member.why_join as string}</p></div>}
     </section>
-    <div className="flex flex-wrap items-start gap-3"><ResendCardButton memberId={member.member_id as string} /><DeleteMemberButton memberId={member.member_id as string} memberName={`${member.first_name as string} ${member.last_name as string}`} /></div>
+    <section className="mb-6 space-y-3 rounded-xl border border-brand-card bg-white p-6 text-sm">
+      <h2 className="font-semibold">Welcome email delivery</h2>
+      {delivery ? <>
+        <p className="font-medium capitalize">{delivery.status === 'accepted' ? 'Accepted by Resend' : String(delivery.status)}</p>
+        <p>Notification {String(delivery.id)} · {String(delivery.attempts)} attempt(s)</p>
+        {delivery.provider_message_id && <p>Resend message ID {String(delivery.provider_message_id)}</p>}
+        {delivery.error_category && <p>Failure {String(delivery.error_category)} · {String(delivery.error_code)}{delivery.failed_at ? ` · ${new Date(delivery.failed_at as string).toLocaleString('en-NG', { timeZone: 'Africa/Lagos' })}` : ''}</p>}
+        {delivery.next_retry_at && <p>Eligible for retry from {new Date(delivery.next_retry_at as string).toLocaleString('en-NG', { timeZone: 'Africa/Lagos' })}</p>}
+        {['failed', 'pending'].includes(String(delivery.status)) && <ResendCardButton memberId={memberId} />}
+      </> : <p>Unknown. This member has no tracked welcome email.</p>}
+    </section>
+    <DeleteMemberButton memberId={member.member_id as string} memberName={`${member.first_name as string} ${member.last_name as string}`} />
   </div>
 }

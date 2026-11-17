@@ -228,12 +228,13 @@ export async function insertRegistrationAtomic(params: {
   ticketRef: string
   tableName: string
   capacity?: number
-}): Promise<void> {
+  ticketPayload?: import('./ticket').TicketData
+}): Promise<string | undefined> {
   assertSafeTableName(params.tableName)
   const quotedTable = `"${params.tableName}"`
 
   try {
-    await db.begin(async (tx) => {
+    return await db.begin(async (tx) => {
       // Every registration for one event takes the same transaction lock. This
       // serializes the count and insert, including when no rows exist to lock.
       await tx`SELECT pg_advisory_xact_lock(hashtextextended(${params.eventId}, 0))`
@@ -294,6 +295,14 @@ export async function insertRegistrationAtomic(params: {
           `SELECT COUNT(*) AS count FROM ${quotedTable} WHERE status != 'cancelled'`
         )
         if (Number(result[0].count) > params.capacity) throw new EventFullError()
+      }
+      if (params.memberId && params.ticketPayload) {
+        const [job] = await tx`
+          INSERT INTO registration_email_jobs (kind, member_id, reference, payload)
+          VALUES ('ticket', ${params.memberId}, ${params.ticketRef}, ${tx.json({ ...params.ticketPayload })})
+          RETURNING id
+        `
+        return String(job.id)
       }
     })
   } catch (err) {

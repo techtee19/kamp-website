@@ -1,10 +1,16 @@
 import { createHmac } from 'node:crypto'
+import { isIP } from 'node:net'
+import type { TransactionSql } from 'postgres'
 import { db } from '@/lib/db'
 
 let lastCleanupAt = 0
 
 /** Shared PostgreSQL-backed fixed-window limit for all deployed instances. */
 export async function rateLimit(key: string, limit = 5, windowMs = 60_000): Promise<boolean> {
+  return (await rateLimitStatus(key, limit, windowMs)).allowed
+}
+
+export async function rateLimitStatus(key: string, limit: number, windowMs: number, transaction?: TransactionSql) {
   if (!Number.isInteger(limit) || limit < 1 || !Number.isInteger(windowMs) || windowMs < 1) {
     throw new Error('Invalid rate limit configuration')
   }
@@ -16,7 +22,7 @@ export async function rateLimit(key: string, limit = 5, windowMs = 60_000): Prom
   // Sweep a bounded number of old buckets at most once per warm instance/minute.
   // The rate-limit key is an HMAC, so raw client IP addresses are not stored.
   const now = Date.now()
-  const shouldCleanup = now - lastCleanupAt >= 60_000
+  const shouldCleanup = !transaction && now - lastCleanupAt >= 60_000
   if (shouldCleanup) {
     await db`
       WITH expired AS (
@@ -31,7 +37,8 @@ export async function rateLimit(key: string, limit = 5, windowMs = 60_000): Prom
     `
   }
 
-  const rows = await db<{ request_count: number }[]>`
+  const sql = transaction ?? db
+  const rows = await sql<{ request_count: number; retry_at: Date }[]>`
     INSERT INTO security_rate_limits (key_hash, window_started_at, window_ms, request_count, updated_at)
     VALUES (${keyHash}, NOW(), ${windowMs}, 1, NOW())
     ON CONFLICT (key_hash) DO UPDATE SET
@@ -49,18 +56,23 @@ export async function rateLimit(key: string, limit = 5, windowMs = 60_000): Prom
       END,
       window_ms = EXCLUDED.window_ms,
       updated_at = NOW()
-    RETURNING request_count
+    RETURNING request_count, window_started_at + (window_ms * INTERVAL '1 millisecond') AS retry_at
   `
 
   if (shouldCleanup) lastCleanupAt = now
-  return Number(rows[0]?.request_count ?? limit + 1) <= limit
+  return {
+    allowed: Number(rows[0]?.request_count ?? limit + 1) <= limit,
+    retryAfter: Math.max(1, Math.ceil(((rows[0]?.retry_at.getTime() ?? now + windowMs) - Date.now()) / 1000)),
+  }
 }
 
 // The deployment proxy must overwrite x-forwarded-for with the originating
 // client IP. If hosting changes, configure its trusted proxy header here rather
 // than accepting an arbitrary client-supplied address.
 export function getClientIp(req: Request): string {
-  const forwarded = req.headers.get('x-forwarded-for')
-  if (forwarded) return forwarded.split(',')[0].trim().slice(0, 128) || 'unknown'
-  return req.headers.get('x-real-ip')?.trim().slice(0, 128) || 'unknown'
+  const forwarded = process.env.VERCEL === '1'
+    ? req.headers.get('x-vercel-forwarded-for') ?? req.headers.get('x-forwarded-for')
+    : null
+  const ip = forwarded?.trim() ?? ''
+  return isIP(ip) ? ip : 'unknown'
 }

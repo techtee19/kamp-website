@@ -1,308 +1,163 @@
 'use client'
 
-// Inline event registration form with confirmation and capacity states.
-import { FormEvent, useState } from 'react'
-import InstitutionCombobox from '@/components/ui/InstitutionCombobox'
+import Link from 'next/link'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { countdownSeconds } from '@/lib/registration-flow'
 
-const inputClass =
-  'mt-2 w-full rounded-lg border border-brand-ink/25 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold'
+const inputClass = 'mt-2 w-full rounded-lg border border-brand-ink/25 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold'
+const buttonClass = 'w-fit rounded-full bg-brand-ink px-5 py-3 text-sm font-semibold text-white disabled:opacity-50'
 
-// Must match registrationSchema's studyLevel enum in lib/validations.ts.
-const studyLevels = ['100L', '200L', '300L', '400L', '500L', 'Postgrad', 'Other']
+type Session = { memberId: string; challengeId: string; previousChallengeId?: string; retryAt: number }
+type Member = { fullName: string; affiliation: string; level: string }
+type Failure = { error?: string; retryAfter?: number }
 
-type RegistrationFormProps = {
-  eventId: string
-  eventDate?: string
-  eventLocation?: string
-  capacity?: number
-  registrationClosed?: boolean
-}
+export default function RegistrationForm({ eventId, eventSlug }: { eventId: string; eventSlug: string }) {
+  const storageKey = `kamp:event-otp:${eventSlug}`
+  const [session, setSession] = useState<Session>({ memberId: '', challengeId: '', retryAt: 0 })
+  const [now, setNow] = useState(0)
+  const [code, setCode] = useState('')
+  const [member, setMember] = useState<Member | null>(null)
+  const [proofId, setProofId] = useState('')
+  const [busy, setBusy] = useState(false)
+  const pending = useRef(false)
+  const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
+  const [ticketRef, setTicketRef] = useState('')
+  const wait = countdownSeconds(session.retryAt, now)
 
-export default function RegistrationForm({
-  eventId,
-  eventDate,
-  eventLocation,
-  capacity,
-  registrationClosed = false,
-}: RegistrationFormProps) {
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error' | 'full'>(
-    'idle'
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      try {
+        const stored = sessionStorage.getItem(storageKey)
+        if (stored) setSession(JSON.parse(stored))
+      } catch { /* Continue when browser storage is unavailable. */ }
+      setNow(Date.now())
+    })
+    const timer = setInterval(() => setNow(Date.now()), 1000)
+    return () => { cancelAnimationFrame(frame); clearInterval(timer) }
+  }, [storageKey])
+
+  function save(value: Session) {
+    setSession(value)
+    setNow(Date.now())
+    try { sessionStorage.setItem(storageKey, JSON.stringify(value)) } catch { /* Server still enforces cooldown. */ }
+  }
+
+  function editId(memberId: string) {
+    save({ memberId: memberId.toUpperCase(), challengeId: '', retryAt: 0 })
+    setCode('')
+    setError('')
+    setNotice('')
+  }
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (pending.current || (!session.challengeId && !member && wait > 0)) return
+    if (member) {
+      await post<{ ticketRef: string }>('/api/register', { eventId, memberChallengeId: proofId }, (data) => {
+        setTicketRef(data.ticketRef)
+        try { sessionStorage.removeItem(storageKey) } catch { /* Optional storage. */ }
+      }, (status) => {
+        if (status === 400) { setMember(null); setProofId(''); save({ ...session, challengeId: '', previousChallengeId: undefined }) }
+      })
+    } else if (session.challengeId) {
+      await post<{ member: Member; challengeId: string }>('/api/register/member-verify', { eventId, challengeId: session.challengeId, previousChallengeId: session.previousChallengeId, code }, (data) => {
+        setMember(data.member)
+        setProofId(data.challengeId)
+        setCode('')
+        save({ ...session, challengeId: '', previousChallengeId: undefined })
+      })
+    } else {
+      await requestCode()
+    }
+  }
+
+  async function requestCode() {
+    if (wait > 0 || session.memberId.trim().length < 5) return
+    await post<{ challengeId: string; retryAfter: number }>('/api/register/member-code', { eventId, memberId: session.memberId }, (data) => {
+      save({ ...session, previousChallengeId: session.challengeId || undefined, challengeId: data.challengeId, retryAt: Date.now() + data.retryAfter * 1000 })
+      setCode('')
+      setNotice(session.challengeId
+        ? 'If we could send a new verification code, please use the latest code to verify your membership.'
+        : 'If that ID matches an active membership and email is available, a six-digit code will arrive at the address on file.')
+    }, (status, data) => {
+      if (status === 429 && typeof data?.retryAfter === 'number') {
+        save({ ...session, retryAt: Date.now() + data.retryAfter * 1000 })
+      }
+    })
+  }
+
+  async function post<T>(path: string, body: object, success: (data: T) => void, failure?: (status: number, data: Failure | null) => void) {
+    if (pending.current) return
+    pending.current = true
+    setBusy(true)
+    setError('')
+    setNotice('')
+    try {
+      const response = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      const data = await response.json().catch(() => null)
+      if (!response.ok || !data) {
+        failure?.(response.status, data)
+        setError(data?.error ?? 'The service is temporarily unavailable. Please try again.')
+      } else success(data as T)
+    } catch {
+      setError('Could not reach the server. Check your connection and try again.')
+    } finally {
+      pending.current = false
+      setBusy(false)
+    }
+  }
+
+  if (ticketRef) return (
+    <div role="status" className="rounded-lg border border-green-200 bg-green-50 p-5 text-sm text-green-800">
+      <p className="font-semibold">Your place is confirmed.</p>
+      <p className="mt-2">Save your ticket reference <strong className="font-mono">{ticketRef}</strong>. Your ticket will be sent by email.</p>
+      <Link href="/contact?subject=event-ticket" className="mt-2 inline-block underline">Get help if your ticket doesn’t arrive</Link>
+    </div>
   )
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [emailSent, setEmailSent] = useState<boolean | null>(null)
-  const [registrationMode, setRegistrationMode] = useState<'guest' | 'member'>('guest')
-  const [attendeeType, setAttendeeType] = useState<'student' | 'professional' | 'non_professional'>('student')
-  const [memberId, setMemberId] = useState('')
-  const [challengeId, setChallengeId] = useState('')
-  const [verificationCode, setVerificationCode] = useState('')
-  const [codeRequested, setCodeRequested] = useState(false)
-  const [requestingCode, setRequestingCode] = useState(false)
-  const [verifyingCode, setVerifyingCode] = useState(false)
-  const [verifiedMember, setVerifiedMember] = useState<{
-    fullName: string
-    email: string
-    phone: string
-    affiliation: string
-    level: string
-  } | null>(null)
 
-  if (registrationClosed)
-    return (
-      <div className="rounded-xl border-l-4 border-brand-gold bg-brand-card p-7">
-        <p className="font-display text-2xl font-semibold">Registration closed</p>
-        <p className="mt-3 text-sm leading-relaxed text-brand-grey">
-          This event has reached capacity. Please check our events page for the next opportunity to join KAMP.
-        </p>
-      </div>
-    )
-
-  // 409 covers both "event is full" and "this email already registered" — the API
-  // owns that distinction, so its message is what gets shown.
-  if (status === 'full')
-    return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-        {errorMessage ?? 'This event has reached maximum capacity.'}
-      </div>
-    )
-
-  if (status === 'success')
-    return (
-      <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
-        {emailSent
-          ? 'You’re registered! Check your email for confirmation details.'
-          : 'You’re registered, but we could not send the confirmation email. Please contact KAMP for your ticket.'}
-        {eventDate && eventLocation ? ` We'll see you on ${eventDate} at ${eventLocation}.` : null}
-      </div>
-    )
-
-  const submit = async (formEvent: FormEvent<HTMLFormElement>) => {
-    formEvent.preventDefault()
-    setErrorMessage(null)
-    setStatus('loading')
-
-    const form = new FormData(formEvent.currentTarget)
-
-    try {
-      const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(registrationMode === 'member'
-          ? { eventId, memberChallengeId: challengeId }
-          : {
-              eventId,
-              fullName: form.get('fullName'),
-              email: form.get('email'),
-              phone: form.get('phone'),
-              attendeeType: form.get('attendeeType'),
-              university: form.get('university') || undefined,
-              studyLevel: form.get('studyLevel') || undefined,
-              occupation: form.get('occupation') || undefined,
-              organization: form.get('organization') || undefined,
-            }),
-      })
-
-      const payload = await response.json().catch(() => null)
-
-      if (response.status === 409) {
-        // Event full, or this email is already on the list.
-        setStatus('full')
-        setErrorMessage(payload?.error ?? 'This event has reached maximum capacity.')
-        return
-      }
-
-      if (!response.ok) {
-        // The API owns capacity and duplicate checks, so surface its message.
-        setStatus('error')
-        setErrorMessage(payload?.error ?? 'Registration failed. Please try again.')
-        return
-      }
-
-      setEmailSent(payload?.emailSent === true)
-      setStatus('success')
-    } catch {
-      setStatus('error')
-      setErrorMessage('Could not reach the server. Please check your connection and try again.')
-    }
-  }
-
-  const requestMemberCode = async () => {
-    setErrorMessage(null)
-    setRequestingCode(true)
-    setVerifiedMember(null)
-    setChallengeId('')
-    try {
-      const response = await fetch('/api/register/member-code', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ eventId, memberId }),
-      })
-      const payload = await response.json().catch(() => null)
-      if (!response.ok) {
-        setErrorMessage(payload?.error ?? 'Could not request a code. Please try again.')
-        return
-      }
-      setChallengeId(payload.challengeId)
-      setCodeRequested(true)
-      setErrorMessage('If that is an active KAMP member ID, a six-digit code has been sent to the email address on the membership record.')
-    } catch {
-      setErrorMessage('Could not reach the server. Please try again.')
-    } finally {
-      setRequestingCode(false)
-    }
-  }
-
-  const verifyMemberCode = async () => {
-    setErrorMessage(null)
-    setVerifyingCode(true)
-    try {
-      const response = await fetch('/api/register/member-verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ eventId, challengeId, code: verificationCode }),
-      })
-      const payload = await response.json().catch(() => null)
-      if (!response.ok) {
-        setErrorMessage(payload?.error ?? 'Could not verify that code.')
-        return
-      }
-      setVerifiedMember(payload.member)
-      setErrorMessage(null)
-    } catch {
-      setErrorMessage('Could not reach the server. Please try again.')
-    } finally {
-      setVerifyingCode(false)
-    }
-  }
-
-  const submitting = status === 'loading'
-
+  const timer = `${String(Math.floor(wait / 60)).padStart(2, '0')}:${String(wait % 60).padStart(2, '0')}`
   return (
-    <form onSubmit={submit} className="grid gap-4 rounded-xl bg-brand-card p-6 md:grid-cols-2 md:p-8">
-      {errorMessage && (
-        <div role={status === 'error' ? 'alert' : 'status'} className={`rounded-lg border px-4 py-3 text-sm md:col-span-2 ${errorMessage.startsWith('If that is') ? 'border-blue-200 bg-blue-50 text-blue-900' : 'border-red-200 bg-red-50 text-red-800'}`}>
-          {errorMessage}
-        </div>
-      )}
-
-      <div className="flex gap-2 md:col-span-2" role="group" aria-label="Registration type">
-        <button type="button" onClick={() => { setRegistrationMode('guest'); setVerifiedMember(null); setCodeRequested(false); setErrorMessage(null) }} aria-pressed={registrationMode === 'guest'} className={`rounded-full px-4 py-2 text-sm font-medium ${registrationMode === 'guest' ? 'bg-brand-ink text-white' : 'border border-brand-ink/20 bg-white'}`}>Register as a guest</button>
-        <button type="button" onClick={() => { setRegistrationMode('member'); setVerifiedMember(null); setCodeRequested(false); setErrorMessage(null) }} aria-pressed={registrationMode === 'member'} className={`rounded-full px-4 py-2 text-sm font-medium ${registrationMode === 'member' ? 'bg-brand-ink text-white' : 'border border-brand-ink/20 bg-white'}`}>I’m a KAMP member</button>
-      </div>
-
-      {registrationMode === 'member' ? (
+    <form onSubmit={submit} className="grid gap-4 rounded-xl bg-brand-card p-6 md:p-8">
+      {error && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</p>}
+      {notice && <p role="status" className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">{notice}</p>}
+      {member ? (
         <>
-          {!verifiedMember ? (
+          <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800">
+            <p className="font-semibold">Membership verified</p>
+            <p>{member.fullName} · {member.affiliation} · {member.level}</p>
+            <p>Your ticket will go to the address on your KAMP membership.</p>
+          </div>
+          <button type="submit" disabled={busy} className={buttonClass}>{busy ? 'Confirming…' : 'Confirm registration'}</button>
+        </>
+      ) : (
+        <>
+          <p className="text-sm text-brand-grey">Event registration is for KAMP members. Enter your member ID to request a code by email.</p>
+          <label className="text-sm font-medium">KAMP member ID
+            <input value={session.memberId} onChange={(event) => editId(event.target.value)} required minLength={5} maxLength={64} autoComplete="off" disabled={busy} className={inputClass} placeholder="KAMP-…" />
+          </label>
+          <Link href={`/membership?event=${encodeURIComponent(eventSlug)}#apply`} className="w-fit text-sm font-semibold underline decoration-brand-gold underline-offset-4">
+            New to KAMP? Join to register for this event
+          </Link>
+          {session.challengeId ? (
             <>
-              <p className="text-sm leading-relaxed text-brand-grey md:col-span-2">Enter your KAMP member ID. We’ll send a one-time code to the email address saved on your membership record.</p>
-              <label className="text-sm font-medium md:col-span-2">
-                KAMP member ID
-                <input value={memberId} onChange={(event) => setMemberId(event.target.value.toUpperCase())} required maxLength={64} autoComplete="off" disabled={requestingCode || submitting} className={inputClass} placeholder="KAMP-…" />
+              <label className="text-sm font-medium">Six-digit verification code
+                <input value={code} onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))} required inputMode="numeric" pattern="[0-9]{6}" autoComplete="one-time-code" disabled={busy} className={inputClass} />
               </label>
-              {!codeRequested ? (
-                <button type="button" onClick={requestMemberCode} disabled={requestingCode || !memberId.trim()} className="justify-self-start rounded-full bg-brand-ink px-6 py-3 text-sm text-brand-white disabled:opacity-60 md:col-span-2">
-                  {requestingCode ? 'Sending code…' : 'Send verification code'}
+              <p className="text-sm text-brand-grey">Please enter the latest verification code sent to your email. Previous codes are no longer valid. Check spam or junk if you can’t find it.</p>
+              <div className="flex flex-wrap items-center gap-4">
+                <button type="submit" disabled={busy || code.length !== 6} className={buttonClass}>{busy ? 'Please wait…' : 'Verify code'}</button>
+                <button type="button" onClick={requestCode} disabled={busy || wait > 0} className="text-sm font-semibold underline disabled:opacity-55">
+                  {wait > 0 ? `Resend code in ${timer}` : 'Resend code'}
                 </button>
-              ) : (
-                <>
-                  <p role="status" className="text-sm text-brand-grey md:col-span-2">If the ID is active, a code is on its way to the email on file.</p>
-                  <label className="text-sm font-medium md:col-span-2">
-                    Six-digit email code
-                    <input value={verificationCode} onChange={(event) => setVerificationCode(event.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" required maxLength={6} disabled={verifyingCode || submitting} className={inputClass} />
-                  </label>
-                  <button type="button" onClick={verifyMemberCode} disabled={verifyingCode || verificationCode.length !== 6 || !challengeId} className="justify-self-start rounded-full bg-brand-ink px-6 py-3 text-sm text-brand-white disabled:opacity-60 md:col-span-2">
-                    {verifyingCode ? 'Verifying…' : 'Verify member ID'}
-                  </button>
-                </>
-              )}
+              </div>
             </>
           ) : (
-            <>
-              <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-900 md:col-span-2">
-                <p className="font-semibold">Membership verified</p>
-                <p className="mt-1">{verifiedMember.fullName} · {verifiedMember.affiliation} · {verifiedMember.level}</p>
-                <p className="mt-1 text-green-800">Ticket confirmation will be sent to {verifiedMember.email}.</p>
-              </div>
-              {capacity ? <p className="text-xs text-brand-grey md:col-span-2">Limited to {capacity} places.</p> : null}
-              <button type="submit" disabled={submitting} className="justify-self-start rounded-full bg-brand-ink px-6 py-3 text-sm text-brand-white transition disabled:cursor-not-allowed disabled:opacity-60 md:col-span-2">
-                {submitting ? 'Submitting…' : 'Confirm registration'}
-              </button>
-            </>
+            <button type="submit" disabled={busy || wait > 0} className={buttonClass}>
+              {busy ? 'Requesting…' : wait > 0 ? `Try again in ${timer}` : 'Send verification code'}
+            </button>
           )}
-        </>
-      ) : (
-        <>
-
-      <label className="text-sm font-medium">
-        Full name
-        <input name="fullName" required maxLength={120} disabled={submitting} className={inputClass} />
-      </label>
-
-      {capacity ? (
-        <p className="text-xs text-brand-grey md:col-span-2">Limited to {capacity} places.</p>
-      ) : null}
-      <label className="text-sm font-medium">
-        Email address
-        <input name="email" required type="email" maxLength={254} disabled={submitting} className={inputClass} />
-      </label>
-      <label className="text-sm font-medium">
-        Phone number
-        <input name="phone" required type="tel" maxLength={24} disabled={submitting} className={inputClass} />
-      </label>
-      <label className="text-sm font-medium md:col-span-2">
-        Which best describes you?
-        <select name="attendeeType" required value={attendeeType} onChange={(event) => setAttendeeType(event.target.value as typeof attendeeType)} disabled={submitting} className={inputClass}>
-          <option value="student">Student</option>
-          <option value="professional">Professional</option>
-          <option value="non_professional">Non-professional</option>
-        </select>
-      </label>
-      {attendeeType === 'student' ? (
-        <>
-          <label className="text-sm font-medium">
-            Tertiary institution
-            <InstitutionCombobox name="university" required disabled={submitting} />
-          </label>
-          <label className="text-sm font-medium">
-            Level/year of study
-            <select name="studyLevel" required disabled={submitting} defaultValue="" className={inputClass}>
-              <option value="" disabled>Select your level</option>
-              {studyLevels.map((level) => <option key={level} value={level}>{level === 'Postgrad' ? 'Postgraduate' : level}</option>)}
-            </select>
-          </label>
-        </>
-      ) : (
-        <>
-          <label className="text-sm font-medium">
-            {attendeeType === 'professional' ? 'Profession or role' : 'Current activity'}
-            <input name="occupation" required maxLength={120} disabled={submitting} className={inputClass} placeholder={attendeeType === 'professional' ? 'e.g. Software engineer' : 'e.g. Job seeker, entrepreneur'} />
-          </label>
-          <label className="text-sm font-medium">
-            Organization <span className="font-normal text-brand-grey">(optional)</span>
-            <input name="organization" maxLength={160} disabled={submitting} className={inputClass} placeholder="Company or organization" />
-          </label>
-        </>
-      )}
-
-      {capacity ? (
-        <p className="text-xs text-brand-grey md:col-span-2">
-          Limited to {capacity} places.
-        </p>
-      ) : null}
-
-      <button
-        type="submit"
-        disabled={submitting}
-        className="justify-self-start rounded-full bg-brand-ink px-6 py-3 text-sm text-brand-white transition disabled:cursor-not-allowed disabled:opacity-60 md:col-span-2"
-      >
-        {submitting ? (
-          <span className="inline-flex items-center gap-2">
-            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-            Submitting...
-          </span>
-        ) : (
-          'Confirm registration'
-        )}
-      </button>
+          <Link href="/membership/support" className="w-fit text-sm text-brand-grey underline underline-offset-4">Need help with your email address or membership ID?</Link>
         </>
       )}
     </form>

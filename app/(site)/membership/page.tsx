@@ -43,6 +43,7 @@ export default function MembershipPage() {
             Preview the membership card <ArrowRight aria-hidden="true" className="size-4 transition-transform group-hover:translate-x-1 motion-reduce:transition-none" />
           </Link>
           <p className="mt-6 max-w-md border-l-2 border-brand-gold pl-4 text-sm leading-relaxed text-brand-grey">Your details are used to manage your membership and keep you connected with KAMP.</p>
+          <Link href="/membership/support" className="mt-4 inline-block text-sm font-semibold underline underline-offset-4">Need help with your membership?</Link>
         </div>
         <div className="rounded-[24px] border border-white/80 bg-white p-5 shadow-[0_20px_60px_rgba(32,32,32,0.07)] sm:p-8 lg:p-9">
           <MembershipForm />

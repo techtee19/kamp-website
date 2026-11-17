@@ -1,7 +1,7 @@
 import { ArrowRight, ArrowUpRight, CalendarDays, MapPin } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { freshClient } from '@/sanity/lib/client'
+import { freshClient, publicEventCache } from '@/sanity/lib/client'
 import { PAST_EVENTS_QUERY, UPCOMING_EVENTS_QUERY } from '@/sanity/lib/queries'
 import type { EventDocument } from '@/types/sanity'
 import FeaturedEventsCarousel from '@/components/events/FeaturedEventsCarousel'
@@ -54,8 +54,8 @@ function EventCard({ event, concluded = false }: { event: EventDocument; conclud
 export default async function EventsPage() {
   const [upcomingEvents, pastEvents] = freshClient
     ? await Promise.all([
-        freshClient.fetch<EventDocument[]>(UPCOMING_EVENTS_QUERY),
-        freshClient.fetch<EventDocument[]>(PAST_EVENTS_QUERY),
+        freshClient.fetch<EventDocument[]>(UPCOMING_EVENTS_QUERY, {}, publicEventCache),
+        freshClient.fetch<EventDocument[]>(PAST_EVENTS_QUERY, {}, publicEventCache),
       ])
     : [[], []]
 

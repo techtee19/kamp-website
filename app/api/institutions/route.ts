@@ -24,5 +24,5 @@ export async function GET(request: NextRequest) {
     return name.includes(query) || abbreviation.includes(query) || state.includes(query)
   }).slice(0, MAX_RESULTS)
 
-  return NextResponse.json({ institutions }, { headers: { 'Cache-Control': 'public, max-age=60, stale-while-revalidate=300' } })
+  return NextResponse.json({ institutions }, { headers: { 'Cache-Control': 'public, max-age=60, s-maxage=600, stale-while-revalidate=300' } })
 }
