@@ -1,7 +1,7 @@
 # Graph Report - kamp-website  (2026-11-17)
 
 ## Corpus Check
-- 261 files · ~92,250 words
+- 261 files · ~92,151 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 8 file(s) not represented in the graph (top: .ico 3, (none) 2, .example 1)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ccf18971`
+- Built from commit: `493952b4`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -110,16 +110,16 @@
 10. `lucide-react` - 23 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `EventDetailPage()` --calls--> `RegistrationForm()`  [EXTRACTED]
-  app/(site)/events/[slug]/page.tsx → components/events/RegistrationForm.tsx
-- `MembershipPage()` --calls--> `MembershipForm()`  [EXTRACTED]
-  app/(site)/membership/page.tsx → components/membership/MembershipForm.tsx
-- `MemberProfilePage()` --calls--> `getAdminSession()`  [EXTRACTED]
-  app/admin/(protected)/members/[memberId]/page.tsx → lib/admin-session.ts
-- `MemberProfilePage()` --calls--> `db`  [EXTRACTED]
-  app/admin/(protected)/members/[memberId]/page.tsx → lib/db.ts
-- `MemberProfilePage()` --calls--> `isMemberId()`  [EXTRACTED]
-  app/admin/(protected)/members/[memberId]/page.tsx → lib/member-id.ts
+- `EventCardProps` --references--> `EventDocument`  [EXTRACTED]
+  components/events/EventCard.tsx → types/sanity.ts
+- `campaignCounts()` --calls--> `db`  [EXTRACTED]
+  app/admin/api/members/community-campaign/route.ts → lib/db.ts
+- `POST()` --calls--> `isSameOriginAdminRequest()`  [EXTRACTED]
+  app/admin/api/members/community-campaign/route.ts → lib/admin-request.ts
+- `POST()` --calls--> `getAdminSession()`  [EXTRACTED]
+  app/admin/api/members/community-campaign/route.ts → lib/admin-session.ts
+- `POST()` --calls--> `db`  [EXTRACTED]
+  app/admin/api/members/community-campaign/route.ts → lib/db.ts
 
 ## Import Cycles
 - None detected.
@@ -417,15 +417,15 @@ Nodes (4): dynamic, lagosDate(), POST(), runtime
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `next` connect `next` to `membership/route.ts`, `Admin Dashboard Analytics`, `member-code/route.ts`, `readJsonRequest`, `leader-auth.ts`, `getAdminSession`, `About and Contact Content`, `Package Development Dependencies`, `register/route.ts`, `Homepage Sections`, `Application Dependencies`, `db`, `(protected)/events/[slug]/page.tsx`, `checkin-access.ts`, `leader-validations.ts`, `Community Email Campaigns`, `Navigation and Footer`, `check-in/verify/route.ts`, `email.ts`, `resend-card/route.ts`, `Events Listing`, `MembershipForm.tsx`, `programs/page.tsx`, `members/page.tsx`, `RegistrationForm.tsx`, `getClientIp`, `client.ts`, `success/page.tsx`, `Admin Navigation`, `sanity.ts`, `admin-session.ts`, `react`, `registration.test.mjs`, `Application Root Layout`, `quoteEventTableName`, `InstitutionCombobox.tsx`, `lucide-react`, `(protected)/leaders/page.tsx`, `WhatsAppJoinAction.tsx`, `MembershipForm`, `verify/page.tsx`, `(site)/events/[slug]/page.tsx`, `contact/page.tsx`, `invite/page.tsx`, `GalleryMarquee.tsx`, `(protected)/requests/[id]/page.tsx`, `EventListing.tsx`, `reports/export/route.ts`, `check-in/login/page.tsx`, `LeaderPortalNav.tsx`, `(site)/page.tsx`, `remind/route.ts`, `(auth)/login/page.tsx`?**
-  _High betweenness centrality (0.330) - this node is a cross-community bridge._
+  _High betweenness centrality (0.353) - this node is a cross-community bridge._
 - **Should `membership/route.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.10793650793650794 - nodes in this community are weakly interconnected._
 - **Why does `db` connect `db` to `membership/route.ts`, `Admin Dashboard Analytics`, `member-code/route.ts`, `readJsonRequest`, `leader-auth.ts`, `getAdminSession`, `register/route.ts`, `(protected)/events/[slug]/page.tsx`, `checkin-access.ts`, `Community Email Campaigns`, `check-in/verify/route.ts`, `email.ts`, `resend-card/route.ts`, `members/page.tsx`, `getClientIp`, `next`, `admin-session.ts`, `react`, `quoteEventTableName`, `(protected)/leaders/page.tsx`, `(protected)/requests/[id]/page.tsx`, `db-migrate.ts`, `reports/export/route.ts`, `check-in/login/page.tsx`, `remind/route.ts`?**
-  _High betweenness centrality (0.113) - this node is a cross-community bridge._
+  _High betweenness centrality (0.103) - this node is a cross-community bridge._
 - **Should `Admin Dashboard Analytics` be split into smaller, more focused modules?**
   _Cohesion score 0.07595628415300547 - nodes in this community are weakly interconnected._
 - **Why does `react` connect `Homepage Sections` to `membership/route.ts`, `Admin Dashboard Analytics`, `Package Development Dependencies`, `register/route.ts`, `Application Dependencies`, `(protected)/events/[slug]/page.tsx`, `checkin-access.ts`, `leader-validations.ts`, `Community Email Campaigns`, `Navigation and Footer`, `Events Listing`, `MembershipForm.tsx`, `members/page.tsx`, `RegistrationForm.tsx`, `next`, `success/page.tsx`, `Admin Navigation`, `sanity.ts`, `react`, `member-card.tsx`, `InstitutionCombobox.tsx`, `DonateForm.tsx`, `(protected)/leaders/page.tsx`, `WhatsAppJoinAction.tsx`, `verify/page.tsx`, `contact/page.tsx`, `invite/page.tsx`, `GalleryMarquee.tsx`, `membership/support/page.tsx`, `(protected)/requests/[id]/page.tsx`, `EventListing.tsx`, `check-in/login/page.tsx`, `(auth)/login/page.tsx`?**
-  _High betweenness centrality (0.080) - this node is a cross-community bridge._
+  _High betweenness centrality (0.076) - this node is a cross-community bridge._
 - **Should `migrate-events.mjs` be split into smaller, more focused modules?**
   _Cohesion score 0.1437908496732026 - nodes in this community are weakly interconnected._
 - **Should `member-code/route.ts` be split into smaller, more focused modules?**

@@ -13,31 +13,6 @@ export type EventMemberOtpOutcome =
   | 'code_invalid'
   | 'system_error'
 
-/**
- * Store operational outcomes without retaining member IDs, email addresses,
- * OTP values, or IP addresses. Audit failures must never block registration.
- */
-export async function recordEventMemberOtpAttempt(params: {
-  eventId?: string | null
-  outcome: EventMemberOtpOutcome
-  providerMessageId?: string | null
-}) {
-  try {
-    const [row] = await db`
-      INSERT INTO event_member_otp_audit (event_id, outcome, provider_message_id)
-      VALUES (${params.eventId ?? null}, ${params.outcome}, ${params.providerMessageId ?? null})
-      RETURNING id
-    `
-
-    // Keep the diagnostic history bounded without a scheduled database job.
-    if (Number(row?.id) % 100 === 0) {
-      await db`DELETE FROM event_member_otp_audit WHERE created_at < NOW() - INTERVAL '180 days'`
-    }
-  } catch (error) {
-    console.error('[event-member-otp-audit] Could not record attempt:', error instanceof Error ? error.message : 'Unknown database error')
-  }
-}
-
 function codeHash(challengeId: string, code: string): string {
   const secret = process.env.DATABASE_URL
   if (!secret) throw new Error('DATABASE_URL is required for member verification')
@@ -56,7 +31,13 @@ export function verifyMemberVerificationCode(challengeId: string, code: string, 
   return actual.length === expected.length && timingSafeEqual(actual, expected)
 }
 
-export async function recordEventMemberOtpAttempt(eventId: string | null, outcome: string, messageId: string | null = null, errorCode: string | null = null) {
+/** Record delivery outcomes without storing member IDs, email addresses, OTPs, or IP addresses. */
+export async function recordEventMemberOtpAttempt(
+  eventId: string | null,
+  outcome: EventMemberOtpOutcome,
+  messageId: string | null = null,
+  errorCode: string | null = null,
+) {
   try {
     await db`INSERT INTO public.event_member_otp_audit (event_id, outcome, provider_message_id, provider_error_code)
       VALUES (${eventId}, ${outcome}, ${messageId}, ${errorCode})`
