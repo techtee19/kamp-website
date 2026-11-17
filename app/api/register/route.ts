@@ -1,12 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { registrationSchema } from '@/lib/validations'
+import { after, NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { db } from '@/lib/db'
-import { client } from '@/sanity/lib/client'
+import { freshClient } from '@/sanity/lib/client'
 import { EVENT_BY_ID_QUERY } from '@/sanity/lib/queries'
-import { sendRegistrationConfirmation } from '@/lib/email'
-import { rateLimit, getClientIp } from '@/lib/ratelimit'
+import { rateLimitStatus, getClientIp } from '@/lib/ratelimit'
+import { networkLimit } from '@/lib/registration-limits'
 import { readJsonRequest, requestBodyErrorResponse } from '@/lib/request-body'
-import { generateTicketPDF, generateTicketRef, type TicketData } from '@/lib/ticket'
+import { generateTicketRef, type TicketData } from '@/lib/ticket'
+import { tryRegistrationEmail } from '@/lib/registration-email'
 import {
   createEventRegistrationTable,
   DuplicateRegistrationError,
@@ -16,45 +17,41 @@ import {
 } from '@/lib/event-tables'
 
 export const runtime = 'nodejs'
-const MAX_REQUEST_BYTES = 8 * 1024
+export const maxDuration = 30
 
-export async function POST(req: NextRequest) {
-  let registrationPhase = 'request validation'
+const schema = z.object({ eventId: z.string().min(1).max(128), memberChallengeId: z.uuid() })
+
+export async function POST(request: NextRequest) {
+  const started = Date.now()
+  let phase = 'rate_limit'
   try {
-    if (!client) {
-      console.error('[/api/register] Missing NEXT_PUBLIC_SANITY_PROJECT_ID')
+    const limit = await rateLimitStatus(
+      `event-register:${getClientIp(request)}`,
+      networkLimit('EVENT_REGISTRATION_IP_LIMIT', 120),
+      60_000
+    )
+    if (!limit.allowed)
       return NextResponse.json(
-        { error: 'Event registration is temporarily unavailable. Please try again later.' },
-        { status: 503 }
+        { error: 'Too many requests from this network. Please try again shortly.' },
+        { status: 429, headers: { 'Retry-After': String(limit.retryAfter) } }
       )
-    }
-
-    // 0. Rate limit by client IP (backend.md §8)
-    registrationPhase = 'rate limiting'
-    if (!(await rateLimit(`event-register:${getClientIp(req)}`, 5, 60_000))) {
+    phase = 'validation'
+    const parsed = schema.safeParse(await readJsonRequest(request, 2048))
+    if (!parsed.success)
       return NextResponse.json(
-        { error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
-    }
-
-    // 1. Parse and validate body
-    registrationPhase = 'request parsing'
-    const body = await readJsonRequest(req, MAX_REQUEST_BYTES)
-    const parsed = registrationSchema.safeParse(body)
-
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: 'Validation failed', details: parsed.error.flatten().fieldErrors },
+        { error: 'Verify your KAMP member ID before registering.' },
         { status: 400 }
       )
-    }
+    const { eventId, memberChallengeId } = parsed.data
 
-    const { eventId } = parsed.data
-
-    // 2. Check capacity if the event has a limit
-    registrationPhase = 'Sanity event lookup'
-    const event = await client.withConfig({ useCdn: false }).fetch<{
+    phase = 'event_lookup'
+    if (!freshClient)
+      return NextResponse.json(
+        { error: 'Event registration is temporarily unavailable.' },
+        { status: 503 }
+      )
+    const lookupStarted = Date.now()
+    const event = await freshClient.fetch<{
       title: string
       slug: { current: string }
       registrationClosed?: boolean
@@ -65,11 +62,9 @@ export async function POST(req: NextRequest) {
       university: string
       theme?: string
     } | null>(EVENT_BY_ID_QUERY, { id: eventId })
-
-    if (!event || !event.slug?.current) {
+    const eventMs = Date.now() - lookupStarted
+    if (!event?.slug?.current)
       return NextResponse.json({ error: 'Event not found.' }, { status: 404 })
-    }
-
     if (event.registrationClosed || event.status === 'past') {
       return NextResponse.json(
         { error: 'Registration for this event is closed.' },
@@ -77,39 +72,24 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    let attendee: {
-      fullName: string
-      email: string
-      phone: string
-      attendeeType: 'student' | 'professional' | 'non_professional'
-      university: string | null
-      studyLevel: string | null
-      occupation: string | null
-      organization: string | null
-      memberId?: string
-      memberChallengeId?: string
-    }
-
-    registrationPhase = 'verified member lookup'
+    phase = 'database'
+    const databaseStarted = Date.now()
     const [member] = await db`
       SELECT verification.member_id, members.first_name, members.last_name, members.email, members.phone,
         members.membership_type, members.university, members.study_level, members.occupation, members.organization
-      FROM event_member_verifications AS verification
-      JOIN members ON members.member_id = verification.member_id
-      WHERE verification.challenge_id = ${parsed.data.memberChallengeId}::uuid
-        AND verification.event_id = ${eventId}
-        AND verification.verified_at IS NOT NULL
-        AND verification.consumed_at IS NULL
-        AND verification.expires_at > NOW()
-        AND members.status = 'active'
-      LIMIT 1
+      FROM event_member_verifications AS verification JOIN members USING (member_id)
+      WHERE verification.challenge_id = ${memberChallengeId}::uuid AND verification.event_id = ${eventId}
+        AND verification.verified_at IS NOT NULL AND verification.consumed_at IS NULL
+        AND NOT verification.pending_delivery AND verification.expires_at > NOW() AND members.status = 'active'
     `
-    if (!member) {
-      return NextResponse.json({ error: 'Your member verification expired. Please verify your ID again.' }, { status: 400 })
-    }
-    attendee = {
+    if (!member)
+      return NextResponse.json(
+        { error: 'Your member verification expired. Please verify your ID again.' },
+        { status: 400 }
+      )
+    const attendee = {
       fullName: `${member.first_name} ${member.last_name}`,
-      email: String(member.email).toLowerCase(),
+      email: String(member.email),
       phone: String(member.phone),
       attendeeType: member.membership_type as 'student' | 'professional' | 'non_professional',
       university: member.university ? String(member.university) : null,
@@ -117,121 +97,87 @@ export async function POST(req: NextRequest) {
       occupation: member.occupation ? String(member.occupation) : null,
       organization: member.organization ? String(member.organization) : null,
       memberId: String(member.member_id),
-      memberChallengeId: parsed.data.memberChallengeId,
+      memberChallengeId,
     }
-
-    const eventTitle = event.title
-    registrationPhase = 'event registration table setup'
-    let tableName = await getEventTableName(eventId)
-    if (!tableName) {
-      const result = await createEventRegistrationTable(eventId, event.slug.current, eventTitle)
-      tableName = result.tableName
-    }
-
+    const tableName =
+      (await getEventTableName(eventId)) ??
+      (await createEventRegistrationTable(eventId, event.slug.current, event.title)).tableName
+    const when = new Date(event.date)
     const ticketRef = generateTicketRef()
-
-    // Capacity checks and inserts run under one transaction-level event lock;
-    // the database's email constraint handles duplicate submissions.
-    try {
-      registrationPhase = 'registration database insert'
-      await insertRegistrationAtomic({
-        eventId,
-        eventTitle,
-        ...attendee,
-        ticketRef,
-        tableName,
-        capacity: event.capacity,
-      })
-    } catch (err) {
-      if (err instanceof DuplicateRegistrationError) {
-        return NextResponse.json(
-          { error: 'You have already registered for this event.' },
-          { status: 409 }
-        )
-      }
-      if (err instanceof EventFullError) {
-        return NextResponse.json(
-          { error: 'This event has reached maximum capacity.' },
-          { status: 409 }
-        )
-      }
-      throw err
-    }
-
-    // 5. Generate the ticket and await the email API result. On serverless hosts,
-    //    fire-and-forget work may be terminated as soon as the response is sent.
-    //    Email failure must never undo a registration already saved to the database.
-    let emailSent = false
-    if (event) {
-      const eventDate = new Date(event.date)
-      const formattedDate = eventDate.toLocaleDateString('en-NG', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
-      const formattedTime = eventDate.toLocaleTimeString('en-NG', {
+    const dateOptions = {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'Africa/Lagos',
+    } as const
+    const ticket: TicketData = {
+      attendeeName: attendee.fullName,
+      attendeeEmail: '',
+      attendeePhone: '',
+      attendeeUniversity: [attendee.university, attendee.occupation, attendee.organization]
+        .filter(Boolean)
+        .join(' · '),
+      studyLevel:
+        attendee.studyLevel ??
+        (attendee.attendeeType === 'professional'
+          ? 'Professional'
+          : attendee.attendeeType === 'student'
+            ? ''
+            : 'Non-professional'),
+      eventTitle: event.title,
+      eventTheme: event.theme,
+      eventDate: when.toLocaleDateString('en-NG', { ...dateOptions, weekday: 'long' }),
+      eventTime: when.toLocaleTimeString('en-NG', {
         hour: '2-digit',
         minute: '2-digit',
-      })
-      const ticketData: TicketData = {
-        attendeeName: attendee.fullName,
-        attendeeEmail: attendee.email,
-        attendeePhone: attendee.phone,
-        attendeeUniversity: [attendee.university, attendee.occupation, attendee.organization].filter(Boolean).join(' · '),
-        studyLevel: attendee.studyLevel ?? (attendee.attendeeType === 'student' ? '' : attendee.attendeeType === 'professional' ? 'Professional' : 'Non-professional'),
-        eventTitle,
-        eventTheme: event.theme,
-        eventDate: formattedDate,
-        eventTime: formattedTime,
-        eventLocation: event.location,
-        eventUniversity: event.university,
-        ticketRef,
-        issuedAt: new Date().toLocaleDateString('en-NG', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        }),
-      }
-
-      let ticketPDF: Buffer | null = null
-      try {
-        ticketPDF = await generateTicketPDF(ticketData)
-      } catch (err) {
-        console.error('Ticket generation failed:', err)
-      }
-
-      try {
-        await sendRegistrationConfirmation({
-          to: attendee.email,
-          recipientName: attendee.fullName,
-          eventTitle,
-          eventDate: formattedDate,
-          eventLocation: event.location,
-          university: [attendee.university, attendee.occupation, attendee.organization].filter(Boolean).join(' · ') || 'KAMP member',
-          ticketRef,
-          ticketPDF,
-        })
-        emailSent = true
-      } catch (err) {
-        console.error('Failed to send registration email:', err)
-      }
+        timeZone: 'Africa/Lagos',
+      }),
+      eventLocation: event.location,
+      eventUniversity: event.university,
+      ticketRef,
+      issuedAt: new Date().toLocaleDateString('en-NG', dateOptions),
     }
-
+    const jobId = await insertRegistrationAtomic({
+      ...attendee,
+      eventId,
+      eventTitle: event.title,
+      tableName,
+      ticketRef,
+      capacity: event.capacity,
+      ticketPayload: ticket,
+    })
+    if (jobId) after(() => tryRegistrationEmail(jobId))
     return NextResponse.json(
+      { success: true, emailPending: true, ticketRef },
       {
-        success: true,
-        emailSent,
-        message: emailSent
-          ? 'Registration confirmed! Check your email for your ticket.'
-          : 'Registration confirmed, but the confirmation email could not be sent. Please contact KAMP for your ticket.',
-      },
-      { status: 201 }
+        status: 201,
+        headers: {
+          'Cache-Control': 'no-store',
+          'Server-Timing': `event;dur=${eventMs}, db;dur=${Date.now() - databaseStarted}, total;dur=${Date.now() - started}`,
+        },
+      }
     )
-  } catch (err) {
-    const bodyError = requestBodyErrorResponse(err)
-    if (bodyError) return NextResponse.json({ error: bodyError.message }, { status: bodyError.status })
-    console.error(`[/api/register] Error during ${registrationPhase}:`, err)
+  } catch (error) {
+    const bodyError = requestBodyErrorResponse(error)
+    if (bodyError)
+      return NextResponse.json({ error: bodyError.message }, { status: bodyError.status })
+    if (error instanceof DuplicateRegistrationError)
+      return NextResponse.json(
+        { error: 'You have already registered for this event.' },
+        { status: 409 }
+      )
+    if (error instanceof EventFullError)
+      return NextResponse.json(
+        { error: 'This event has reached maximum capacity.' },
+        { status: 409 }
+      )
+    if (
+      error instanceof Error &&
+      error.message === 'Member verification expired. Please verify again.'
+    ) {
+      return NextResponse.json({ error: error.message }, { status: 400 })
+    }
+    console.error('[event-registration] Failed', { phase, durationMs: Date.now() - started })
     return NextResponse.json(
       { error: 'Something went wrong. Please try again.' },
       { status: 500 }

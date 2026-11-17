@@ -16,3 +16,6 @@ export const client = projectId
 // publish immediately. The CDN can serve a recently cached event after Next has
 // regenerated a page.
 export const freshClient = client?.withConfig({ useCdn: false }) ?? null
+
+export const publicEventsTag = 'sanity:public-events'
+export const publicEventCache = { next: { tags: [publicEventsTag], revalidate: 300 } }

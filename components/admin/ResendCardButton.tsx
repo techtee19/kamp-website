@@ -1,8 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function ResendCardButton({ memberId }: { memberId: string }) {
+  const router = useRouter()
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState(false)
@@ -18,7 +20,8 @@ export default function ResendCardButton({ memberId }: { memberId: string }) {
       })
       const data = await response.json()
       if (!response.ok) throw new Error(data.error || 'Failed to resend card.')
-      setMessage(data.photoAvailable ? 'ID card and WhatsApp community email sent.' : 'ID card and WhatsApp community email sent with an initials placeholder; this member registered before passport photos were saved.')
+      setMessage('Welcome email queued. Refresh the delivery status after a moment.')
+      router.refresh()
     } catch (cause) {
       setError(true)
       setMessage(cause instanceof Error ? cause.message : 'Network error. Please try again.')
@@ -28,7 +31,7 @@ export default function ResendCardButton({ memberId }: { memberId: string }) {
   }
 
   return <div>
-    <button type="button" onClick={resend} disabled={busy} className="rounded-full bg-brand-black px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-black/80 disabled:cursor-not-allowed disabled:opacity-50">{busy ? 'Sending…' : 'Resend ID Card'}</button>
+    <button type="button" onClick={resend} disabled={busy} className="rounded-full bg-brand-black px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-black/80 disabled:cursor-not-allowed disabled:opacity-50">{busy ? 'Queueing…' : 'Retry welcome email'}</button>
     {message && <p role={error ? 'alert' : 'status'} className={`mt-2 max-w-md text-xs ${error ? 'text-red-600' : 'text-green-700'}`}>{message}</p>}
   </div>
 }

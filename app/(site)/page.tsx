@@ -8,7 +8,7 @@ import HeroImageRotator from '@/components/sections/HeroImageRotator'
 import QuickStory from '@/components/sections/QuickStory'
 import StatCounter from '@/components/sections/StatCounter'
 import Testimonials from '@/components/sections/Testimonials'
-import { client, freshClient } from '@/sanity/lib/client'
+import { client, freshClient, publicEventCache } from '@/sanity/lib/client'
 import {
   FEATURED_EVENT_QUERY,
   GALLERY_EVENTS_QUERY,
@@ -67,9 +67,9 @@ export default async function HomePage() {
     client && freshClient
       ? await Promise.all([
           client.fetch<SiteSettings | null>(SITE_SETTINGS_QUERY),
-          freshClient.fetch<EventDocument | null>(FEATURED_EVENT_QUERY),
+          freshClient.fetch<EventDocument | null>(FEATURED_EVENT_QUERY, {}, publicEventCache),
           client.fetch<GalleryEventDocument[]>(GALLERY_EVENTS_QUERY),
-          freshClient.fetch<EventDocument[]>(UPCOMING_EVENTS_QUERY),
+          freshClient.fetch<EventDocument[]>(UPCOMING_EVENTS_QUERY, {}, publicEventCache),
         ])
       : [null]
 
