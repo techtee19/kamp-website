@@ -169,14 +169,15 @@ export async function sendRegistrationConfirmation(opts: {
   return result
 }
 
-export async function sendEventMemberVerificationCode(opts: { to: string; firstName: string; code: string }) {
+export async function sendEventMemberVerificationCode(opts: { to: string; firstName: string; code: string; eventTitle?: string }) {
+  const issuedAt = new Date().toLocaleString('en-GB', { timeZone: 'Africa/Lagos', dateStyle: 'medium', timeStyle: 'short' })
   const result = await resend().emails.send({
     from: FROM(),
     to: opts.to,
     tags: [{ name: 'kamp_event_otp', value: 'true' }],
-    subject: 'Your KAMP event registration verification code',
-    text: `Hello ${opts.firstName},\n\nUse this one-time code to verify your KAMP membership and register for an event: ${opts.code}\n\nUse the latest code. This code expires in 10 minutes. If you did not request it, you can ignore this email.\n\nWarmly,\nThe KAMP Team`,
-    html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#202020;line-height:1.6"><div style="background:#1B2A4A;padding:26px;text-align:center;color:#fff"><h1 style="margin:0;color:#C49A22">KAMP</h1><p style="margin:6px 0 0">Kolade Adepoju Mentoring Program</p></div><div style="padding:28px"><h2 style="color:#1B2A4A">Confirm it’s you, ${esc(opts.firstName)}</h2><p>Use this one-time code to verify your KAMP membership and register for an event:</p><p style="padding:18px;text-align:center;background:#F5F0E8;border-radius:8px;font-size:30px;font-weight:bold;letter-spacing:8px;color:#1B2A4A">${esc(opts.code)}</p><p>Use the latest code. This code expires in 10 minutes. If you didn’t request it, you can ignore this email.</p><p>Warmly,<br/><strong>The KAMP Team</strong></p></div></div>`,
+    subject: opts.eventTitle ? `Your verification code for ${opts.eventTitle}` : 'Your KAMP event registration verification code',
+    text: `Hello ${opts.firstName},\n\nYour code for ${opts.eventTitle ?? 'KAMP event registration'} is ${opts.code}.\nIssued ${issuedAt} (Nigeria time).\n\nUse the latest code for this event. This code expires in 10 minutes. If you did not request it, you can ignore this email.\n\nWarmly,\nThe KAMP Team`,
+    html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#202020;line-height:1.6"><div style="background:#1B2A4A;padding:26px;text-align:center;color:#fff"><h1 style="margin:0;color:#C49A22">KAMP</h1><p style="margin:6px 0 0">Kolade Adepoju Mentoring Program</p></div><div style="padding:28px"><h2 style="color:#1B2A4A">Confirm it’s you, ${esc(opts.firstName)}</h2><p>Use this code for <strong>${esc(opts.eventTitle ?? 'KAMP event registration')}</strong>:</p><p style="font-size:12px;color:#595959">Issued ${esc(issuedAt)} (Nigeria time)</p><p style="padding:18px;text-align:center;background:#F5F0E8;border-radius:8px;font-size:30px;font-weight:bold;letter-spacing:8px;color:#1B2A4A">${esc(opts.code)}</p><p>Use the latest code. This code expires in 10 minutes. If you didn’t request it, you can ignore this email.</p><p>Warmly,<br/><strong>The KAMP Team</strong></p></div></div>`,
   })
   if (result.error) throw new EmailProviderError(result.error.name, result.error.statusCode, result.headers?.['retry-after'] ?? null)
   return result

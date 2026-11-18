@@ -130,6 +130,11 @@ async function saveAttachment(id: string, generation: number, attempt: number, a
 }
 
 export async function tryRegistrationEmail(jobId: string) {
-  try { await processRegistrationEmail(jobId) }
+  try {
+    await processRegistrationEmail(jobId)
+    // Each new signup also gives an older due job a chance to recover,
+    // including on hosting plans whose scheduled worker runs only daily.
+    await processRegistrationEmail()
+  }
   catch { console.error('[registration-email] Worker failed', { jobId }) }
 }

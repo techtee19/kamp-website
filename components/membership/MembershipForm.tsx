@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { eventSlug } from '@/lib/registration-flow'
+import { registrationRequest } from '@/lib/registration-request'
 import { useEffect, useRef, useState } from 'react'
 import { useForm, useWatch, Controller, type FieldErrors } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -29,6 +30,7 @@ export default function MembershipForm({ leadershipInvite }: { leadershipInvite?
   const validationSummaryRef = useRef<HTMLDivElement>(null)
   const [passportPhoto, setPassportPhoto] = useState<File | null>(null)
   const [photoError, setPhotoError] = useState('')
+  const submission = useRef<{ fingerprint: string; key: string } | null>(null)
   const { register, control, handleSubmit, setError, formState: { errors, isSubmitting } } = useForm<MembershipInput>({
     resolver: zodResolver(membershipSchema), mode: 'onBlur',
     defaultValues: { firstName: '', lastName: '', email: leadershipInvite?.email ?? '', phone: '', membershipType: 'student', kampPosition: 'General Member', kampPositionOther: '', dateOfBirth: '', university: '', gender: undefined, stateOfOrigin: undefined, studyLevel: undefined, occupation: '', organization: '', whyJoin: '' },
@@ -68,11 +70,27 @@ export default function MembershipForm({ leadershipInvite }: { leadershipInvite?
       return
     }
     try {
+      const fingerprint = Array.from(new Uint8Array(await crypto.subtle.digest(
+        'SHA-256',
+        new TextEncoder().encode(JSON.stringify([values, passportPhoto.name, passportPhoto.type, passportPhoto.size, passportPhoto.lastModified, leadershipInvite?.token ?? ''])),
+      ))).map((byte) => byte.toString(16).padStart(2, '0')).join('')
+      if (submission.current?.fingerprint !== fingerprint) {
+        try {
+          const stored = JSON.parse(sessionStorage.getItem('kamp:membership-submission') ?? 'null')
+          if (stored?.fingerprint === fingerprint && typeof stored.key === 'string') submission.current = stored
+        } catch { /* The in-memory key still protects retries when storage is disabled. */ }
+        if (submission.current?.fingerprint !== fingerprint) {
+          submission.current = { fingerprint, key: crypto.randomUUID() }
+        }
+        try { sessionStorage.setItem('kamp:membership-submission', JSON.stringify(submission.current)) } catch { /* Optional browser storage. */ }
+      }
       const formData = new FormData()
       formData.set('data', JSON.stringify(values))
       formData.set('passportPhoto', passportPhoto)
       if (leadershipInvite) formData.set('leadershipInviteToken', leadershipInvite.token)
-      const response = await fetch('/api/membership', { method: 'POST', body: formData })
+      const response = await registrationRequest('/api/membership', {
+        method: 'POST', headers: { 'Idempotency-Key': submission.current.key }, body: formData,
+      }, true)
       const responseText = await response.text()
       let result: { memberId?: string; emailPending?: boolean; communityToken?: string | null; communityLink?: string; details?: Record<string, string[]>; error?: string }
       try {
@@ -134,7 +152,7 @@ export default function MembershipForm({ leadershipInvite }: { leadershipInvite?
 
   return (
     <form
-      onSubmit={handleSubmit(submit, handleInvalidSubmit)}
+      onSubmit={(event) => { void handleSubmit(submit, handleInvalidSubmit)(event) }}
       onChange={() => {
         if (validationMessage) {
           setValidationMessage('')

@@ -3,11 +3,20 @@
 import Link from 'next/link'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { countdownSeconds } from '@/lib/registration-flow'
+import { normalizeMemberId } from '@/lib/member-id'
+import { registrationRequest } from '@/lib/registration-request'
 
 const inputClass = 'mt-2 w-full rounded-lg border border-brand-ink/25 bg-brand-white px-4 py-3 outline-none focus:border-brand-gold'
 const buttonClass = 'w-fit rounded-full bg-brand-ink px-5 py-3 text-sm font-semibold text-white disabled:opacity-50'
 
-type Session = { memberId: string; challengeId: string; previousChallengeId?: string; retryAt: number }
+type Session = {
+  memberId: string
+  challengeId: string
+  previousChallengeId?: string
+  retryAt: number
+  verified?: { proofId: string; member: Member; expiresAt: string }
+  ticketRef?: string
+}
 type Member = { fullName: string; affiliation: string; level: string }
 type Failure = { error?: string; retryAfter?: number }
 
@@ -29,7 +38,18 @@ export default function RegistrationForm({ eventId, eventSlug }: { eventId: stri
     const frame = requestAnimationFrame(() => {
       try {
         const stored = sessionStorage.getItem(storageKey)
-        if (stored) setSession(JSON.parse(stored))
+        if (stored) {
+          const restored = JSON.parse(stored) as Session
+          if (typeof restored.memberId === 'string' && typeof restored.challengeId === 'string' && Number.isFinite(restored.retryAt)) {
+            if (restored.verified && Date.parse(restored.verified.expiresAt) <= Date.now()) delete restored.verified
+            setSession(restored)
+            if (restored.verified) {
+              setMember(restored.verified.member)
+              setProofId(restored.verified.proofId)
+            }
+            if (typeof restored.ticketRef === 'string') setTicketRef(restored.ticketRef)
+          }
+        }
       } catch { /* Continue when browser storage is unavailable. */ }
       setNow(Date.now())
     })
@@ -54,28 +74,46 @@ export default function RegistrationForm({ eventId, eventSlug }: { eventId: stri
     event.preventDefault()
     if (pending.current || (!session.challengeId && !member && wait > 0)) return
     if (member) {
-      await post<{ ticketRef: string }>('/api/register', { eventId, memberChallengeId: proofId }, (data) => {
-        setTicketRef(data.ticketRef)
-        try { sessionStorage.removeItem(storageKey) } catch { /* Optional storage. */ }
-      }, (status) => {
-        if (status === 400) { setMember(null); setProofId(''); save({ ...session, challengeId: '', previousChallengeId: undefined }) }
-      })
+      await confirmRegistration(proofId, session)
     } else if (session.challengeId) {
-      await post<{ member: Member; challengeId: string }>('/api/register/member-verify', { eventId, challengeId: session.challengeId, previousChallengeId: session.previousChallengeId, code }, (data) => {
+      let verifiedSession: Session | null = null
+      await post<{ member: Member; challengeId: string; expiresAt: string }>('/api/register/member-verify', { eventId, challengeId: session.challengeId, previousChallengeId: session.previousChallengeId, code }, (data) => {
         setMember(data.member)
         setProofId(data.challengeId)
         setCode('')
-        save({ ...session, challengeId: '', previousChallengeId: undefined })
+        verifiedSession = {
+          ...session, challengeId: '', previousChallengeId: undefined,
+          verified: { proofId: data.challengeId, member: data.member, expiresAt: data.expiresAt },
+        }
+        save(verifiedSession)
       })
+      if (verifiedSession) {
+        const saved = verifiedSession as Session
+        await confirmRegistration(saved.verified!.proofId, saved)
+      }
     } else {
       await requestCode()
     }
   }
 
+  async function confirmRegistration(proof: string, saved: Session) {
+    await post<{ ticketRef: string }>('/api/register', { eventId, memberChallengeId: proof }, (data) => {
+      setTicketRef(data.ticketRef)
+      save({ ...saved, verified: undefined, ticketRef: data.ticketRef })
+    }, (status) => {
+      if (status === 400) {
+        setMember(null)
+        setProofId('')
+        save({ ...saved, verified: undefined, challengeId: '', previousChallengeId: undefined })
+      }
+    })
+  }
+
   async function requestCode() {
     if (wait > 0 || session.memberId.trim().length < 5) return
-    await post<{ challengeId: string; retryAfter: number }>('/api/register/member-code', { eventId, memberId: session.memberId }, (data) => {
-      save({ ...session, previousChallengeId: session.challengeId || undefined, challengeId: data.challengeId, retryAt: Date.now() + data.retryAfter * 1000 })
+    const memberId = normalizeMemberId(session.memberId)
+    await post<{ challengeId: string; retryAfter: number }>('/api/register/member-code', { eventId, memberId }, (data) => {
+      save({ ...session, memberId, previousChallengeId: session.challengeId || undefined, challengeId: data.challengeId, retryAt: Date.now() + data.retryAfter * 1000 })
       setCode('')
       setNotice(session.challengeId
         ? 'If we could send a new verification code, please use the latest code to verify your membership.'
@@ -94,7 +132,9 @@ export default function RegistrationForm({ eventId, eventSlug }: { eventId: stri
     setError('')
     setNotice('')
     try {
-      const response = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      const response = await registrationRequest(path, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+      }, path !== '/api/register/member-code')
       const data = await response.json().catch(() => null)
       if (!response.ok || !data) {
         failure?.(response.status, data)
@@ -134,8 +174,9 @@ export default function RegistrationForm({ eventId, eventSlug }: { eventId: stri
         <>
           <p className="text-sm text-brand-grey">Event registration is for KAMP members. Enter your member ID to request a code by email.</p>
           <label className="text-sm font-medium">KAMP member ID
-            <input value={session.memberId} onChange={(event) => editId(event.target.value)} required minLength={5} maxLength={64} autoComplete="off" disabled={busy} className={inputClass} placeholder="KAMP-…" />
+            <input value={session.memberId} onChange={(event) => editId(event.target.value)} required minLength={5} maxLength={64} autoComplete="off" disabled={busy} className={inputClass} placeholder="KAMP-STU-2026-00001" />
           </label>
+          <p className="text-xs text-brand-grey">Copy the complete member ID from your welcome email or membership card, including the letters and numbers.</p>
           <Link href={`/membership?event=${encodeURIComponent(eventSlug)}#apply`} className="w-fit text-sm font-semibold underline decoration-brand-gold underline-offset-4">
             New to KAMP? Join to register for this event
           </Link>
@@ -146,7 +187,7 @@ export default function RegistrationForm({ eventId, eventSlug }: { eventId: stri
               </label>
               <p className="text-sm text-brand-grey">Please enter the latest verification code sent to your email. Previous codes are no longer valid. Check spam or junk if you can’t find it.</p>
               <div className="flex flex-wrap items-center gap-4">
-                <button type="submit" disabled={busy || code.length !== 6} className={buttonClass}>{busy ? 'Please wait…' : 'Verify code'}</button>
+                <button type="submit" disabled={busy || code.length !== 6} className={buttonClass}>{busy ? 'Confirming your place…' : 'Verify and register'}</button>
                 <button type="button" onClick={requestCode} disabled={busy || wait > 0} className="text-sm font-semibold underline disabled:opacity-55">
                   {wait > 0 ? `Resend code in ${timer}` : 'Resend code'}
                 </button>

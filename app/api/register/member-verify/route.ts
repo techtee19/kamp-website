@@ -53,48 +53,57 @@ export async function POST(request: NextRequest) {
     const proofId = randomUUID()
     const result = await db.begin(async (tx) => {
       const [challenge] = await tx`
-        SELECT challenge_id, code_hash, member_id FROM event_member_verifications
-        WHERE challenge_id IN (${challengeId}::uuid, ${previousChallengeId ?? null}::uuid) AND event_id = ${eventId}
-          AND NOT pending_delivery AND verified_at IS NULL AND consumed_at IS NULL AND expires_at > NOW()
+        SELECT challenge_id, verification_request_id, verified_at, expires_at, code_hash, member_id FROM event_member_verifications
+        WHERE (challenge_id IN (${challengeId}::uuid, ${previousChallengeId ?? null}::uuid)
+          OR verification_request_id IN (${challengeId}::uuid, ${previousChallengeId ?? null}::uuid))
+          AND event_id = ${eventId}
+          AND NOT pending_delivery AND consumed_at IS NULL AND expires_at > NOW()
           AND attempts < ${challengeAttempts}
         ORDER BY (challenge_id = ${challengeId}::uuid) DESC LIMIT 1
         FOR UPDATE
       `
-      if (!challenge) return null
+      if (!challenge) return { errorCode: 'challenge_unavailable' }
       const account = await rateLimitStatus(
         `event-otp-verify:account:${String(challenge.member_id)}`,
         accountVerificationAttempts,
         accountVerificationWindow,
         tx
       )
-      if (!account.allowed) return null
+      if (!account.allowed) return { errorCode: 'account_attempt_limit' }
       if (
         !verifyMemberVerificationCode(
-          String(challenge.challenge_id),
+          String(challenge.verification_request_id ?? challenge.challenge_id),
           code,
           String(challenge.code_hash)
         )
       ) {
         await tx`UPDATE event_member_verifications SET attempts = attempts + 1 WHERE challenge_id = ${challenge.challenge_id}::uuid`
-        return null
+        return { errorCode: 'incorrect_code' }
       }
       const [member] = await tx`
         SELECT first_name, last_name, university, study_level, occupation, organization, kamp_position, membership_type
         FROM members WHERE member_id = ${String(challenge.member_id)} AND status = 'active' LIMIT 1
       `
-      if (!member) return null
+      if (!member) return { errorCode: 'member_unavailable' }
       // Exchange the public challenge for a fresh, single-use registration proof.
-      await tx`UPDATE event_member_verifications SET challenge_id = ${proofId}::uuid, verified_at = NOW()
-        WHERE challenge_id = ${challenge.challenge_id}::uuid`
-      return member
+      const registrationProof = challenge.verified_at ? String(challenge.challenge_id) : proofId
+      if (!challenge.verified_at) await tx`
+        UPDATE event_member_verifications
+        SET verification_request_id = challenge_id, challenge_id = ${registrationProof}::uuid, verified_at = NOW()
+        WHERE challenge_id = ${challenge.challenge_id}::uuid
+      `
+      return { member, registrationProof, expiresAt: challenge.expires_at }
     })
+    const verified = 'member' in result
     after(() =>
       recordEventMemberOtpAttempt(
-        result ? eventId : null,
-        result ? 'code_verified' : 'code_invalid'
+        verified ? eventId : null,
+        verified ? 'code_verified' : 'code_invalid',
+        null,
+        'errorCode' in result ? result.errorCode : null,
       )
     )
-    if (!result)
+    if (!result.member)
       return NextResponse.json(
         {
           error:
@@ -105,15 +114,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        challengeId: proofId,
+        challengeId: result.registrationProof,
+        expiresAt: result.expiresAt,
         member: {
-          fullName: `${result.first_name} ${result.last_name}`,
+          fullName: `${result.member.first_name} ${result.member.last_name}`,
           affiliation:
-            result.university || result.occupation || result.organization || 'KAMP member',
+            result.member.university || result.member.occupation || result.member.organization || 'KAMP member',
           level:
-            result.study_level ||
-            result.kamp_position ||
-            String(result.membership_type).replace('_', ' '),
+            result.member.study_level ||
+            result.member.kamp_position ||
+            String(result.member.membership_type).replace('_', ' '),
         },
       },
       { headers: { 'Cache-Control': 'no-store' } }

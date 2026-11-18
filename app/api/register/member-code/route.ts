@@ -21,6 +21,7 @@ import { getClientIp, rateLimitStatus } from '@/lib/ratelimit'
 import { readJsonRequest, requestBodyErrorResponse } from '@/lib/request-body'
 import { freshClient } from '@/sanity/lib/client'
 import { EVENT_BY_ID_QUERY } from '@/sanity/lib/queries'
+import { normalizeMemberId } from '@/lib/member-id'
 
 export const runtime = 'nodejs'
 export const maxDuration = 30
@@ -58,13 +59,14 @@ export async function POST(request: NextRequest) {
     const body = schema.safeParse(await readJsonRequest(request, 2048))
     if (!body.success)
       return NextResponse.json({ error: 'Enter a valid KAMP member ID.' }, { status: 400 })
-    const normalized = body.data.memberId.toUpperCase()
+    const normalized = normalizeMemberId(body.data.memberId)
     if (!freshClient)
       return NextResponse.json(
         { error: 'Event verification is temporarily unavailable.' },
         { status: 503 }
       )
     const event = await freshClient.fetch<{
+      title?: string
       status?: string
       registrationClosed?: boolean
     } | null>(EVENT_BY_ID_QUERY, { id: body.data.eventId })
@@ -127,6 +129,7 @@ export async function POST(request: NextRequest) {
         to: String(member.email),
         firstName: String(member.first_name),
         code: challenge.code,
+        eventTitle: event.title,
       })
       messageId = sent.data?.id ?? null
     } catch (error) {

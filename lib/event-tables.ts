@@ -229,7 +229,7 @@ export async function insertRegistrationAtomic(params: {
   tableName: string
   capacity?: number
   ticketPayload?: import('./ticket').TicketData
-}): Promise<string | undefined> {
+}): Promise<{ jobId?: string; ticketRef: string } | undefined> {
   assertSafeTableName(params.tableName)
   const quotedTable = `"${params.tableName}"`
 
@@ -247,17 +247,33 @@ export async function insertRegistrationAtomic(params: {
       if (registeredTable.length === 0) throw new Error('Event registration table not found')
 
       if (params.memberId && params.memberChallengeId) {
-        const proof = await tx`
-          SELECT 1 FROM event_member_verifications
+        const [proof] = await tx`
+          SELECT consumed_at, registration_ticket_ref FROM event_member_verifications
           WHERE challenge_id = ${params.memberChallengeId}::uuid
             AND event_id = ${params.eventId}
             AND member_id = ${params.memberId}
             AND verified_at IS NOT NULL
-            AND consumed_at IS NULL
             AND expires_at > NOW()
           FOR UPDATE
         `
-        if (proof.length === 0) throw new Error('Member verification expired. Please verify again.')
+        if (!proof) throw new Error('Member verification expired. Please verify again.')
+        if (proof.consumed_at) {
+          if (proof.registration_ticket_ref) return { ticketRef: String(proof.registration_ticket_ref) }
+          throw new Error('Member verification expired. Please verify again.')
+        }
+        const [existing] = await tx.unsafe(
+          `SELECT ticket_ref FROM ${quotedTable}
+           WHERE member_id = $1 AND event_id = $2 AND status != 'cancelled' LIMIT 1`,
+          [params.memberId, params.eventId],
+        )
+        if (existing?.ticket_ref) {
+          await tx`
+            UPDATE event_member_verifications
+            SET consumed_at = NOW(), registration_ticket_ref = ${String(existing.ticket_ref)}
+            WHERE challenge_id = ${params.memberChallengeId}::uuid
+          `
+          return { ticketRef: String(existing.ticket_ref) }
+        }
       }
 
       await tx.unsafe(
@@ -282,7 +298,7 @@ export async function insertRegistrationAtomic(params: {
 
       if (params.memberChallengeId) {
         await tx`
-          UPDATE event_member_verifications SET consumed_at = NOW()
+          UPDATE event_member_verifications SET consumed_at = NOW(), registration_ticket_ref = ${params.ticketRef}
           WHERE challenge_id = ${params.memberChallengeId}::uuid
         `
       }
@@ -302,7 +318,7 @@ export async function insertRegistrationAtomic(params: {
           VALUES ('ticket', ${params.memberId}, ${params.ticketRef}, ${tx.json({ ...params.ticketPayload })})
           RETURNING id
         `
-        return String(job.id)
+        return { jobId: String(job.id), ticketRef: params.ticketRef }
       }
     })
   } catch (err) {

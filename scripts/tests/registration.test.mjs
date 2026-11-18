@@ -40,6 +40,28 @@ function loader(overrides = {}) {
 const load = loader()
 const { classifyEmailFailure, EmailProviderError, retryDelay } = load('lib/email-failure.ts')
 const { countdownSeconds, eventSlug } = load('lib/registration-flow.ts')
+const { normalizeMemberId } = load('lib/member-id.ts')
+const { registrationRequest } = load('lib/registration-request.ts')
+
+test('copied member IDs normalize Unicode dashes, case and separator whitespace', () => {
+  assert.equal(normalizeMemberId(' kamp – stu - 2026 - 00001 '), 'KAMP-STU-2026-00001')
+  assert.equal(normalizeMemberId('kamp / 2026 / 00001'), 'KAMP/2026/00001')
+})
+
+test('safe registration requests retry a lost response with the same submission key', async () => {
+  const originalFetch = globalThis.fetch
+  const keys = []
+  globalThis.fetch = async (_path, init) => {
+    keys.push(init.headers['Idempotency-Key'])
+    if (keys.length === 1) throw new TypeError('connection lost after commit')
+    return new Response('{}', { status: 201 })
+  }
+  try {
+    const response = await registrationRequest('/api/membership', { method: 'POST', headers: { 'Idempotency-Key': 'same-key' }, body: 'same-body' }, true)
+    assert.equal(response.status, 201)
+    assert.deepEqual(keys, ['same-key', 'same-key'])
+  } finally { globalThis.fetch = originalFetch }
+})
 
 test('event handoff accepts a slug and rejects external destinations', () => {
   assert.equal(eventSlug('kamp-hangout-2026'), 'kamp-hangout-2026')
@@ -124,7 +146,7 @@ before(async () => {
   process.env.RESEND_WEBHOOK_SECRET = notifySecret
   process.env.EMAIL_FROM = 'test@example.test'
   for (const name of ['004_event_tables_registry', '005_members', '007_security_rate_limits', '009_member_passport_photo', '010_member_type_and_date_of_birth',
-    '011_member_kamp_position', '013_member_engagement_tracking', '015_event_member_registration', '019_event_member_otp_audit', '020_registration_reliability']) {
+    '011_member_kamp_position', '013_member_engagement_tracking', '015_event_member_registration', '019_event_member_otp_audit', '020_registration_reliability', '021_registration_resume']) {
     await postgres.exec(readFileSync(resolve(project, 'migrations', name + '.sql'), 'utf8'))
   }
   for (let i = 1; i <= 24; i++) {
@@ -154,6 +176,7 @@ before(async () => {
   app = loader({
     'next/server': { NextResponse, after: (fn) => tasks.push(fn) },
     '@/lib/db': { db },
+    '@/lib/registration-background': { scheduleRegistrationEmail: (id) => tasks.push(() => app('lib/registration-email.ts').tryRegistrationEmail(id)) },
     '@/lib/email': emails,
     '@/lib/email-failure': { classifyEmailFailure, EmailProviderError, retryDelay, deliveryStatus: load('lib/email-failure.ts').deliveryStatus },
     '@/sanity/lib/client': { freshClient: { fetch: async () => ({
@@ -161,6 +184,7 @@ before(async () => {
     }) } },
     '@/lib/member-card': { generateMemberCardPDF: async () => Buffer.from('test-pdf') },
     '@/lib/ticket': { generateTicketPDF: async () => Buffer.from('test-ticket'), generateTicketRef: () => 'KAMP-TEST-TICKET' },
+    '@/lib/ticket-reference': { generateTicketRef: () => 'KAMP-TEST-TICKET' },
     '@/lib/admin-session': { getAdminSession: async () => admin },
     '@/lib/admin-request': { isSameOriginAdminRequest: () => true },
   })
@@ -188,7 +212,11 @@ dbTest('campus members share one IP while each challenge has its own allowance a
     assert.equal(passed.status, 200)
     assert.notEqual(passed.challengeId, data.challengeId)
   }
-  assert.equal((await check(cases[1][1].challengeId, codes.get('2@example.test'))).status, 400)
+  // A lost verification reply can recover the same proof, never a second proof.
+  const retried = await check(cases[1][1].challengeId, codes.get('2@example.test'))
+  assert.equal(retried.status, 200)
+  const repeated = await check(cases[1][1].challengeId, codes.get('2@example.test'))
+  assert.equal(retried.challengeId, repeated.challengeId)
 })
 
 dbTest('direct and concurrent resend calls enforce cooldown and replace the earlier code exactly once', async () => {
@@ -252,17 +280,46 @@ dbTest('event confirmation requires a fresh proof and commits the ticket job bef
   assert.equal((await register(request({ eventId, email: 'guest@example.test' }))).status, 400)
   const challenge = await send(18)
   const passed = await check(challenge.challengeId, codes.get('18@example.test'))
+  const retryVerification = await check(challenge.challengeId, codes.get('18@example.test'))
+  assert.equal(retryVerification.challengeId, passed.challengeId)
   assert.equal((await register(request({ eventId, memberChallengeId: challenge.challengeId }))).status, 400)
-  const confirmed = await register(request({ eventId, memberChallengeId: passed.challengeId }))
+  const [confirmed, concurrent] = await Promise.all([
+    register(request({ eventId, memberChallengeId: passed.challengeId })),
+    register(request({ eventId, memberChallengeId: passed.challengeId })),
+  ])
+  assert.ok([200, 201].includes(concurrent.status))
+  assert.equal((await concurrent.json()).ticketRef, 'KAMP-TEST-TICKET')
   assert.equal(confirmed.status, 201)
   assert.equal((await confirmed.json()).ticketRef, 'KAMP-TEST-TICKET')
   assert.ok(confirmed.headers.has('server-timing'))
-  assert.equal((await register(request({ eventId, memberChallengeId: passed.challengeId }))).status, 400)
+  assert.equal((await register(request({ eventId, memberChallengeId: passed.challengeId }))).status, 200)
+  assert.equal((await check(challenge.challengeId, codes.get('18@example.test'))).status, 400)
+  await releaseCooldown()
+  const anotherCode = await send(18)
+  const reverified = await check(anotherCode.challengeId, codes.get('18@example.test'))
+  const existingTicket = await register(request({ eventId, memberChallengeId: reverified.challengeId }))
+  assert.equal(existingTicket.status, 201)
+  assert.equal((await existingTicket.json()).ticketRef, 'KAMP-TEST-TICKET')
   const { rows } = await postgres.query("SELECT id, status FROM registration_email_jobs WHERE kind = 'ticket'")
   assert.equal(rows[0].status, 'pending')
+  assert.equal(rows.length, 1)
   await flush()
   const finished = await postgres.query('SELECT status FROM registration_email_jobs WHERE id = $1', [rows[0].id])
   assert.equal(finished.rows[0].status, 'accepted')
+})
+
+dbTest('concurrent correct-code retries return one proof and keep the original expiry', async () => {
+  const issued = await send(19)
+  const [first, retry] = await Promise.all([
+    check(issued.challengeId, codes.get('19@example.test')),
+    check(issued.challengeId, codes.get('19@example.test')),
+  ])
+  assert.equal(first.status, 200)
+  assert.equal(retry.status, 200)
+  assert.equal(first.challengeId, retry.challengeId)
+  assert.equal(first.expiresAt, retry.expiresAt)
+  await postgres.query("UPDATE event_member_verifications SET expires_at = NOW() - INTERVAL '1 second' WHERE challenge_id = $1", [first.challengeId])
+  assert.equal((await check(issued.challengeId, codes.get('19@example.test'))).status, 400)
 })
 
 dbTest('membership commits despite email failure and recovery sends once without creating another member', async () => {
@@ -274,9 +331,19 @@ dbTest('membership commits despite email failure and recovery sends once without
   }))
   const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jBFsAAAAASUVORK5CYII=', 'base64')
   form.set('passportPhoto', new File([png], 'photo.png', { type: 'image/png' }))
-  const first = await register(new NextRequest('https://wearekamp.org/api/membership', { method: 'POST', body: form }))
+  const key = randomUUID()
+  const submit = () => register(new NextRequest('https://wearekamp.org/api/membership', {
+    method: 'POST', headers: { 'Idempotency-Key': key }, body: form,
+  }))
+  const [first, retried] = await Promise.all([submit(), submit()])
   assert.equal(first.status, 201)
   const body = await first.json()
+  const repeatedBody = await retried.json()
+  assert.deepEqual(repeatedBody, body)
+  assert.equal((await submit()).status, 201)
+  const altered = JSON.parse(form.get('data'))
+  form.set('data', JSON.stringify({ ...altered, firstName: 'Different' }))
+  assert.equal((await submit()).status, 409)
   apiEmail = new EmailProviderError('invalid_from_address', 400)
   await flush()
   const result = await postgres.query("SELECT id, status, error_category FROM registration_email_jobs WHERE reference = $1", [body.memberId])

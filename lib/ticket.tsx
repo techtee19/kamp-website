@@ -1,5 +1,5 @@
 import React from 'react'
-import { randomBytes } from 'node:crypto'
+export { generateTicketRef } from './ticket-reference'
 import path from 'node:path'
 import QRCode from 'qrcode'
 import {
@@ -134,10 +134,4 @@ export async function generateTicketPDF(data: TicketData): Promise<Buffer> {
     color: { dark: '#17233B', light: '#F8F6F0' },
   })
   return Buffer.from(await renderToBuffer(<TicketDocument data={data} qrCode={qrCode} />))
-}
-
-export function generateTicketRef(): string {
-  const year = String(new Date().getFullYear()).slice(-2)
-  const random = randomBytes(10).toString('hex').toUpperCase()
-  return `KAMP-${year}-${random}`
 }

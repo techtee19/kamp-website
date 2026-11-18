@@ -1,10 +1,10 @@
 import { createHash } from 'node:crypto'
-import { after, NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { scheduleRegistrationEmail } from '@/lib/registration-background'
 import { db } from '@/lib/db'
 import { membershipSchema } from '@/lib/validations'
 import { rateLimit, getClientIp } from '@/lib/ratelimit'
 import { networkLimit } from '@/lib/registration-limits'
-import { tryRegistrationEmail } from '@/lib/registration-email'
 import { readRequestBytes, RequestBodyTooLargeError } from '@/lib/request-body'
 import { createMemberId } from '@/lib/member-id'
 import { createLeadershipMemberId, isLeadershipInviteToken, LEADERSHIP_ROLES } from '@/lib/leadership'
@@ -56,7 +56,12 @@ class LeadershipRegistrationError extends Error {
 
 export async function POST(req: NextRequest) {
   let phase = 'request validation'
+  const started = Date.now()
   try {
+    const submissionKey = req.headers.get('idempotency-key')
+    if (submissionKey && !/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(submissionKey)) {
+      return NextResponse.json({ error: 'Reload this page and try submitting again.' }, { status: 400 })
+    }
     phase = 'rate limit check'
     if (!(await rateLimit(`membership:${getClientIp(req)}`, networkLimit('MEMBERSHIP_IP_LIMIT', 60), 60_000))) {
       return NextResponse.json({ error: 'Too many attempts. Please try again shortly.' }, { status: 429 })
@@ -121,11 +126,33 @@ export async function POST(req: NextRequest) {
     const communityToken = createCommunityLinkToken()
     const communityTokenHash = hashCommunityLinkToken(communityToken)
     const trackedCommunityUrl = createTrackedCommunityUrl(communityToken, getSiteOrigin(req.nextUrl.origin))
+    const keyHash = submissionKey ? createHash('sha256').update(submissionKey).digest('hex') : null
+    const payloadHash = createHash('sha256').update(JSON.stringify(values)).update(photoBuffer).update(leadershipInviteToken ?? '').digest('hex')
 
     let member
     phase = 'member database transaction'
     try {
       member = await db.begin(async (tx) => {
+        if (keyHash) {
+          await tx`SELECT pg_advisory_xact_lock(hashtextextended(${keyHash}::text, 29))`
+          const [receipt] = await tx`
+            SELECT receipt.member_id, receipt.payload_hash, job.id AS job_id, job.payload,
+              receipt.created_at > NOW() - INTERVAL '24 hours' AS current
+            FROM membership_submission_receipts AS receipt
+            JOIN registration_email_jobs AS job ON job.kind = 'welcome' AND job.reference = receipt.member_id
+            WHERE receipt.key_hash = ${keyHash}
+          `
+          if (receipt) {
+            if (receipt.payload_hash !== payloadHash || !receipt.current) {
+              throw new LeadershipRegistrationError('This submission has changed or expired. Reload and check your membership before applying again.', 409)
+            }
+            const link = String(receipt.payload.communityJoinUrl)
+            return {
+              memberId: String(receipt.member_id), emailJobId: String(receipt.job_id),
+              communityToken: new URL(link).hash.slice(1), communityLink: link,
+            }
+          }
+        }
         let memberId: string
         let finalKampPosition = kampPosition
         let invitationId: number | null = null
@@ -194,7 +221,11 @@ export async function POST(req: NextRequest) {
           VALUES ('welcome', ${memberId}, ${memberId}, ${tx.json({ communityJoinUrl: trackedCommunityUrl, tokenHash: communityTokenHash })})
           RETURNING id
         `
-        return { memberId: String(created.member_id), emailJobId: String(job.id) }
+        if (keyHash) await tx`
+          INSERT INTO membership_submission_receipts (key_hash, payload_hash, member_id)
+          VALUES (${keyHash}, ${payloadHash}, ${memberId})
+        `
+        return { memberId: String(created.member_id), emailJobId: String(job.id), communityToken, communityLink: trackedCommunityUrl }
       })
     } catch (error) {
       if (error instanceof LeadershipRegistrationError) {
@@ -203,15 +234,15 @@ export async function POST(req: NextRequest) {
       throw error
     }
 
-    after(() => tryRegistrationEmail(member.emailJobId))
+    scheduleRegistrationEmail(member.emailJobId)
 
     return NextResponse.json({
       success: true,
       memberId: member.memberId,
       emailPending: true,
-      communityToken: communityToken,
-      communityLink: trackedCommunityUrl,
-    }, { status: 201 })
+      communityToken: member.communityToken,
+      communityLink: member.communityLink,
+    }, { status: 201, headers: { 'Cache-Control': 'no-store', 'Server-Timing': `total;dur=${Date.now() - started}` } })
   } catch (error) {
     if (error instanceof RequestBodyTooLargeError) {
       return NextResponse.json({ error: 'The upload must be 2 MB or smaller.' }, { status: 413 })

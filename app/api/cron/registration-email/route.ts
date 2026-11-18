@@ -18,5 +18,6 @@ export async function GET(request: Request) {
   await db`DELETE FROM event_member_verifications WHERE expires_at < NOW() - INTERVAL '1 day'`
   await db`DELETE FROM event_member_otp_audit WHERE created_at < NOW() - INTERVAL '180 days'`
   await db`DELETE FROM event_otp_provider_delivery WHERE provider_event_at < NOW() - INTERVAL '180 days'`
+  await db`DELETE FROM membership_submission_receipts WHERE created_at < NOW() - INTERVAL '7 days'`
   return Response.json({ processed }, { headers: { 'Cache-Control': 'no-store' } })
 }

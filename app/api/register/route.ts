@@ -1,4 +1,5 @@
-import { after, NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { scheduleRegistrationEmail } from '@/lib/registration-background'
 import { z } from 'zod'
 import { db } from '@/lib/db'
 import { freshClient } from '@/sanity/lib/client'
@@ -6,8 +7,8 @@ import { EVENT_BY_ID_QUERY } from '@/sanity/lib/queries'
 import { rateLimitStatus, getClientIp } from '@/lib/ratelimit'
 import { networkLimit } from '@/lib/registration-limits'
 import { readJsonRequest, requestBodyErrorResponse } from '@/lib/request-body'
-import { generateTicketRef, type TicketData } from '@/lib/ticket'
-import { tryRegistrationEmail } from '@/lib/registration-email'
+import type { TicketData } from '@/lib/ticket'
+import { generateTicketRef } from '@/lib/ticket-reference'
 import {
   createEventRegistrationTable,
   DuplicateRegistrationError,
@@ -43,6 +44,27 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     const { eventId, memberChallengeId } = parsed.data
+    phase = 'verified_member'
+    const databaseStarted = Date.now()
+    // A browser may miss the original success response. The same verified
+    // proof can recover its receipt without inserting or emailing again.
+    const [member] = await db`
+      SELECT verification.member_id, verification.consumed_at, verification.registration_ticket_ref,
+        members.first_name, members.last_name, members.email, members.phone,
+        members.membership_type, members.university, members.study_level, members.occupation, members.organization
+      FROM event_member_verifications AS verification JOIN members USING (member_id)
+      WHERE verification.challenge_id = ${memberChallengeId}::uuid AND verification.event_id = ${eventId}
+        AND verification.verified_at IS NOT NULL
+        AND NOT verification.pending_delivery AND verification.expires_at > NOW() AND members.status = 'active'
+    `
+    if (!member || (member.consumed_at && !member.registration_ticket_ref)) return NextResponse.json(
+      { error: 'Your member verification expired. Please verify your ID again.' },
+      { status: 400 },
+    )
+    if (member.consumed_at) return NextResponse.json(
+      { success: true, emailPending: true, ticketRef: String(member.registration_ticket_ref) },
+      { headers: { 'Cache-Control': 'no-store' } },
+    )
 
     phase = 'event_lookup'
     if (!freshClient)
@@ -73,20 +95,6 @@ export async function POST(request: NextRequest) {
     }
 
     phase = 'database'
-    const databaseStarted = Date.now()
-    const [member] = await db`
-      SELECT verification.member_id, members.first_name, members.last_name, members.email, members.phone,
-        members.membership_type, members.university, members.study_level, members.occupation, members.organization
-      FROM event_member_verifications AS verification JOIN members USING (member_id)
-      WHERE verification.challenge_id = ${memberChallengeId}::uuid AND verification.event_id = ${eventId}
-        AND verification.verified_at IS NOT NULL AND verification.consumed_at IS NULL
-        AND NOT verification.pending_delivery AND verification.expires_at > NOW() AND members.status = 'active'
-    `
-    if (!member)
-      return NextResponse.json(
-        { error: 'Your member verification expired. Please verify your ID again.' },
-        { status: 400 }
-      )
     const attendee = {
       fullName: `${member.first_name} ${member.last_name}`,
       email: String(member.email),
@@ -137,7 +145,7 @@ export async function POST(request: NextRequest) {
       ticketRef,
       issuedAt: new Date().toLocaleDateString('en-NG', dateOptions),
     }
-    const jobId = await insertRegistrationAtomic({
+    const saved = await insertRegistrationAtomic({
       ...attendee,
       eventId,
       eventTitle: event.title,
@@ -146,14 +154,14 @@ export async function POST(request: NextRequest) {
       capacity: event.capacity,
       ticketPayload: ticket,
     })
-    if (jobId) after(() => tryRegistrationEmail(jobId))
+    if (saved?.jobId) scheduleRegistrationEmail(saved.jobId)
     return NextResponse.json(
-      { success: true, emailPending: true, ticketRef },
+      { success: true, emailPending: true, ticketRef: saved?.ticketRef ?? ticketRef },
       {
         status: 201,
         headers: {
           'Cache-Control': 'no-store',
-          'Server-Timing': `event;dur=${eventMs}, db;dur=${Date.now() - databaseStarted}, total;dur=${Date.now() - started}`,
+          'Server-Timing': `event;dur=${eventMs}, db;dur=${Date.now() - databaseStarted - eventMs}, total;dur=${Date.now() - started}`,
         },
       }
     )
