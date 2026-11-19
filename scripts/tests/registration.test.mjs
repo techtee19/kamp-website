@@ -128,10 +128,12 @@ let verify
 let work
 let apiEmail
 let admin = false
+let sameOrigin = true
 const tasks = []
 const codes = new Map()
 const outbound = []
 const welcomeRecipients = []
+const supportEmails = []
 const notifySecret = 'whsec_' + Buffer.from('isolated-test-signature-key-00000000').toString('base64')
 const eventId = 'test-event'
 const ip = '192.0.2.1'
@@ -175,8 +177,9 @@ before(async () => {
   process.env.VERCEL = '1'
   process.env.RESEND_WEBHOOK_SECRET = notifySecret
   process.env.EMAIL_FROM = 'test@example.test'
+  process.env.ADMIN_EMAIL = 'admin@example.test'
   for (const name of ['004_event_tables_registry', '005_members', '007_security_rate_limits', '009_member_passport_photo', '010_member_type_and_date_of_birth',
-    '011_member_kamp_position', '013_member_engagement_tracking', '015_event_member_registration', '019_event_member_otp_audit', '020_registration_reliability', '021_registration_resume', '022_membership_support_recovery', '023_whatsapp_support', '024_institution_name_history']) {
+    '011_member_kamp_position', '013_member_engagement_tracking', '015_event_member_registration', '019_event_member_otp_audit', '020_registration_reliability', '021_registration_resume', '022_membership_support_recovery', '023_whatsapp_support', '024_institution_name_history', '025_membership_support_replies']) {
     await postgres.exec(readFileSync(resolve(project, 'migrations', name + '.sql'), 'utf8'))
   }
   for (let i = 1; i <= 24; i++) {
@@ -194,6 +197,11 @@ before(async () => {
     sendMembershipWelcome: async (email, options) => {
       outbound.push(options.idempotencyKey)
       welcomeRecipients.push(email.to)
+      if (apiEmail) throw apiEmail
+      return { data: { id: randomUUID() } }
+    },
+    sendMembershipSupportReply: async (email, options) => {
+      supportEmails.push({ ...email, ...options })
       if (apiEmail) throw apiEmail
       return { data: { id: randomUUID() } }
     },
@@ -222,7 +230,7 @@ before(async () => {
     '@/lib/ticket': { generateTicketPDF: async () => Buffer.from('test-ticket'), generateTicketRef: () => 'KAMP-TEST-TICKET' },
     '@/lib/ticket-reference': { generateTicketRef: () => 'KAMP-TEST-TICKET' },
     '@/lib/admin-session': { getAdminSession: async () => admin },
-    '@/lib/admin-request': { isSameOriginAdminRequest: () => true },
+    '@/lib/admin-request': { isSameOriginAdminRequest: () => sameOrigin },
   })
   issue = app('app/api/register/member-code/route.ts').POST
   verify = app('app/api/register/member-verify/route.ts').POST
@@ -702,4 +710,103 @@ dbTest('student registration canonicalizes an institution typed without selectin
   assert.equal(response.status, 201)
   const { rows } = await postgres.query("SELECT university FROM members WHERE email = 'canonical-student@example.test'")
   assert.equal(rows[0].university, 'Federal University of Agriculture, Abeokuta')
+})
+
+dbTest('admin email replies work without a membership and repeated submissions queue only one message', async () => {
+  apiEmail = null
+  const [{ id }] = (await postgres.query(`INSERT INTO membership_support_requests (reply_email, message)
+    VALUES ('not-a-member@example.test', 'I need help finding my membership') RETURNING id`)).rows
+  const input = { supportId: id, replyId: randomUUID(), subject: 'Let us help you join KAMP', message: 'Hello, please reply with your full name and the email used for your application.', to: 'wrong-recipient@example.test' }
+  const reply = app('app/admin/api/members/support/reply/route.ts').POST
+  const submit = (data = input) => reply(request(data))
+  admin = false
+  assert.equal((await submit()).status, 403)
+  admin = true
+  sameOrigin = false
+  assert.equal((await submit()).status, 403)
+  sameOrigin = true
+  assert.equal((await submit({ ...input, message: ' ' })).status, 400)
+  assert.equal((await submit({ ...input, subject: 'Unsafe\nSubject' })).status, 400)
+  assert.deepEqual((await Promise.all([submit(), submit()])).map((response) => response.status), [202, 202])
+  const stored = (await postgres.query(`SELECT reply.*, job.member_id, job.status FROM membership_support_replies reply
+    JOIN registration_email_jobs job ON job.id = reply.job_id WHERE support_id = $1`, [id])).rows
+  assert.equal(stored.length, 1)
+  assert.equal(stored[0].recipient, 'not-a-member@example.test')
+  assert.equal(stored[0].member_id, null)
+  assert.equal(stored[0].status, 'pending')
+  assert.equal((await submit({ ...input, message: 'Different content should not replace the committed reply.' })).status, 409)
+  await flush()
+  const sent = supportEmails.filter((email) => email.subject === input.subject)
+  assert.equal(sent.length, 1)
+  assert.equal(sent[0].to, 'not-a-member@example.test')
+  assert.equal(sent[0].replyTo, 'admin@example.test')
+  assert.equal((await submit()).status, 202)
+  await flush()
+  assert.equal(supportEmails.filter((email) => email.subject === input.subject).length, 1)
+  const find = app('lib/membership-support-data.ts').findMembershipSupportRequests
+  const [support] = await find({ requestId: id })
+  assert.equal(support.matches.length, 0)
+  assert.equal(support.resolved_at, null)
+  assert.equal(support.replies[0].status, 'accepted')
+  assert.equal(support.replies[0].message, input.message)
+  const page = app('app/admin/(protected)/members/support/page.tsx').default
+  const rendered = renderToStaticMarkup(await page({ searchParams: Promise.resolve({ request: id }) }))
+  assert.ok(rendered.includes('Reply by email'))
+  assert.ok(rendered.includes('Reply history'))
+  assert.ok(rendered.includes(input.subject))
+  await postgres.query('UPDATE membership_support_requests SET resolved_at = NOW() WHERE id = $1', [id])
+  assert.equal((await submit({ ...input, replyId: randomUUID() })).status, 409)
+  assert.equal((await find({ resolved: true })).some((item) => item.id === id), true)
+  const resolved = renderToStaticMarkup(await page({ searchParams: Promise.resolve({ request: id }) }))
+  assert.ok(resolved.includes('Reply history'))
+  assert.equal(resolved.includes('Reply by email'), false)
+})
+
+dbTest('support reply failures remain visible and retry with the same provider key', async () => {
+  const [{ id }] = (await postgres.query(`INSERT INTO membership_support_requests (reply_email, message)
+    VALUES ('community-reply@example.test', 'Please help me join') RETURNING id`)).rows
+  const reply = app('app/admin/api/members/support/reply/route.ts').POST
+  const input = { supportId: id, replyId: randomUUID(), subject: 'Community support update', message: 'Hello, we have received your request and will help you join the community.' }
+  assert.equal((await reply(request(input))).status, 202)
+  const [{ job_id: jobId }] = (await postgres.query('SELECT job_id FROM membership_support_replies WHERE id = $1', [input.replyId])).rows
+  apiEmail = new EmailProviderError('daily_quota_exceeded', 429, '3600')
+  await work(jobId)
+  const [pending] = (await postgres.query('SELECT status, error_category, next_retry_at FROM registration_email_jobs WHERE id = $1', [jobId])).rows
+  assert.equal(pending.status, 'pending')
+  assert.equal(pending.error_category, 'quota')
+  assert.ok(pending.next_retry_at)
+  assert.equal((await reply(request({ ...input, replyId: randomUUID() }))).status, 409)
+  apiEmail = null
+  await postgres.query('UPDATE registration_email_jobs SET next_retry_at = NOW() WHERE id = $1', [jobId])
+  await work(jobId)
+  const attempts = supportEmails.filter((email) => email.subject === input.subject)
+  assert.equal(attempts.length, 2)
+  assert.equal(attempts[0].idempotencyKey, attempts[1].idempotencyKey)
+  const webhook = app('app/api/resend/webhook/route.ts').POST
+  const [job] = (await postgres.query('SELECT provider_message_id FROM registration_email_jobs WHERE id = $1', [jobId])).rows
+  assert.equal((await webhook(signedEvent('evt_support_delivered', 'email.delivered', job.provider_message_id, new Date().toISOString()))).status, 204)
+  const [support] = await app('lib/membership-support-data.ts').findMembershipSupportRequests({ requestId: id })
+  assert.equal(support.replies[0].status, 'delivered')
+  await flush()
+})
+
+test('support emails escape message HTML and allow replies to the configured admin mailbox', async () => {
+  let sent
+  const realEmail = loader({ resend: { Resend: class {
+    emails = { send: async (body, options) => { sent = { body, options }; return { data: { id: 'test-message' }, error: null } } }
+  } } })('lib/email.ts')
+  const previousKey = process.env.RESEND_API_KEY
+  process.env.RESEND_API_KEY = 'local-template-test'
+  try {
+    await realEmail.sendMembershipSupportReply({ to: 'requester@example.test', replyTo: 'admin@example.test', subject: 'KAMP support', message: '<script>unsafe()</script>\nPlease reply with your full name.' }, { idempotencyKey: 'support/template', jobTag: 'test-job-1' })
+    assert.ok(sent.body.html.includes('&lt;script&gt;'))
+    assert.equal(sent.body.html.includes('<script>'), false)
+    assert.equal(sent.body.replyTo, 'admin@example.test')
+    assert.ok(sent.body.text.includes('Please reply with your full name.'))
+    assert.deepEqual(sent.body.tags, [{ name: 'registration_job', value: 'test-job-1' }])
+    assert.equal(sent.options.idempotencyKey, 'support/template')
+  } finally {
+    if (previousKey === undefined) delete process.env.RESEND_API_KEY
+    else process.env.RESEND_API_KEY = previousKey
+  }
 })

@@ -169,6 +169,19 @@ export async function sendRegistrationConfirmation(opts: {
   return result
 }
 
+export type MembershipSupportEmail = { to: string; replyTo: string; subject: string; message: string }
+
+export async function sendMembershipSupportReply(opts: MembershipSupportEmail, delivery: { idempotencyKey: string; jobTag: string }) {
+  const result = await resend().emails.send({
+    from: FROM(), to: opts.to, replyTo: opts.replyTo, subject: opts.subject,
+    tags: [{ name: 'registration_job', value: delivery.jobTag }],
+    text: `${opts.message}\n\nWarmly,\nThe KAMP Support Team\n\nYou can reply to this email if you need more help.`,
+    html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#202020;line-height:1.7"><header style="background:#202020;padding:24px 28px;border-bottom:3px solid #efbc2b"><p style="margin:0;color:#efbc2b;font-size:22px;font-weight:700;letter-spacing:4px">KAMP</p><p style="margin:5px 0 0;color:#fff;font-size:12px">MEMBERSHIP SUPPORT</p></header><main style="padding:28px"><div style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(opts.message)}</div><p style="margin-top:24px">Warmly,<br/><strong>The KAMP Support Team</strong></p></main><footer style="padding:18px 28px;background:#f5f4ef;color:#5f5b52;font-size:12px">You can reply to this email if you need more help.</footer></div>`,
+  }, { idempotencyKey: delivery.idempotencyKey })
+  if (result.error) throw new EmailProviderError(result.error.name, result.error.statusCode, result.headers?.['retry-after'] ?? null)
+  return result
+}
+
 export async function sendEventMemberVerificationCode(opts: { to: string; firstName: string; code: string; eventTitle?: string }) {
   const issuedAt = new Date().toLocaleString('en-GB', { timeZone: 'Africa/Lagos', dateStyle: 'medium', timeStyle: 'short' })
   const result = await resend().emails.send({

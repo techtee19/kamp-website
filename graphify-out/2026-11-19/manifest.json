@@ -133,9 +133,9 @@
     "semantic_hash": "5d72728d2821cfc95d97e0cc1a32918f"
   },
   "app/admin/(protected)/dashboard/page.tsx": {
-    "mtime": 1795051036.0333788,
-    "seen": 1795051321.9126132,
-    "ast_hash": "27cf710740af31caff46b7311bf2f0e6",
+    "mtime": 1795051344.336841,
+    "seen": 1795051388.964454,
+    "ast_hash": "d9cd2d5bdf8bb98ccaba3c8033a13b2b",
     "semantic_hash": ""
   },
   "app/admin/(protected)/events/[slug]/checkin/page.tsx": {
@@ -2372,9 +2372,9 @@
     "semantic_hash": ""
   },
   "scripts/tests/registration.test.mjs": {
-    "mtime": 1795051010.775356,
-    "seen": 1795051321.913302,
-    "ast_hash": "71453b5f68a9e9aa971e871d64ad1823",
+    "mtime": 1795052302.9770179,
+    "seen": 1795052342.7792058,
+    "ast_hash": "2113155148babe25f8b0ef617f254e8b",
     "semantic_hash": ""
   },
   "app/admin/api/requests/[id]/notify/route.ts": {
@@ -2456,9 +2456,9 @@
     "semantic_hash": ""
   },
   "lib/institution-names.ts": {
-    "mtime": 1795050946.2660093,
-    "seen": 1795051321.913092,
-    "ast_hash": "5228c68505e827734bd1079923640e4a",
+    "mtime": 1795052291.3388288,
+    "seen": 1795052342.7791023,
+    "ast_hash": "b8a314fea1892195ca6f6353a2b02ac1",
     "semantic_hash": ""
   },
   "lib/university-data.ts": {

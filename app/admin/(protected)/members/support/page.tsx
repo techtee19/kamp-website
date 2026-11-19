@@ -4,6 +4,8 @@ import { getAdminSession } from '@/lib/admin-session'
 import { findMembershipSupportRequests } from '@/lib/membership-support-data'
 import SupportWelcomeAction from '@/components/admin/SupportWelcomeAction'
 import SupportWhatsAppNumber from '@/components/admin/SupportWhatsAppNumber'
+import SupportReplyComposer from '@/components/admin/SupportReplyComposer'
+import { getSiteOrigin } from '@/lib/community'
 import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
@@ -22,24 +24,30 @@ function nextStep(status: string | null, category: string | null) {
 }
 
 export default async function AdminMembershipSupport({ searchParams }: {
-  searchParams: Promise<{ result?: string; request?: string; q?: string }>
+  searchParams: Promise<{ result?: string; request?: string; q?: string; status?: string }>
 }) {
   if (!(await getAdminSession())) redirect('/admin/login')
   const params = await searchParams
-  const requests = await findMembershipSupportRequests({ requestId: params.request, query: params.q })
+  const resolved = params.status === 'resolved'
+  const requests = await findMembershipSupportRequests({ requestId: params.request, query: params.q, resolved })
+  const membershipUrl = `${getSiteOrigin('https://wearekamp.org')}/membership`
   return <section className="mx-auto max-w-5xl space-y-6 px-5 py-7 sm:p-8">
     <Link href="/admin/members" className="inline-flex items-center gap-2 text-sm text-brand-grey hover:text-brand-ink">
       <ArrowLeft aria-hidden="true" className="size-4" /> Back to members
     </Link>
     <header>
       <h1 className="font-display text-3xl font-semibold tracking-tight">Membership support</h1>
-      <p className="mt-2 text-sm leading-6 text-brand-grey">Find a member, check their welcome email, and help them recover their ID.</p>
+      <p className="mt-2 text-sm leading-6 text-brand-grey">Find a member, recover their ID, and reply to requests by email.</p>
     </header>
     {params.request && <Link href="/admin/members/support" className="inline-block text-sm font-semibold underline underline-offset-4">View all open requests</Link>}
+    {!params.request && <nav aria-label="Support request status" className="flex gap-2">
+      <Link href="/admin/members/support" aria-current={!resolved ? 'page' : undefined} className={`min-h-10 rounded-full border px-4 py-2 text-sm font-semibold ${!resolved ? 'border-brand-ink bg-brand-ink text-white' : 'border-brand-card bg-white'}`}>Open requests</Link>
+      <Link href="/admin/members/support?status=resolved" aria-current={resolved ? 'page' : undefined} className={`min-h-10 rounded-full border px-4 py-2 text-sm font-semibold ${resolved ? 'border-brand-ink bg-brand-ink text-white' : 'border-brand-card bg-white'}`}>Resolved requests</Link>
+    </nav>}
     {params.result && <p role="status" className="rounded-xl border border-brand-card bg-white p-4 text-sm">
       {params.result === 'saved' ? 'Request resolved.' : 'The update could not be completed. Check the member details and active email jobs.'}
     </p>}
-    {!requests.length && <p className="rounded-2xl border border-brand-card bg-white p-6 text-sm text-brand-grey">No open requests found.</p>}
+    {!requests.length && <p className="rounded-2xl border border-brand-card bg-white p-6 text-sm text-brand-grey">No {resolved ? 'resolved' : 'open'} requests found.</p>}
     {requests.map((request) => <article key={request.id} className="overflow-hidden rounded-2xl border border-brand-card bg-white shadow-[0_1px_2px_rgba(32,32,32,.03)]">
       <header className="flex flex-wrap items-start justify-between gap-4 border-b border-brand-card px-5 py-5 sm:px-6">
         <div className="min-w-0">
@@ -50,16 +58,21 @@ export default async function AdminMembershipSupport({ searchParams }: {
             {request.member_id_hint ? ` · Supplied ID ${request.member_id_hint}` : ' · Member ID not provided'}
           </p>
         </div>
-        <form action="/admin/api/members/support" method="post">
+        {request.resolved_at ? <span className="inline-flex min-h-10 items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-xs font-semibold text-emerald-800"><Check aria-hidden="true" className="size-3.5" /> Resolved</span> : <form action="/admin/api/members/support" method="post">
           <input type="hidden" name="id" value={request.id} />
           <button name="action" value="resolve" className="inline-flex min-h-10 items-center gap-2 rounded-full border border-brand-ink/15 px-4 py-2 text-xs font-semibold transition-colors hover:bg-brand-cream">
             <Check aria-hidden="true" className="size-3.5" /> Mark resolved
           </button>
-        </form>
+        </form>}
       </header>
       <div className="space-y-5 p-5 sm:p-6">
         <p className="whitespace-pre-wrap break-words text-sm leading-6">{request.message}</p>
-        {request.issue_type === 'whatsapp' && request.whatsapp_number && <section className="space-y-4 rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 sm:p-5" aria-label="Manual WhatsApp addition">
+        <SupportReplyComposer requestId={request.id} recipient={request.reply_email} replies={request.replies} resolved={Boolean(request.resolved_at)} suggestedMessage={request.issue_type === 'whatsapp'
+          ? 'Hello,\n\nThank you for reaching out to KAMP. We’ve received your request for help joining the WhatsApp community. Please confirm that the WhatsApp number you supplied is correct so our team can help you join.\n\nThank you for your patience.'
+          : !request.matches.length
+            ? `Hello,\n\nThank you for reaching out to KAMP. We couldn’t find a membership using the details in your request. If you have already applied, please reply with your full name and any other email address you may have used so we can check before you register again.\n\nIf you haven’t applied yet, you can become a member here:\n${membershipUrl}\n\nWe’re happy to help you get started.`
+            : 'Hello,\n\nThank you for reaching out to KAMP. We’ve found a matching membership and are looking into your request. Please let us know if you still need help receiving your member ID.\n\nThank you for your patience.'} />
+        {!request.resolved_at && request.issue_type === 'whatsapp' && request.whatsapp_number && <section className="space-y-4 rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 sm:p-5" aria-label="Manual WhatsApp addition">
           <div>
             <h2 className="font-semibold">Add to the WhatsApp community</h2>
             <p className="mt-1 text-sm leading-6 text-brand-grey">Use this number to add the requester in WhatsApp. Mark this request as added once you’ve completed the addition.</p>
@@ -96,14 +109,14 @@ export default async function AdminMembershipSupport({ searchParams }: {
               {member.next_retry_at && <p className="mt-1 text-xs text-brand-grey">Next retry from {new Date(member.next_retry_at).toLocaleString('en-NG', { timeZone: 'Africa/Lagos' })}</p>}
               <a href={`/admin/members/support?request=${request.id}`} className="mt-2 inline-block text-xs font-semibold underline underline-offset-4">Refresh delivery status</a>
             </div>
-            {member.status === 'active'
+            {!request.resolved_at && member.status === 'active'
               && !['bounced', 'suppressed', 'unknown', 'sending'].includes(member.email_status ?? '')
               && !['invalid_recipient', 'bounced', 'suppressed'].includes(member.error_category ?? '')
               && <SupportWelcomeAction
               requestId={request.id} memberId={member.member_id} registeredEmail={member.email}
               confirmOwnership={member.email.toLowerCase() !== request.reply_email.toLowerCase()}
             />}
-            <details className="border-t border-brand-card pt-3 text-sm">
+            {!request.resolved_at && <details className="border-t border-brand-card pt-3 text-sm">
               <summary className="cursor-pointer font-semibold">Correct this member’s email</summary>
               <form method="post" action="/admin/api/members/support" className="mt-4 grid gap-4">
                 <input type="hidden" name="id" value={request.id} />
@@ -114,7 +127,7 @@ export default async function AdminMembershipSupport({ searchParams }: {
                 </label>
                 <button name="action" value="correct_email" className="min-h-11 w-fit rounded-full bg-brand-ink px-5 py-2.5 font-semibold text-white">Save correction and resolve</button>
               </form>
-            </details>
+            </details>}
           </div>)}
         </div>
         <form method="get" action="/admin/members/support" className="border-t border-brand-card pt-4">

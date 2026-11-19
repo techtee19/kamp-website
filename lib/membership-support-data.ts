@@ -12,6 +12,17 @@ export type SupportMember = {
   next_retry_at: string | null
 }
 
+export type SupportReply = {
+  id: string
+  recipient: string
+  subject: string
+  message: string
+  created_at: string
+  status: string
+  error_category: string | null
+  next_retry_at: string | null
+}
+
 type SupportRequest = {
   id: string
   reply_email: string
@@ -20,17 +31,28 @@ type SupportRequest = {
   issue_type: 'membership' | 'whatsapp'
   whatsapp_number: string | null
   created_at: Date
+  resolved_at: Date | null
   matches: SupportMember[]
+  replies: SupportReply[]
 }
 
-export async function findMembershipSupportRequests(input: { requestId?: string; query?: string }) {
+export async function findMembershipSupportRequests(input: { requestId?: string; query?: string; resolved?: boolean }) {
   const selected = z.uuid().safeParse(input.requestId)
   const requestId = selected.success ? selected.data : null
   const query = requestId ? (input.query ?? '').trim().slice(0, 160) : ''
   const pattern = '%' + query.replace(/[\\%_]/g, '\\$&') + '%'
   return db<SupportRequest[]>`
     SELECT request.id, request.reply_email, request.member_id_hint, request.message, request.created_at,
-      request.issue_type, request.whatsapp_number,
+      request.issue_type, request.whatsapp_number, request.resolved_at,
+      COALESCE((
+        SELECT jsonb_agg(to_jsonb(history) ORDER BY history.created_at DESC) FROM (
+          SELECT reply.id, reply.recipient, reply.subject, reply.message, reply.created_at,
+            job.status, job.error_category, job.next_retry_at
+          FROM membership_support_replies AS reply
+          JOIN registration_email_jobs AS job ON job.id = reply.job_id
+          WHERE reply.support_id = request.id
+        ) AS history
+      ), '[]'::jsonb) AS replies,
       COALESCE((
         SELECT jsonb_agg(to_jsonb(candidate)) FROM (
           SELECT member.member_id, member.first_name || ' ' || member.last_name AS full_name,
@@ -52,7 +74,8 @@ export async function findMembershipSupportRequests(input: { requestId?: string;
         ) AS candidate
       ), '[]'::jsonb) AS matches
     FROM membership_support_requests AS request
-    WHERE request.resolved_at IS NULL AND (${requestId}::uuid IS NULL OR request.id = ${requestId}::uuid)
+    WHERE (${requestId}::uuid IS NOT NULL OR (request.resolved_at IS NOT NULL) = ${Boolean(input.resolved)})
+      AND (${requestId}::uuid IS NULL OR request.id = ${requestId}::uuid)
     ORDER BY request.created_at DESC LIMIT 100
   `
 }

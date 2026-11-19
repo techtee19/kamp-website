@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { sendMembershipWelcome, sendRegistrationConfirmation } from '@/lib/email'
+import { sendMembershipWelcome, sendRegistrationConfirmation, sendMembershipSupportReply, type MembershipSupportEmail } from '@/lib/email'
 import { classifyEmailFailure, EmailProviderError, retryDelay } from '@/lib/email-failure'
 import { generateMemberCardPDF } from '@/lib/member-card'
 import { generateTicketPDF, type TicketData } from '@/lib/ticket'
@@ -41,48 +41,54 @@ export async function processRegistrationEmail(jobId?: string) {
   let sendAttempted = false
   let failure: ReturnType<typeof classifyEmailFailure> | undefined
   try {
-    let attachment = job.attachment as Buffer | null
-    const [member] = await db`
-      SELECT first_name, last_name, email, membership_type, kamp_position, university, occupation, organization,
-        year_joined, passport_photo, passport_photo_type, status
-      FROM members WHERE member_id = ${job.member_id} FOR SHARE
-    `
-    if (!member || member.status !== 'active') throw new EmailProviderError('inactive_member', 400)
     if (!process.env.EMAIL_FROM) throw new EmailProviderError('invalid_from_address', 400)
-
-    if (job.kind === 'welcome') {
-      if (!attachment) {
-        const photo = member.passport_photo
-        attachment = await generateMemberCardPDF({
-          firstName: String(member.first_name), lastName: String(member.last_name), memberId: String(job.member_id),
-          membershipType: String(member.membership_type), kampPosition: String(member.kamp_position ?? 'General Member'),
-          affiliation: member.membership_type === 'student' ? String(member.university ?? 'Student')
-            : [member.occupation, member.organization].filter(Boolean).join(' · ') || 'KAMP Community',
-          yearJoined: Number(member.year_joined),
-          ...(Buffer.isBuffer(photo) && photo.length && ['image/jpeg', 'image/png'].includes(String(member.passport_photo_type))
-            ? { passportDataUri: `data:${member.passport_photo_type};base64,${photo.toString('base64')}` } : {}),
-        })
-        if (!(await saveAttachment(id, generation, attempts, attachment))) return true
-      }
+    if (job.kind === 'support_reply') {
       sendAttempted = true
-      const sent = await sendMembershipWelcome({
-        to: String(member.email), firstName: String(member.first_name), memberId: String(job.member_id), cardPDF: attachment,
-        communityJoinUrl: (job.payload as { communityJoinUrl?: string }).communityJoinUrl,
-      }, options)
+      const sent = await sendMembershipSupportReply(job.payload as MembershipSupportEmail, options)
       messageId = sent.data?.id ?? null
     } else {
-      const ticket = job.payload as TicketData
-      if (!attachment) {
-        attachment = await generateTicketPDF(ticket)
-        if (!(await saveAttachment(id, generation, attempts, attachment))) return true
+      let attachment = job.attachment as Buffer | null
+      const [member] = await db`
+        SELECT first_name, last_name, email, membership_type, kamp_position, university, occupation, organization,
+          year_joined, passport_photo, passport_photo_type, status
+        FROM members WHERE member_id = ${job.member_id} FOR SHARE
+      `
+      if (!member || member.status !== 'active') throw new EmailProviderError('inactive_member', 400)
+
+      if (job.kind === 'welcome') {
+        if (!attachment) {
+          const photo = member.passport_photo
+          attachment = await generateMemberCardPDF({
+            firstName: String(member.first_name), lastName: String(member.last_name), memberId: String(job.member_id),
+            membershipType: String(member.membership_type), kampPosition: String(member.kamp_position ?? 'General Member'),
+            affiliation: member.membership_type === 'student' ? String(member.university ?? 'Student')
+              : [member.occupation, member.organization].filter(Boolean).join(' · ') || 'KAMP Community',
+            yearJoined: Number(member.year_joined),
+            ...(Buffer.isBuffer(photo) && photo.length && ['image/jpeg', 'image/png'].includes(String(member.passport_photo_type))
+              ? { passportDataUri: `data:${member.passport_photo_type};base64,${photo.toString('base64')}` } : {}),
+          })
+          if (!(await saveAttachment(id, generation, attempts, attachment))) return true
+        }
+        sendAttempted = true
+        const sent = await sendMembershipWelcome({
+          to: String(member.email), firstName: String(member.first_name), memberId: String(job.member_id), cardPDF: attachment,
+          communityJoinUrl: (job.payload as { communityJoinUrl?: string }).communityJoinUrl,
+        }, options)
+        messageId = sent.data?.id ?? null
+      } else {
+        const ticket = job.payload as TicketData
+        if (!attachment) {
+          attachment = await generateTicketPDF(ticket)
+          if (!(await saveAttachment(id, generation, attempts, attachment))) return true
+        }
+        sendAttempted = true
+        const sent = await sendRegistrationConfirmation({
+          to: String(member.email), recipientName: ticket.attendeeName, eventTitle: ticket.eventTitle,
+          eventDate: ticket.eventDate, eventLocation: ticket.eventLocation, university: ticket.attendeeUniversity || 'KAMP member',
+          ticketRef: ticket.ticketRef, ticketPDF: attachment,
+        }, options)
+        messageId = sent.data?.id ?? null
       }
-      sendAttempted = true
-      const sent = await sendRegistrationConfirmation({
-        to: String(member.email), recipientName: ticket.attendeeName, eventTitle: ticket.eventTitle,
-        eventDate: ticket.eventDate, eventLocation: ticket.eventLocation, university: ticket.attendeeUniversity || 'KAMP member',
-        ticketRef: ticket.ticketRef, ticketPDF: attachment,
-      }, options)
-      messageId = sent.data?.id ?? null
     }
     if (!messageId) throw new Error('Provider returned no message ID')
   } catch (error) {

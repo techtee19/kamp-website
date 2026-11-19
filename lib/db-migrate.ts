@@ -29,6 +29,7 @@ const files = [
   { name: '022_membership_support_recovery.sql', path: 'migrations/022_membership_support_recovery.sql' },
   { name: '023_whatsapp_support.sql', path: 'migrations/023_whatsapp_support.sql' },
   { name: '024_institution_name_history.sql', path: 'migrations/024_institution_name_history.sql' },
+  { name: '025_membership_support_replies.sql', path: 'migrations/025_membership_support_replies.sql' },
 ]
 
 async function migrate() {
