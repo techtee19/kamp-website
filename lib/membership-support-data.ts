@@ -21,6 +21,8 @@ export type SupportReply = {
   status: string
   error_category: string | null
   next_retry_at: string | null
+  images: { id: string; filename: string }[]
+  reply_to: string | null
 }
 
 type SupportRequest = {
@@ -47,7 +49,9 @@ export async function findMembershipSupportRequests(input: { requestId?: string;
       COALESCE((
         SELECT jsonb_agg(to_jsonb(history) ORDER BY history.created_at DESC) FROM (
           SELECT reply.id, reply.recipient, reply.subject, reply.message, reply.created_at,
-            job.status, job.error_category, job.next_retry_at
+            job.status, job.error_category, job.next_retry_at, job.payload->>'replyTo' AS reply_to,
+            COALESCE((SELECT jsonb_agg(jsonb_build_object('id', image.id, 'filename', image.filename) ORDER BY image.position)
+              FROM membership_support_reply_images AS image WHERE image.reply_id = reply.id), '[]'::jsonb) AS images
           FROM membership_support_replies AS reply
           JOIN registration_email_jobs AS job ON job.id = reply.job_id
           WHERE reply.support_id = request.id

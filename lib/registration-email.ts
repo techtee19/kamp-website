@@ -43,8 +43,16 @@ export async function processRegistrationEmail(jobId?: string) {
   try {
     if (!process.env.EMAIL_FROM) throw new EmailProviderError('invalid_from_address', 400)
     if (job.kind === 'support_reply') {
+      const images = await db`
+        SELECT image.filename, image.content_type, image.content FROM membership_support_reply_images AS image
+        JOIN membership_support_replies AS reply ON reply.id = image.reply_id
+        WHERE reply.job_id = ${id} ORDER BY image.position
+      `
       sendAttempted = true
-      const sent = await sendMembershipSupportReply(job.payload as MembershipSupportEmail, options)
+      const sent = await sendMembershipSupportReply({ ...job.payload as MembershipSupportEmail, images: images.map((image) => ({
+        filename: String(image.filename), contentType: image.content_type as 'image/png' | 'image/jpeg',
+        content: Buffer.from(image.content).toString('base64'),
+      })) }, options)
       messageId = sent.data?.id ?? null
     } else {
       let attachment = job.attachment as Buffer | null

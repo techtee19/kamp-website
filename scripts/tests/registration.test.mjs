@@ -179,7 +179,7 @@ before(async () => {
   process.env.EMAIL_FROM = 'test@example.test'
   process.env.ADMIN_EMAIL = 'admin@example.test'
   for (const name of ['004_event_tables_registry', '005_members', '007_security_rate_limits', '009_member_passport_photo', '010_member_type_and_date_of_birth',
-    '011_member_kamp_position', '013_member_engagement_tracking', '015_event_member_registration', '019_event_member_otp_audit', '020_registration_reliability', '021_registration_resume', '022_membership_support_recovery', '023_whatsapp_support', '024_institution_name_history', '025_membership_support_replies']) {
+    '011_member_kamp_position', '013_member_engagement_tracking', '015_event_member_registration', '019_event_member_otp_audit', '020_registration_reliability', '021_registration_resume', '022_membership_support_recovery', '023_whatsapp_support', '024_institution_name_history', '025_membership_support_replies', '026_support_reply_images']) {
     await postgres.exec(readFileSync(resolve(project, 'migrations', name + '.sql'), 'utf8'))
   }
   for (let i = 1; i <= 24; i++) {
@@ -798,10 +798,16 @@ test('support emails escape message HTML and allow replies to the configured adm
   const previousKey = process.env.RESEND_API_KEY
   process.env.RESEND_API_KEY = 'local-template-test'
   try {
-    await realEmail.sendMembershipSupportReply({ to: 'requester@example.test', replyTo: 'admin@example.test', subject: 'KAMP support', message: '<script>unsafe()</script>\nPlease reply with your full name.' }, { idempotencyKey: 'support/template', jobTag: 'test-job-1' })
+    await realEmail.sendMembershipSupportReply({ to: 'requester@example.test', replyTo: 'admin@example.test', subject: 'KAMP support', message: '<script>unsafe()</script>\nPlease reply with your full name.', images: [{ filename: 'proof.png', contentType: 'image/png', content: 'aW1hZ2U=' }] }, { idempotencyKey: 'support/template', jobTag: 'test-job-1' })
     assert.ok(sent.body.html.includes('&lt;script&gt;'))
     assert.equal(sent.body.html.includes('<script>'), false)
     assert.equal(sent.body.replyTo, 'admin@example.test')
+    assert.ok(sent.body.html.includes('href="mailto:admin@example.test"'))
+    assert.ok(sent.body.text.includes('contact admin@example.test'))
+    assert.ok(sent.body.html.includes('src="cid:kamp-evidence-0"'))
+    assert.equal(sent.body.html.includes('data:image'), false)
+    assert.equal(sent.body.attachments[0].contentId, 'kamp-evidence-0')
+    assert.equal(sent.body.attachments[0].content, 'aW1hZ2U=')
     assert.ok(sent.body.text.includes('Please reply with your full name.'))
     assert.deepEqual(sent.body.tags, [{ name: 'registration_job', value: 'test-job-1' }])
     assert.equal(sent.options.idempotencyKey, 'support/template')
@@ -809,4 +815,58 @@ test('support emails escape message HTML and allow replies to the configured adm
     if (previousKey === undefined) delete process.env.RESEND_API_KEY
     else process.env.RESEND_API_KEY = previousKey
   }
+})
+
+dbTest('screenshot evidence is validated, privately stored, shown in history and preserved across delivery retries', async () => {
+  admin = true
+  apiEmail = null
+  const [{ id }] = (await postgres.query(`INSERT INTO membership_support_requests (reply_email, message)
+    VALUES ('evidence@example.test', 'Please clarify which membership ID I should keep') RETURNING id`)).rows
+  const content = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jBFsAAAAASUVORK5CYII='
+  const input = { supportId: id, replyId: randomUUID(), subject: 'Your confirmed membership ID', message: 'Please keep the first ID shown in the evidence. We will remove the duplicate ID.', images: [{ filename: '../membership-proof.png', contentType: 'image/png', content }] }
+  const reply = app('app/admin/api/members/support/reply/route.ts').POST
+  const invalidImages = [
+    [{ ...input.images[0], content: Buffer.from('<svg></svg>').toString('base64') }],
+    [{ ...input.images[0], contentType: 'image/jpeg' }],
+    [{ filename: 'fake.jpg', contentType: 'image/jpeg', content: Buffer.from([255, 216, 255, 217]).toString('base64') }],
+    Array.from({ length: 4 }, () => input.images[0]),
+    [{ ...input.images[0], content: Buffer.alloc(2 * 1024 * 1024 + 1).toString('base64') }],
+  ]
+  for (const images of invalidImages) assert.equal((await reply(request({ ...input, images }))).status, 400)
+  const responses = await Promise.all([reply(request(input)), reply(request(input))])
+  assert.deepEqual(responses.map((response) => response.status), [202, 202])
+  const [{ job_id: jobId }] = (await postgres.query('SELECT job_id FROM membership_support_replies WHERE id = $1', [input.replyId])).rows
+  const stored = (await postgres.query('SELECT id, filename FROM membership_support_reply_images WHERE reply_id = $1', [input.replyId])).rows
+  assert.equal(stored.length, 1)
+  assert.equal(stored[0].filename, 'membership-proof.png')
+  assert.equal((await reply(request({ ...input, images: [] }))).status, 409)
+  apiEmail = new EmailProviderError('rate_limit_exceeded', 429, '60')
+  await work(jobId)
+  apiEmail = null
+  await postgres.query('UPDATE registration_email_jobs SET next_retry_at = NOW() WHERE id = $1', [jobId])
+  await work(jobId)
+  const sends = supportEmails.filter((email) => email.subject === input.subject)
+  assert.equal(sends.length, 2)
+  assert.deepEqual(sends[0].images, sends[1].images)
+  assert.equal(sends[0].images[0].content, content)
+  assert.equal(sends[0].idempotencyKey, sends[1].idempotencyKey)
+  const [support] = await app('lib/membership-support-data.ts').findMembershipSupportRequests({ requestId: id })
+  assert.equal(support.replies[0].reply_to, 'admin@example.test')
+  assert.equal(support.replies[0].images[0].id, stored[0].id)
+  assert.equal(JSON.stringify(support).includes(content), false)
+  const readImage = app('app/admin/api/members/support/reply/images/[id]/route.ts').GET
+  const context = { params: Promise.resolve({ id: stored[0].id }) }
+  admin = false
+  assert.equal((await readImage(new Request('https://wearekamp.org'), context)).status, 403)
+  admin = true
+  const image = await readImage(new Request('https://wearekamp.org'), context)
+  assert.equal(image.headers.get('content-type'), 'image/png')
+  assert.equal(image.headers.get('cache-control'), 'private, no-store')
+  assert.equal(Buffer.from(await image.arrayBuffer()).toString('base64'), content)
+  const page = app('app/admin/(protected)/members/support/page.tsx').default
+  const rendered = renderToStaticMarkup(await page({ searchParams: Promise.resolve({ request: id }) }))
+  assert.ok(rendered.includes('membership-proof.png'))
+  assert.ok(rendered.includes('/admin/api/members/support/reply/images/' + stored[0].id))
+  assert.ok(rendered.includes('mailto:admin@example.test'))
+  await flush()
 })

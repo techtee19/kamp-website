@@ -67,7 +67,7 @@ export default async function AdminMembershipSupport({ searchParams }: {
       </header>
       <div className="space-y-5 p-5 sm:p-6">
         <p className="whitespace-pre-wrap break-words text-sm leading-6">{request.message}</p>
-        <SupportReplyComposer requestId={request.id} recipient={request.reply_email} replies={request.replies} resolved={Boolean(request.resolved_at)} suggestedMessage={request.issue_type === 'whatsapp'
+        <SupportReplyComposer requestId={request.id} recipient={request.reply_email} replyTo={process.env.ADMIN_EMAIL?.trim() ?? ''} replies={request.replies} resolved={Boolean(request.resolved_at)} suggestedMessage={request.issue_type === 'whatsapp'
           ? 'Hello,\n\nThank you for reaching out to KAMP. We’ve received your request for help joining the WhatsApp community. Please confirm that the WhatsApp number you supplied is correct so our team can help you join.\n\nThank you for your patience.'
           : !request.matches.length
             ? `Hello,\n\nThank you for reaching out to KAMP. We couldn’t find a membership using the details in your request. If you have already applied, please reply with your full name and any other email address you may have used so we can check before you register again.\n\nIf you haven’t applied yet, you can become a member here:\n${membershipUrl}\n\nWe’re happy to help you get started.`

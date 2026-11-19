@@ -15,13 +15,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Admin sign-in required.' }, { status: 403, headers })
   }
   let body
-  try { body = await readJsonRequest(request, 32_000) }
+  try { body = await readJsonRequest(request, 3 * 1024 * 1024) }
   catch (error) {
     const failure = requestBodyErrorResponse(error)
     return NextResponse.json({ error: failure?.message ?? 'Check your subject and message, then try again.' }, { status: failure?.status ?? 400, headers })
   }
   const input = supportReplySchema.safeParse(body)
-  if (!input.success) return NextResponse.json({ error: 'Enter a subject (up to 160 characters) and a message of 10–5,000 characters.' }, { status: 400, headers })
+  if (!input.success) return NextResponse.json({ error: 'Check the subject, message (10–5,000 characters), and screenshots (up to three PNG/JPG images, 2 MB total).' }, { status: 400, headers })
   try {
     const { jobId } = await queueSupportReply(input.data)
     scheduleRegistrationEmail(jobId)

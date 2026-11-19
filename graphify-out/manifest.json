@@ -829,9 +829,9 @@
     "semantic_hash": "14d8be112c61314d342ca04b7a091b25"
   },
   "lib/db-migrate.ts": {
-    "mtime": 1795052961.5574553,
-    "seen": 1795053397.055649,
-    "ast_hash": "82a700d7313c9437f3049de68c17ca99",
+    "mtime": 1795054985.6179824,
+    "seen": 1795055295.6705832,
+    "ast_hash": "7792d3823bf2c1e7055a9e9c43f1445a",
     "semantic_hash": ""
   },
   "lib/db-test.ts": {
@@ -847,9 +847,9 @@
     "semantic_hash": "115b4e62d1519f85059cea5945a77954"
   },
   "lib/email.ts": {
-    "mtime": 1795053074.9284387,
-    "seen": 1795053397.05566,
-    "ast_hash": "218c3168e9f58fc1fd70a79468d3eb78",
+    "mtime": 1795055035.7964058,
+    "seen": 1795055295.6705956,
+    "ast_hash": "779e42541049ec8d0b9ef6797d4ca2c2",
     "semantic_hash": ""
   },
   "lib/event-data.ts": {
@@ -2300,9 +2300,9 @@
     "semantic_hash": ""
   },
   "app/admin/(protected)/members/support/page.tsx": {
-    "mtime": 1795053108.4361525,
-    "seen": 1795053397.055151,
-    "ast_hash": "abe0036258de1652626ff65e8b42d138",
+    "mtime": 1795055130.3011591,
+    "seen": 1795055295.6700675,
+    "ast_hash": "0a5490da717f633fc76d0b8308481f90",
     "semantic_hash": ""
   },
   "app/admin/api/members/support/route.ts": {
@@ -2342,9 +2342,9 @@
     "semantic_hash": ""
   },
   "lib/registration-email.ts": {
-    "mtime": 1795053306.49968,
-    "seen": 1795053397.0557513,
-    "ast_hash": "340cc5a3ae494e77daff3b4c2e7ffb5f",
+    "mtime": 1795055036.1235356,
+    "seen": 1795055295.6706543,
+    "ast_hash": "82ec71f4a54386274b304503c2eb06c4",
     "semantic_hash": ""
   },
   "lib/registration-flow.ts": {
@@ -2372,9 +2372,9 @@
     "semantic_hash": ""
   },
   "scripts/tests/registration.test.mjs": {
-    "mtime": 1795053243.638896,
-    "seen": 1795053397.0559313,
-    "ast_hash": "ade03c7e5256894d2455398f44aae7a3",
+    "mtime": 1795055191.7076406,
+    "seen": 1795055295.670861,
+    "ast_hash": "e87a68343cefee3fb73353f9f9a02575",
     "semantic_hash": ""
   },
   "app/admin/api/requests/[id]/notify/route.ts": {
@@ -2420,9 +2420,9 @@
     "semantic_hash": ""
   },
   "lib/membership-support-data.ts": {
-    "mtime": 1795053006.4532008,
-    "seen": 1795053397.0557296,
-    "ast_hash": "e73b0905e157766d606d3345e22f7bc0",
+    "mtime": 1795055130.0302389,
+    "seen": 1795055295.6706324,
+    "ast_hash": "75d31d62a8f88921ed2ab5f945904cf2",
     "semantic_hash": ""
   },
   "lib/membership-support-recovery.ts": {
@@ -2480,27 +2480,45 @@
     "semantic_hash": ""
   },
   "app/admin/api/members/support/reply/route.ts": {
-    "mtime": 1795053075.3933964,
-    "seen": 1795053397.0552158,
-    "ast_hash": "99af6c09315aec84225a0586b77e2715",
+    "mtime": 1795054986.582585,
+    "seen": 1795055295.670144,
+    "ast_hash": "7deaff75ba63702a700ae82d9efd0187",
     "semantic_hash": ""
   },
   "components/admin/SupportReplyComposer.tsx": {
-    "mtime": 1795053076.1799903,
-    "seen": 1795053397.0554333,
-    "ast_hash": "886b3a22b8bf252f4799fde17b380f1a",
+    "mtime": 1795055259.753941,
+    "seen": 1795055295.6703703,
+    "ast_hash": "eaf4ad3e7611e5e5c46cd42497607d7e",
     "semantic_hash": ""
   },
   "lib/membership-support-reply.ts": {
-    "mtime": 1795053306.8311162,
-    "seen": 1795053397.055736,
-    "ast_hash": "0e6ff627f1bfa1a8ec7aca604bb74145",
+    "mtime": 1795055191.4956596,
+    "seen": 1795055295.6706383,
+    "ast_hash": "da8644eb8f0194b533d0c86e4d641078",
     "semantic_hash": ""
   },
   "migrations/025_membership_support_replies.sql": {
     "mtime": 1795052961.3320355,
     "seen": 1795053397.0558507,
     "ast_hash": "7b4af0b986e97a754f2fd5b4d1425bb5",
+    "semantic_hash": ""
+  },
+  "app/admin/api/members/support/reply/images/[id]/route.ts": {
+    "mtime": 1795055038.6462846,
+    "seen": 1795055295.6701403,
+    "ast_hash": "9cfb5fd87a8e31c2dcd4b8250bd68677",
+    "semantic_hash": ""
+  },
+  "lib/support-reply-images.ts": {
+    "mtime": 1795054985.1490462,
+    "seen": 1795055295.6706703,
+    "ast_hash": "6139f3c134c68b7fe9adc02965d39d1c",
+    "semantic_hash": ""
+  },
+  "migrations/026_support_reply_images.sql": {
+    "mtime": 1795054985.3831482,
+    "seen": 1795055295.67077,
+    "ast_hash": "791fb95d4ade12cc57da247ccadd2805",
     "semantic_hash": ""
   },
   "pnpm-lock.yaml": {

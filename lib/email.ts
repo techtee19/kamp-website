@@ -1,6 +1,7 @@
 import { Resend } from 'resend'
 import { EmailProviderError } from './email-failure'
 import { getWhatsAppCommunityLink } from '@/lib/community'
+import type { SupportImage } from '@/lib/support-reply-images'
 
 // Constructed lazily. `new Resend()` throws when RESEND_API_KEY is unset, and
 // at module scope that turns a missing key into a build failure — Next.js
@@ -169,14 +170,17 @@ export async function sendRegistrationConfirmation(opts: {
   return result
 }
 
-export type MembershipSupportEmail = { to: string; replyTo: string; subject: string; message: string }
+export type MembershipSupportEmail = { to: string; replyTo: string; subject: string; message: string; images?: SupportImage[] }
 
 export async function sendMembershipSupportReply(opts: MembershipSupportEmail, delivery: { idempotencyKey: string; jobTag: string }) {
+  const images = opts.images ?? []
+  const evidence = images.length ? `<section style="margin-top:24px"><p style="font-size:12px;font-weight:bold;color:#5f5b52">SCREENSHOT EVIDENCE</p>${images.map((image, index) => `<figure style="margin:16px 0"><img src="cid:kamp-evidence-${index}" alt="${esc(image.filename)}" style="display:block;max-width:100%;height:auto;border:1px solid #e7e4dc;border-radius:8px"/><figcaption style="margin-top:6px;font-size:12px;color:#5f5b52">${esc(image.filename)}</figcaption></figure>`).join('')}</section>` : ''
   const result = await resend().emails.send({
     from: FROM(), to: opts.to, replyTo: opts.replyTo, subject: opts.subject,
     tags: [{ name: 'registration_job', value: delivery.jobTag }],
-    text: `${opts.message}\n\nWarmly,\nThe KAMP Support Team\n\nYou can reply to this email if you need more help.`,
-    html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#202020;line-height:1.7"><header style="background:#202020;padding:24px 28px;border-bottom:3px solid #efbc2b"><p style="margin:0;color:#efbc2b;font-size:22px;font-weight:700;letter-spacing:4px">KAMP</p><p style="margin:5px 0 0;color:#fff;font-size:12px">MEMBERSHIP SUPPORT</p></header><main style="padding:28px"><div style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(opts.message)}</div><p style="margin-top:24px">Warmly,<br/><strong>The KAMP Support Team</strong></p></main><footer style="padding:18px 28px;background:#f5f4ef;color:#5f5b52;font-size:12px">You can reply to this email if you need more help.</footer></div>`,
+    ...(images.length ? { attachments: images.map((image, index) => ({ filename: image.filename, contentType: image.contentType, content: image.content, contentId: `kamp-evidence-${index}` })) } : {}),
+    text: `${opts.message}${images.length ? '\n\nScreenshot evidence attached: ' + images.map((image) => image.filename).join(', ') : ''}\n\nWarmly,\nThe KAMP Support Team\n\nNeed more help? Reply to this email or contact ${opts.replyTo}.`,
+    html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#202020;line-height:1.7"><header style="background:#202020;padding:24px 28px;border-bottom:3px solid #efbc2b"><p style="margin:0;color:#efbc2b;font-size:22px;font-weight:700;letter-spacing:4px">KAMP</p><p style="margin:5px 0 0;color:#fff;font-size:12px">MEMBERSHIP SUPPORT</p></header><main style="padding:28px"><div style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(opts.message)}</div>${evidence}<p style="margin-top:24px">Warmly,<br/><strong>The KAMP Support Team</strong></p></main><footer style="padding:18px 28px;background:#f5f4ef;color:#5f5b52;font-size:12px">Need more help? Reply to this email or contact<br/><a href="mailto:${esc(opts.replyTo)}" style="color:#202020;font-weight:bold;text-decoration:underline;overflow-wrap:anywhere">${esc(opts.replyTo)}</a></footer></div>`,
   }, { idempotencyKey: delivery.idempotencyKey })
   if (result.error) throw new EmailProviderError(result.error.name, result.error.statusCode, result.headers?.['retry-after'] ?? null)
   return result
