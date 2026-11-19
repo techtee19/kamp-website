@@ -30,6 +30,7 @@ function loader(overrides = {}) {
       if (Object.hasOwn(overrides, name)) return overrides[name]
       if (name.startsWith('@/') || name.startsWith('.')) {
         const base = name.startsWith('@/') ? resolve(project, name.slice(2)) : resolve(dirname(filename), name)
+        if (base.endsWith('.json') && existsSync(base)) return { default: resolveModule(base) }
         for (const candidate of [base + '.ts', base + '.tsx']) if (existsSync(candidate)) return load(candidate)
       }
       return resolveModule(name)
@@ -45,6 +46,21 @@ const { countdownSeconds, eventSlug } = load('lib/registration-flow.ts')
 const { normalizeMemberId } = load('lib/member-id.ts')
 const { registrationRequest } = load('lib/registration-request.ts')
 const { normalizeWhatsAppNumber } = load('lib/whatsapp-number.ts')
+const { canonicalInstitution } = load('lib/institution-names.ts')
+
+test('institution aliases combine known spelling and acronym variants without merging distinct schools', () => {
+  for (const value of ['FUNAAB', 'FUUNAB', 'fuunab', 'Federal university of agriculture abeokuta(FUNAAB)', 'Federal University of Agricultural Science Abeokuta']) {
+    assert.equal(canonicalInstitution(value).name, 'Federal University of Agriculture, Abeokuta')
+  }
+  assert.equal(canonicalInstitution('Federal University of Petroleum Resources Effurun Delta State').name, 'Federal University of Petroleum Resources, Effurun')
+  assert.equal(canonicalInstitution('Ladoke Akinotola University of Technology').name, 'Ladoke Akintola University of Technology, Ogbomoso')
+  assert.equal(canonicalInstitution('College of medicine University of Lagos').name, 'University of Lagos')
+  assert.notEqual(canonicalInstitution('Federal College of Education, Abeokuta').key, canonicalInstitution('FUNAAB').key)
+  assert.equal(canonicalInstitution('Univer').recognized, false)
+  assert.equal(canonicalInstitution('Living Word Academy Secondary Abayi Ugwuala').recognized, false)
+  assert.equal(canonicalInstitution('FUAM').recognized, false)
+  assert.equal(canonicalInstitution('FUUNAB').recognized, true)
+})
 
 test('WhatsApp support numbers normalize Nigerian and international formats', () => {
   for (const input of ['0801 234 5678', '2348012345678', '+234 (801) 234-5678', '+234 08012345678']) {
@@ -160,7 +176,7 @@ before(async () => {
   process.env.RESEND_WEBHOOK_SECRET = notifySecret
   process.env.EMAIL_FROM = 'test@example.test'
   for (const name of ['004_event_tables_registry', '005_members', '007_security_rate_limits', '009_member_passport_photo', '010_member_type_and_date_of_birth',
-    '011_member_kamp_position', '013_member_engagement_tracking', '015_event_member_registration', '019_event_member_otp_audit', '020_registration_reliability', '021_registration_resume', '022_membership_support_recovery', '023_whatsapp_support']) {
+    '011_member_kamp_position', '013_member_engagement_tracking', '015_event_member_registration', '019_event_member_otp_audit', '020_registration_reliability', '021_registration_resume', '022_membership_support_recovery', '023_whatsapp_support', '024_institution_name_history']) {
     await postgres.exec(readFileSync(resolve(project, 'migrations', name + '.sql'), 'utf8'))
   }
   for (let i = 1; i <= 24; i++) {
@@ -624,4 +640,66 @@ dbTest('the community support link opens the WhatsApp number field directly', as
   assert.ok(rendered.includes('name="whatsappNumber"'))
   assert.ok(rendered.includes('Request help joining WhatsApp'))
   assert.ok(rendered.includes('Anything else we should know? (optional)'))
+})
+
+dbTest('university counts match their CSV rosters across aliases and unconfirmed names', async () => {
+  await postgres.query("UPDATE members SET university = 'FUNAAB' WHERE membership_type = 'professional'")
+  const institutions = [
+    'Federal University of Agriculture, Abeokuta',
+    'Federal university of agriculture Abeokuta FUNAAB',
+    'FUNAAB',
+    'Federal College of Education, Abeokuta',
+    'Univer',
+  ]
+  for (const [index, university] of institutions.entries()) {
+    await postgres.query('UPDATE members SET university = $1 WHERE member_id = $2', [university, memberId(index + 1)])
+  }
+  const { getUniversityCounts, getUniversityRoster } = app('lib/university-data.ts')
+  const groups = await getUniversityCounts()
+  const [total] = (await postgres.query("SELECT COUNT(*)::int AS count FROM members WHERE membership_type = 'student' AND university IS NOT NULL AND BTRIM(university) <> ''")).rows
+  assert.equal(groups.reduce((sum, group) => sum + group.count, 0), total.count)
+  const funaab = groups.find((group) => group.fullName === 'Federal University of Agriculture, Abeokuta')
+  assert.equal(funaab.count, 3)
+  assert.equal(funaab.needsReview, false)
+  assert.equal(groups.find((group) => group.fullName === 'Univer').needsReview, true)
+  const seen = new Set()
+  for (const group of groups) {
+    const roster = await getUniversityRoster(group.fullName)
+    assert.equal(roster.length, group.count)
+    for (const member of roster) {
+      assert.equal(seen.has(member.member_id), false)
+      seen.add(member.member_id)
+    }
+  }
+  const aliasRoster = await getUniversityRoster('FUNAAB')
+  assert.equal(aliasRoster.length, 3)
+  const exportMembers = app('app/admin/api/members/export/route.ts').GET
+  admin = false
+  const url = 'https://wearekamp.org/admin/api/members/export?university=FUNAAB'
+  assert.equal((await exportMembers(new NextRequest(url))).status, 401)
+  admin = true
+  const response = await exportMembers(new NextRequest(url))
+  assert.equal(response.status, 200)
+  const csv = await response.text()
+  for (const index of [1, 2, 3]) assert.ok(csv.includes(memberId(index)))
+  assert.equal(csv.includes(memberId(4)), false)
+  assert.equal((await getUniversityRoster('Unknown test school')).length, 0)
+})
+
+dbTest('student registration canonicalizes an institution typed without selecting an API result', async () => {
+  await postgres.exec('UPDATE member_number_counters SET last_number = 1000')
+  const form = new FormData()
+  form.set('data', JSON.stringify({
+    firstName: 'Campus', lastName: 'Student', email: 'canonical-student@example.test', phone: '08000000002',
+    membershipType: 'student', university: 'Federal university of agriculture abeokuta(FUNAAB)',
+    studyLevel: '100L', dateOfBirth: '2000-01-01', gender: 'Female', stateOfOrigin: 'Ogun',
+    whyJoin: 'I want to join the mentoring community.',
+  }))
+  const photo = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jBFsAAAAASUVORK5CYII=', 'base64')
+  form.set('passportPhoto', new File([photo], 'photo.png', { type: 'image/png' }))
+  const register = app('app/api/membership/route.ts').POST
+  const response = await register(new NextRequest('https://wearekamp.org/api/membership', { method: 'POST', body: form }))
+  assert.equal(response.status, 201)
+  const { rows } = await postgres.query("SELECT university FROM members WHERE email = 'canonical-student@example.test'")
+  assert.equal(rows[0].university, 'Federal University of Agriculture, Abeokuta')
 })

@@ -7,6 +7,7 @@ import { rateLimit, getClientIp } from '@/lib/ratelimit'
 import { networkLimit } from '@/lib/registration-limits'
 import { readRequestBytes, RequestBodyTooLargeError } from '@/lib/request-body'
 import { createMemberId } from '@/lib/member-id'
+import { canonicalInstitution } from '@/lib/institution-names'
 import { createLeadershipMemberId, isLeadershipInviteToken, LEADERSHIP_ROLES } from '@/lib/leadership'
 import { createCommunityLinkToken, createTrackedCommunityUrl, hashCommunityLinkToken, getSiteOrigin } from '@/lib/community'
 
@@ -116,7 +117,7 @@ export async function POST(req: NextRequest) {
     const email = values.email.trim().toLowerCase()
     const yearJoined = currentLagosYear()
     const isStudent = values.membershipType === 'student'
-    const university = isStudent ? values.university?.trim() ?? null : null
+    const university = isStudent && values.university ? canonicalInstitution(values.university).name : null
     const studyLevel = isStudent ? values.studyLevel ?? null : null
     const occupation = isStudent ? null : values.occupation?.trim() ?? null
     const organization = values.membershipType === 'professional' ? values.organization?.trim() || null : null

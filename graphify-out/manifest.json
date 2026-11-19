@@ -133,10 +133,10 @@
     "semantic_hash": "5d72728d2821cfc95d97e0cc1a32918f"
   },
   "app/admin/(protected)/dashboard/page.tsx": {
-    "mtime": 1793524227.1120448,
-    "seen": 1793833188.236775,
-    "ast_hash": "8297a3d9f8af3b2c522456433240393f",
-    "semantic_hash": "8297a3d9f8af3b2c522456433240393f"
+    "mtime": 1795051344.336841,
+    "seen": 1795051388.964454,
+    "ast_hash": "d9cd2d5bdf8bb98ccaba3c8033a13b2b",
+    "semantic_hash": ""
   },
   "app/admin/(protected)/events/[slug]/checkin/page.tsx": {
     "mtime": 1793522734.5657609,
@@ -259,9 +259,9 @@
     "semantic_hash": "83a3678139094ee27764ad2f73dc171d"
   },
   "app/admin/api/members/export/route.ts": {
-    "mtime": 1794888299.1630201,
-    "seen": 1794888363.181678,
-    "ast_hash": "1eb1b94088e193469322edd9611ef396",
+    "mtime": 1795050752.2450368,
+    "seen": 1795051321.9126966,
+    "ast_hash": "ab5ff3eb97ad7515e24c989e701fe20e",
     "semantic_hash": ""
   },
   "app/admin/api/members/resend-card/route.ts": {
@@ -343,9 +343,9 @@
     "semantic_hash": "235fd5cb594454af4af66f12086673b2"
   },
   "app/api/membership/route.ts": {
-    "mtime": 1795040967.8159108,
-    "seen": 1795041412.8030396,
-    "ast_hash": "954684bd53b2c6810b06fbf9ce077925",
+    "mtime": 1795050731.2090087,
+    "seen": 1795051321.9127562,
+    "ast_hash": "f1c45bd05723dea9a92beb93cb0706b0",
     "semantic_hash": ""
   },
   "app/api/paystack/webhook/route.ts": {
@@ -493,9 +493,9 @@
     "semantic_hash": "2da57a835463aa868e4a5201f0a0472c"
   },
   "components/admin/UniversityDirectory.tsx": {
-    "mtime": 1794888299.2453184,
-    "seen": 1794888363.1819038,
-    "ast_hash": "214281faac547924229f9051a9e81503",
+    "mtime": 1795050817.8795023,
+    "seen": 1795051321.9128919,
+    "ast_hash": "f68013f0e10c70dd5492cb782458a6e9",
     "semantic_hash": ""
   },
   "components/admin/charts/GenderBreakdown.tsx": {
@@ -781,10 +781,10 @@
     "semantic_hash": "065d3e2096f1f54d468b9f71dde18ff0"
   },
   "lib/admin-analytics.ts": {
-    "mtime": 1793522734.6007268,
-    "seen": 1793833188.3178208,
-    "ast_hash": "ee094f992466caef9aac730e99aca4fd",
-    "semantic_hash": "ee094f992466caef9aac730e99aca4fd"
+    "mtime": 1795050751.7437334,
+    "seen": 1795051321.913043,
+    "ast_hash": "9db38176711865b9f544f6cbb032b07a",
+    "semantic_hash": ""
   },
   "lib/admin-data.ts": {
     "mtime": 1791887859.3903935,
@@ -829,9 +829,9 @@
     "semantic_hash": "14d8be112c61314d342ca04b7a091b25"
   },
   "lib/db-migrate.ts": {
-    "mtime": 1795049437.1315322,
-    "seen": 1795049684.953222,
-    "ast_hash": "2df1da50070b3663d5f7933f6bf5f864",
+    "mtime": 1795050730.9427464,
+    "seen": 1795051321.9130669,
+    "ast_hash": "2b3f35b26727213cf027ded332ccb99e",
     "semantic_hash": ""
   },
   "lib/db-test.ts": {
@@ -2372,9 +2372,9 @@
     "semantic_hash": ""
   },
   "scripts/tests/registration.test.mjs": {
-    "mtime": 1795049541.337214,
-    "seen": 1795049684.955566,
-    "ast_hash": "5b0d7cc0f7cc7043c6d9669becba63c9",
+    "mtime": 1795052302.9770179,
+    "seen": 1795052342.7792058,
+    "ast_hash": "2113155148babe25f8b0ef617f254e8b",
     "semantic_hash": ""
   },
   "app/admin/api/requests/[id]/notify/route.ts": {
@@ -2453,6 +2453,30 @@
     "mtime": 1795049436.9354556,
     "seen": 1795049684.9533687,
     "ast_hash": "04504d4710b26a01ae2b3150e2104828",
+    "semantic_hash": ""
+  },
+  "lib/institution-names.ts": {
+    "mtime": 1795052291.3388288,
+    "seen": 1795052342.7791023,
+    "ast_hash": "b8a314fea1892195ca6f6353a2b02ac1",
+    "semantic_hash": ""
+  },
+  "lib/university-data.ts": {
+    "mtime": 1795050730.1373625,
+    "seen": 1795051321.913155,
+    "ast_hash": "cd2a1e0489af1f11f2a01ff8fc492fce",
+    "semantic_hash": ""
+  },
+  "migrations/024_institution_name_history.sql": {
+    "mtime": 1795050730.493046,
+    "seen": 1795051321.9132254,
+    "ast_hash": "860de571ae72ba7ac243d3e18ae3191f",
+    "semantic_hash": ""
+  },
+  "scripts/canonicalize-institutions.mjs": {
+    "mtime": 1795050818.073362,
+    "seen": 1795051321.9132886,
+    "ast_hash": "238619a660d42a04e28ef53b0e495405",
     "semantic_hash": ""
   },
   "pnpm-lock.yaml": {

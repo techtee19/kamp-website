@@ -121,13 +121,31 @@ async function SignupTrendPanel() {
 }
 
 async function UniversityPanel() {
-  try { const universities = await getDashboardUniversities(); return <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6"><header className="mb-3"><h2 className="font-semibold text-brand-black">Top universities</h2><p className="mt-1 text-xs text-brand-grey">Institutions with the most student members</p></header><UniversityChart data={universities.slice(0, 10)} /></article> }
-  catch (error) { console.error('[admin dashboard] University chart failed:', error); return <UnavailablePanel title="Top universities" /> }
+  let universities
+  try { universities = await getDashboardUniversities() }
+  catch (error) { console.error('[admin dashboard] University chart failed:', error) }
+  if (!universities) return <UnavailablePanel title="Top student institutions" />
+  return <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6"><header className="mb-3"><h2 className="font-semibold text-brand-black">Top student institutions</h2><p className="mt-1 text-xs text-brand-grey">Institutions with the most student members</p></header><UniversityChart data={universities.slice(0, 10)} /></article>
 }
 
 async function UniversityDirectoryPanel() {
-  try { const universities = await getDashboardUniversities(); return <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6"><header className="mb-4 flex flex-wrap items-end justify-between gap-2"><div><h2 className="font-semibold text-brand-black">All universities</h2><p className="mt-1 text-xs text-brand-grey">Student members grouped by institution</p></div><p className="text-xs font-medium text-brand-grey">{universities.length.toLocaleString()} institutions · {universities.reduce((total, university) => total + university.count, 0).toLocaleString()} members</p></header><UniversityDirectory data={universities} /></article> }
-  catch (error) { console.error('[admin dashboard] University directory failed:', error); return <UnavailablePanel title="All universities" /> }
+  let universities
+  try { universities = await getDashboardUniversities() }
+  catch (error) { console.error('[admin dashboard] University directory failed:', error) }
+  if (!universities) return <UnavailablePanel title="Student institutions" />
+    const confirmed = universities.filter((item) => !item.needsReview).length
+    const reviewMembers = universities.filter((item) => item.needsReview).reduce((sum, item) => sum + item.count, 0)
+    const total = universities.reduce((sum, item) => sum + item.count, 0)
+    return <article className="rounded-2xl border border-brand-card bg-white p-5 shadow-[0_1px_2px_rgba(32,32,32,0.03)] sm:p-6">
+      <header className="mb-4 flex flex-wrap items-end justify-between gap-2">
+        <div><h2 className="font-semibold text-brand-black">Student institutions</h2><p className="mt-1 text-xs text-brand-grey">Registered student members grouped by institution</p></div>
+        <div className="text-xs font-medium text-brand-grey">
+          <p>{confirmed.toLocaleString()} recognized institutions · {total.toLocaleString()} student members</p>
+          {reviewMembers > 0 && <p className="mt-1 text-amber-800">{reviewMembers.toLocaleString()} member(s) have an institution name to review</p>}
+        </div>
+      </header>
+      <UniversityDirectory data={universities} />
+    </article>
 }
 
 async function StatesPanel() {

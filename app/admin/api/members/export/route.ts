@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { buildCsv } from '@/lib/admin-data'
 import { getAdminSession } from '@/lib/admin-session'
+import { getUniversityRoster } from '@/lib/university-data'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -15,30 +16,7 @@ export async function GET(request: NextRequest) {
     if (!university || university.length > 200) {
       return NextResponse.json({ error: 'Choose a valid university.' }, { status: 400, headers: { 'Cache-Control': 'no-store' } })
     }
-    const rows = await db`
-      WITH student_members AS (
-        SELECT member_id, first_name, last_name, email, phone, study_level, kamp_position, status, joined_at,
-          LOWER(BTRIM(REGEXP_REPLACE(
-            REGEXP_REPLACE(
-              BTRIM(TRANSLATE(university, CHR(160) || CHR(8239) || CHR(8217) || CHR(8216) || CHR(8211) || CHR(8212) || CHR(8209), '       ')),
-              '[[:punct:]]+', ' ', 'g'
-            ),
-            '[[:space:]]+', ' ', 'g'
-          ))) AS university_key
-        FROM members
-        WHERE membership_type = 'student' AND university IS NOT NULL AND BTRIM(university) <> ''
-      )
-      SELECT member_id, first_name, last_name, email, phone, study_level, kamp_position, status, joined_at
-      FROM student_members
-      WHERE university_key = LOWER(BTRIM(REGEXP_REPLACE(
-        REGEXP_REPLACE(
-          BTRIM(TRANSLATE(${university}, CHR(160) || CHR(8239) || CHR(8217) || CHR(8216) || CHR(8211) || CHR(8212) || CHR(8209), '       ')),
-          '[[:punct:]]+', ' ', 'g'
-        ),
-        '[[:space:]]+', ' ', 'g'
-      )))
-      ORDER BY last_name ASC, first_name ASC
-    `
+    const rows = await getUniversityRoster(university)
     if (rows.length === 0) return NextResponse.json({ error: 'No student members found for that university.' }, { status: 404, headers: { 'Cache-Control': 'no-store' } })
 
     const csv = buildCsv(

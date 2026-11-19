@@ -1,5 +1,4 @@
 {
-  "1": "Admin Dashboard Analytics",
   "9": "Package Development Dependencies",
   "11": "Homepage Sections",
   "12": "Application Dependencies",
@@ -9,7 +8,6 @@
   "20": "Navigation and Footer",
   "21": "Brand Asset Generation",
   "23": "Event Check-in Migrations",
-  "26": "Events Listing",
   "32": "Core Database Migrations",
   "33": "Development Dependencies",
   "42": "Application Root Layout",

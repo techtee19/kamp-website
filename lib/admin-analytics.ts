@@ -1,8 +1,9 @@
 import { db } from '@/lib/db'
 import { isEventTableName, quoteEventTableName } from '@/lib/admin-data'
+import { getUniversityCounts, type UniversityCount } from '@/lib/university-data'
 
 export type SignupMonth = { month: string; count: number }
-export type UniversityCount = { university: string; fullName: string; count: number }
+export type { UniversityCount } from '@/lib/university-data'
 export type CategoryCount = { label: string; count: number; percentage: number }
 export type GenderCount = CategoryCount & { gender: string }
 export type EventRegistrationCount = { count: number; available: boolean }
@@ -54,30 +55,7 @@ export async function getMonthlySignups(): Promise<SignupMonth[]> {
 }
 
 export async function getUniversities(): Promise<UniversityCount[]> {
-  const rows = await db`
-    SELECT
-      MIN(BTRIM(university)) AS full_name,
-      COUNT(*)::int AS count
-    FROM members
-    WHERE membership_type = 'student' AND university IS NOT NULL AND BTRIM(university) <> ''
-    GROUP BY LOWER(BTRIM(REGEXP_REPLACE(
-      REGEXP_REPLACE(
-        BTRIM(TRANSLATE(university, CHR(160) || CHR(8239) || CHR(8217) || CHR(8216) || CHR(8211) || CHR(8212) || CHR(8209), '       ')),
-        '[[:punct:]]+', ' ', 'g'
-      ),
-      '[[:space:]]+', ' ', 'g'
-    )))
-    ORDER BY COUNT(*) DESC, full_name ASC
-  `
-
-  return rows.map((row) => {
-    const fullName = String(row.full_name)
-    return {
-      university: fullName.length > 24 ? `${fullName.slice(0, 22)}…` : fullName,
-      fullName,
-      count: Number(row.count),
-    }
-  })
+  return getUniversityCounts()
 }
 
 export async function getTopStates(): Promise<CategoryCount[]> {
