@@ -7,6 +7,8 @@ import { pathToFileURL } from 'node:url'
 import { after, before, test } from 'node:test'
 import ts from 'typescript'
 import { Resend } from 'resend'
+import { createElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
 
 const project = process.cwd()
 const require = createRequire(import.meta.url)
@@ -21,7 +23,7 @@ function loader(overrides = {}) {
     const mod = { exports: {} }
     cache.set(filename, mod)
     const source = ts.transpileModule(readFileSync(filename, 'utf8'), {
-      fileName: filename, compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+      fileName: filename, compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
     }).outputText
     const resolveModule = createRequire(filename)
     new Function('require', 'module', 'exports', source)((name) => {
@@ -42,6 +44,17 @@ const { classifyEmailFailure, EmailProviderError, retryDelay } = load('lib/email
 const { countdownSeconds, eventSlug } = load('lib/registration-flow.ts')
 const { normalizeMemberId } = load('lib/member-id.ts')
 const { registrationRequest } = load('lib/registration-request.ts')
+const { normalizeWhatsAppNumber } = load('lib/whatsapp-number.ts')
+
+test('WhatsApp support numbers normalize Nigerian and international formats', () => {
+  for (const input of ['0801 234 5678', '2348012345678', '+234 (801) 234-5678', '+234 08012345678']) {
+    assert.equal(normalizeWhatsAppNumber(input), '+2348012345678')
+  }
+  assert.equal(normalizeWhatsAppNumber('0044 7700 900123'), '+447700900123')
+  for (const input of ['', 'hello', '0801abc5678', '+0123456789', '+1234567890123456']) {
+    assert.equal(normalizeWhatsAppNumber(input), null)
+  }
+})
 
 test('copied member IDs normalize Unicode dashes, case and separator whitespace', () => {
   assert.equal(normalizeMemberId(' kamp – stu - 2026 - 00001 '), 'KAMP-STU-2026-00001')
@@ -102,6 +115,7 @@ let admin = false
 const tasks = []
 const codes = new Map()
 const outbound = []
+const welcomeRecipients = []
 const notifySecret = 'whsec_' + Buffer.from('isolated-test-signature-key-00000000').toString('base64')
 const eventId = 'test-event'
 const ip = '192.0.2.1'
@@ -146,7 +160,7 @@ before(async () => {
   process.env.RESEND_WEBHOOK_SECRET = notifySecret
   process.env.EMAIL_FROM = 'test@example.test'
   for (const name of ['004_event_tables_registry', '005_members', '007_security_rate_limits', '009_member_passport_photo', '010_member_type_and_date_of_birth',
-    '011_member_kamp_position', '013_member_engagement_tracking', '015_event_member_registration', '019_event_member_otp_audit', '020_registration_reliability', '021_registration_resume']) {
+    '011_member_kamp_position', '013_member_engagement_tracking', '015_event_member_registration', '019_event_member_otp_audit', '020_registration_reliability', '021_registration_resume', '022_membership_support_recovery', '023_whatsapp_support']) {
     await postgres.exec(readFileSync(resolve(project, 'migrations', name + '.sql'), 'utf8'))
   }
   for (let i = 1; i <= 24; i++) {
@@ -161,8 +175,9 @@ before(async () => {
       codes.set(to, code)
       return { data: { id: randomUUID() } }
     },
-    sendMembershipWelcome: async (_, options) => {
+    sendMembershipWelcome: async (email, options) => {
       outbound.push(options.idempotencyKey)
+      welcomeRecipients.push(email.to)
       if (apiEmail) throw apiEmail
       return { data: { id: randomUUID() } }
     },
@@ -175,6 +190,11 @@ before(async () => {
   }
   app = loader({
     'next/server': { NextResponse, after: (fn) => tasks.push(fn) },
+    'next/navigation': {
+      redirect: () => { throw new Error('Admin sign-in required') },
+      useRouter: () => ({ refresh() {} }),
+    },
+    'next/link': { default: ({ children, ...props }) => createElement('a', props, children) },
     '@/lib/db': { db },
     '@/lib/registration-background': { scheduleRegistrationEmail: (id) => tasks.push(() => app('lib/registration-email.ts').tryRegistrationEmail(id)) },
     '@/lib/email': emails,
@@ -434,4 +454,174 @@ dbTest('support requests give generic results and correction requires an admin',
   assert.match((await correct(change())).headers.get('location'), /result=saved/)
   const record = await postgres.query('SELECT action FROM membership_correction_audit WHERE support_id = $1', [rows[0].id])
   assert.equal(record.rows[0].action, 'verified_email_correction')
+})
+
+function supportRecoveryRequest(id, index, verified = false) {
+  return new NextRequest('https://wearekamp.org/admin/api/members/support', {
+    method: 'POST', headers: { accept: 'application/json' },
+    body: new URLSearchParams({
+      action: 'send_welcome', id, memberId: memberId(index),
+      ...(verified ? { ownershipVerified: 'on' } : {}),
+    }),
+  })
+}
+
+dbTest('support automatically finds a member without an ID and audits recovery to the registered email', async () => {
+  const { rows } = await postgres.query(`
+    INSERT INTO membership_support_requests (reply_email, message)
+    VALUES ('21@example.test', 'I do not have my ID') RETURNING id
+  `)
+  const id = rows[0].id
+  const find = app('lib/membership-support-data.ts').findMembershipSupportRequests
+  const [request] = await find({ requestId: id })
+  assert.equal(request.matches.length, 1)
+  assert.equal(request.matches[0].member_id, memberId(21))
+  assert.equal(request.matches[0].match_reason, 'Registered email')
+  assert.equal(request.matches[0].email_status, null)
+
+  const recover = app('app/admin/api/members/support/route.ts').POST
+  admin = false
+  assert.equal((await recover(supportRecoveryRequest(id, 21))).status, 403)
+  admin = true
+  assert.equal((await recover(supportRecoveryRequest(id, 22))).status, 400)
+  const beforeSend = welcomeRecipients.length
+  const responses = await Promise.all([
+    recover(supportRecoveryRequest(id, 21)),
+    recover(supportRecoveryRequest(id, 21)),
+  ])
+  assert.deepEqual(responses.map((response) => response.status), [202, 202])
+  const jobs = await postgres.query("SELECT id FROM registration_email_jobs WHERE reference = $1", [memberId(21)])
+  assert.equal(jobs.rows.length, 1)
+  const audit = await postgres.query("SELECT support_request_id FROM registration_email_attempts WHERE job_id = $1 AND attempt = 0", [jobs.rows[0].id])
+  assert.equal(audit.rows[0].support_request_id, id)
+  await flush()
+  assert.deepEqual(welcomeRecipients.slice(beforeSend), ['21@example.test'])
+  const support = await postgres.query('SELECT resolved_at FROM membership_support_requests WHERE id = $1', [id])
+  assert.equal(support.rows[0].resolved_at, null)
+
+  await postgres.query("UPDATE registration_email_jobs SET status = 'delivered', updated_at = NOW() - INTERVAL '61 seconds' WHERE id = $1", [jobs.rows[0].id])
+  assert.equal((await recover(supportRecoveryRequest(id, 21))).status, 202)
+  await flush()
+  assert.deepEqual(welcomeRecipients.slice(beforeSend), ['21@example.test', '21@example.test'])
+  const [updated] = await find({ requestId: id })
+  assert.equal(updated.matches[0].email_status, 'accepted')
+})
+
+dbTest('support search finds alternate records and escapes SQL wildcard characters', async () => {
+  const { rows } = await postgres.query(`
+    INSERT INTO membership_support_requests (reply_email, message)
+    VALUES ('unmatched@example.test', 'I do not remember my old email') RETURNING id
+  `)
+  const find = app('lib/membership-support-data.ts').findMembershipSupportRequests
+  const [empty] = await find({ requestId: rows[0].id })
+  assert.equal(empty.matches.length, 0)
+  const [searched] = await find({ requestId: rows[0].id, query: memberId(22) })
+  assert.equal(searched.matches[0].member_id, memberId(22))
+  assert.equal(searched.matches[0].match_reason, 'Search result')
+  const [escaped] = await find({ requestId: rows[0].id, query: '%_' })
+  assert.equal(escaped.matches.length, 0)
+})
+
+dbTest('support recovery blocks bounced, suppressed, uncertain, scheduled and inactive records', async () => {
+  const { rows } = await postgres.query(`
+    INSERT INTO membership_support_requests (reply_email, message)
+    VALUES ('22@example.test', 'My welcome email did not arrive') RETURNING id
+  `)
+  const id = rows[0].id
+  const recover = app('app/admin/api/members/support/route.ts').POST
+  await postgres.query("INSERT INTO registration_email_jobs (kind, member_id, reference, status) VALUES ('welcome', $1, $1, 'bounced')", [memberId(22)])
+  for (const status of ['bounced', 'suppressed', 'unknown', 'sending']) {
+    await postgres.query("UPDATE registration_email_jobs SET status = $1 WHERE reference = $2", [status, memberId(22)])
+    assert.equal((await recover(supportRecoveryRequest(id, 22))).status, 409)
+  }
+  await postgres.query("UPDATE registration_email_jobs SET status = 'failed', error_category = 'invalid_recipient' WHERE reference = $1", [memberId(22)])
+  assert.equal((await recover(supportRecoveryRequest(id, 22))).status, 409)
+  await postgres.query("UPDATE registration_email_jobs SET status = 'pending', next_retry_at = NOW() + INTERVAL '1 hour' WHERE reference = $1", [memberId(22)])
+  assert.equal((await recover(supportRecoveryRequest(id, 22))).status, 409)
+  await postgres.query("UPDATE members SET status = 'inactive' WHERE member_id = $1", [memberId(22)])
+  assert.equal((await recover(supportRecoveryRequest(id, 22))).status, 409)
+  await postgres.query("UPDATE membership_support_requests SET resolved_at = NOW() WHERE id = $1", [id])
+  assert.equal((await recover(supportRecoveryRequest(id, 22))).status, 404)
+})
+
+dbTest('admin support can recover an exhausted known rejection with a new delivery generation', async () => {
+  const { rows } = await postgres.query(`
+    INSERT INTO membership_support_requests (reply_email, message)
+    VALUES ('23@example.test', 'I still need my member ID email') RETURNING id
+  `)
+  await postgres.query(`
+    INSERT INTO registration_email_jobs (kind, member_id, reference, attempts, error_category)
+    VALUES ('welcome', $1, $1, 5, 'rate_limit')
+  `, [memberId(23)])
+  const recover = app('app/admin/api/members/support/route.ts').POST
+  assert.equal((await recover(supportRecoveryRequest(rows[0].id, 23))).status, 202)
+  const queued = await postgres.query('SELECT generation, attempts FROM registration_email_jobs WHERE reference = $1', [memberId(23)])
+  assert.equal(queued.rows[0].generation, 2)
+  assert.equal(queued.rows[0].attempts, 0)
+  await flush()
+  const finished = await postgres.query('SELECT status FROM registration_email_jobs WHERE reference = $1', [memberId(23)])
+  assert.equal(finished.rows[0].status, 'accepted')
+})
+
+dbTest('support page shows the matched ID and recovery action behind admin authentication', async () => {
+  const page = app('app/admin/(protected)/members/support/page.tsx').default
+  admin = false
+  await assert.rejects(() => page({ searchParams: Promise.resolve({}) }), /Admin sign-in required/)
+  admin = true
+  const { rows } = await postgres.query("SELECT id FROM membership_support_requests WHERE reply_email = '21@example.test'")
+  const rendered = renderToStaticMarkup(await page({ searchParams: Promise.resolve({ request: rows[0].id }) }))
+  assert.ok(rendered.includes(memberId(21)))
+  assert.ok(rendered.includes('21@example.test'))
+  assert.ok(rendered.includes('Send member ID &amp; welcome email'))
+  assert.ok(rendered.includes('/admin/members/' + memberId(21)))
+  assert.equal(rendered.includes('Verified member ID'), false)
+})
+
+dbTest('WhatsApp support requires a valid number and stores a request without a member ID', async () => {
+  const submit = app('app/api/membership/support/route.ts').POST
+  const details = { issueType: 'whatsapp', email: 'community-help@example.test' }
+  assert.equal((await submit(request(details))).status, 400)
+  assert.equal((await submit(request({ ...details, whatsappNumber: 'invalid' }))).status, 400)
+  const response = await submit(request({ ...details, whatsappNumber: '0801 234 5678' }))
+  assert.equal(response.status, 201)
+  assert.match((await response.json()).message, /WhatsApp number/)
+  const { rows } = await postgres.query("SELECT id, issue_type, whatsapp_number, member_id_hint, whatsapp_added_at, message FROM membership_support_requests WHERE reply_email = 'community-help@example.test'")
+  assert.equal(rows[0].issue_type, 'whatsapp')
+  assert.equal(rows[0].whatsapp_number, '+2348012345678')
+  assert.equal(rows[0].member_id_hint, null)
+  assert.equal(rows[0].whatsapp_added_at, null)
+  assert.match(rows[0].message, /add me manually/)
+})
+
+dbTest('admin sees WhatsApp details and records manual addition after completing it', async () => {
+  const { rows } = await postgres.query("SELECT id FROM membership_support_requests WHERE reply_email = 'community-help@example.test'")
+  const id = rows[0].id
+  const page = app('app/admin/(protected)/members/support/page.tsx').default
+  admin = true
+  const rendered = renderToStaticMarkup(await page({ searchParams: Promise.resolve({ request: id }) }))
+  assert.ok(rendered.includes('+2348012345678'))
+  assert.ok(rendered.includes('https://wa.me/2348012345678'))
+  assert.ok(rendered.includes('Mark added &amp; resolve'))
+  const resolve = app('app/admin/api/members/support/route.ts').POST
+  const markAdded = (requestId = id) => new NextRequest('https://wearekamp.org/admin/api/members/support', {
+    method: 'POST', body: new URLSearchParams({ action: 'resolve_whatsapp', id: requestId }),
+  })
+  admin = false
+  assert.equal((await resolve(markAdded())).status, 403)
+  admin = true
+  const ordinary = await postgres.query("SELECT id FROM membership_support_requests WHERE reply_email = '21@example.test'")
+  const rejected = await resolve(markAdded(ordinary.rows[0].id))
+  assert.match(rejected.headers.get('location'), /result=unavailable/)
+  assert.match((await resolve(markAdded())).headers.get('location'), /result=saved/)
+  const added = await postgres.query('SELECT whatsapp_added_at, resolved_at FROM membership_support_requests WHERE id = $1', [id])
+  assert.ok(added.rows[0].whatsapp_added_at)
+  assert.ok(added.rows[0].resolved_at)
+})
+
+dbTest('the community support link opens the WhatsApp number field directly', async () => {
+  const page = app('app/(site)/membership/support/page.tsx').default
+  const rendered = renderToStaticMarkup(await page({ searchParams: Promise.resolve({ issue: 'whatsapp' }) }))
+  assert.ok(rendered.includes('name="whatsappNumber"'))
+  assert.ok(rendered.includes('Request help joining WhatsApp'))
+  assert.ok(rendered.includes('Anything else we should know? (optional)'))
 })

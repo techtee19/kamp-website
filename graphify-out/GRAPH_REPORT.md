@@ -1,17 +1,17 @@
-# Graph Report - kamp-website  (2026-11-18)
+# Graph Report - kamp-website  (2026-11-19)
 
 ## Corpus Check
-- 265 files · ~93,584 words
+- 272 files · ~97,119 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 8 file(s) not represented in the graph (top: .ico 3, (none) 2, .example 1)
 
 ## Summary
-- 1220 nodes · 2782 edges · 101 communities (68 shown, 33 thin omitted)
+- 1246 nodes · 2850 edges · 106 communities (69 shown, 37 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 18 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `074a6989`
+- Built from commit: `dc5b0c98`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -20,11 +20,11 @@
 - Admin Dashboard Analytics
 - migrate-events.mjs
 - member-code/route.ts
-- community-status/route.ts
+- admin-analytics.ts
 - schemas/index.ts
-- leader-auth.ts
+- readJsonRequest
 - getAdminSession
-- About and Contact Content
+- sanity.ts
 - Package Development Dependencies
 - sanity.config.ts
 - Homepage Sections
@@ -32,7 +32,7 @@
 - TypeScript Configuration
 - db
 - (protected)/events/[slug]/page.tsx
-- checkin-access.ts
+- check-in/verify/route.ts
 - leader-validations.ts
 - Leadership and Engagement Migrations
 - Community Email Campaigns
@@ -41,32 +41,32 @@
 - [memberId]/page.tsx
 - Event Check-in Migrations
 - email.ts
-- reports/route.ts
-- Events Listing
+- admin-data.ts
+- FeaturedEventsCarousel.tsx
 - MembershipForm.tsx
 - programs/page.tsx
 - members/page.tsx
 - RegistrationForm.tsx
-- readJsonRequest
+- getClientIp
 - Core Database Migrations
 - Development Dependencies
-- next
+- lucide-react
 - next-sanity
-- requireLeader
+- leader-auth.ts
 - leadership-invites/route.ts
 - sanity.ts
 - admin-session.ts
-- react
+- GenderPanel
 - registration.test.mjs
 - Application Root Layout
 - migrate-gallery.mjs
 - member-card.tsx
 - Vercel Deployment Config
-- quoteEventTableName
+- check-in/[slug]/page.tsx
 - Prettier Configuration
 - InstitutionCombobox.tsx
 - Member Table Migration
-- lucide-react
+- success/page.tsx
 - Database Type Definitions
 - Admin Dashboard Loading
 - DonateForm.tsx
@@ -80,83 +80,87 @@
 - 018_leaders_portal.sql
 - PostCSS Configuration
 - gallery-data.ts
-- (site)/events/[slug]/page.tsx
-- (site)/page.tsx
+- queries.ts
+- MembershipTypeBreakdown.tsx
 - invite/page.tsx
 - GalleryMarquee.tsx
 - membership/support/page.tsx
 - (protected)/requests/[id]/page.tsx
+- members/support/page.tsx
 - db-migrate.ts
 - 019_event_member_otp_audit.sql
 - load
 - check-in/login/page.tsx
-- LeaderPortalNav.tsx
-- (auth)/login/page.tsx
+- SignupTrendChart.tsx
+- (protected)/layout.tsx
+- leaders/layout.tsx
+- [[...tool]]/layout.tsx
+- next.config.ts
 
 ## God Nodes (most connected - your core abstractions)
 1. `db` - 143 edges
-2. `next` - 127 edges
+2. `next` - 129 edges
 3. `readJsonRequest()` - 62 edges
-4. `getAdminSession()` - 54 edges
-5. `react` - 52 edges
+4. `react` - 55 edges
+5. `getAdminSession()` - 54 edges
 6. `isSameOriginAdminRequest()` - 42 edges
 7. `requestBodyErrorResponse()` - 40 edges
 8. `getClientIp()` - 31 edges
 9. `rateLimit()` - 26 edges
-10. `lucide-react` - 23 edges
+10. `lucide-react` - 26 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `POST()` --calls--> `getClientIp()`  [EXTRACTED]
-  app/api/register/member-verify/route.ts → lib/ratelimit.ts
-- `POST()` --calls--> `readJsonRequest()`  [EXTRACTED]
-  app/api/register/member-verify/route.ts → lib/request-body.ts
-- `POST()` --calls--> `requestBodyErrorResponse()`  [EXTRACTED]
-  app/api/register/member-verify/route.ts → lib/request-body.ts
+- `AdminMembershipSupport()` --calls--> `getAdminSession()`  [EXTRACTED]
+  app/admin/(protected)/members/support/page.tsx → lib/admin-session.ts
+- `POST()` --calls--> `isSameOriginAdminRequest()`  [EXTRACTED]
+  app/admin/api/members/support/route.ts → lib/admin-request.ts
+- `POST()` --calls--> `getAdminSession()`  [EXTRACTED]
+  app/admin/api/members/support/route.ts → lib/admin-session.ts
+- `POST()` --calls--> `scheduleRegistrationEmail()`  [EXTRACTED]
+  app/admin/api/members/support/route.ts → lib/registration-background.ts
 - `POST()` --calls--> `db`  [EXTRACTED]
-  app/api/register/route.ts → lib/db.ts
-- `POST()` --calls--> `getClientIp()`  [EXTRACTED]
-  app/api/register/route.ts → lib/ratelimit.ts
+  app/api/membership/support/route.ts → lib/db.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (101 total, 33 thin omitted)
+## Communities (106 total, 37 thin omitted)
 
 ### Community 0 - "membership/route.ts"
-Cohesion: 0.11
-Nodes (25): campaignCounts(), dynamic, POST(), runtime, dynamic, LeadershipInvitationsPage(), currentLagosYear(), LeadershipRegistrationError (+17 more)
+Cohesion: 0.08
+Nodes (37): campaignCounts(), dynamic, POST(), runtime, maxDuration, POST(), runtime, schema (+29 more)
 
 ### Community 1 - "Admin Dashboard Analytics"
-Cohesion: 0.08
-Nodes (50): AdminDashboardPage(), AnalyticsDirectoryLoading(), AnalyticsPanelLoading(), DashboardAnalytics(), DashboardOverview(), dynamic, EventRegistrationsLoading(), EventRegistrationsOverview() (+42 more)
+Cohesion: 0.15
+Nodes (28): AdminDashboardPage(), AnalyticsDirectoryLoading(), AnalyticsPanelLoading(), DashboardAnalytics(), DashboardOverview(), dynamic, EventRegistrationsLoading(), EventRegistrationsOverview() (+20 more)
 
 ### Community 2 - "migrate-events.mjs"
 Cohesion: 0.13
 Nodes (15): KampEvent, kampEvents, buildDocument(), client, DRY_RUN, IMAGE_ROOT, main(), MONTHS (+7 more)
 
 ### Community 3 - "member-code/route.ts"
-Cohesion: 0.07
-Nodes (44): limited(), maxDuration, POST(), runtime, schema, POST(), runtime, schema (+36 more)
+Cohesion: 0.06
+Nodes (46): limited(), maxDuration, POST(), runtime, schema, POST(), runtime, schema (+38 more)
 
-### Community 4 - "community-status/route.ts"
-Cohesion: 0.12
-Nodes (18): bodySchema, dynamic, PATCH(), runtime, DELETE(), dynamic, runtime, dynamic (+10 more)
+### Community 4 - "admin-analytics.ts"
+Cohesion: 0.26
+Nodes (10): AdminEventsPage(), dynamic, EventRegistrationCount, getEventRegistrationCount(), getTotalEventRegistrations(), getUniversities(), isMissingTableError(), UniversityCount (+2 more)
 
 ### Community 5 - "schemas/index.ts"
 Cohesion: 0.18
 Nodes (10): sanity@^5.31.1, sanity, plugins, eventSchema, galleryEventSchema, schemaTypes, memberSchema, programSchema (+2 more)
 
-### Community 6 - "leader-auth.ts"
-Cohesion: 0.24
-Nodes (12): POST(), POST(), runtime, POST(), runtime, createLeaderSession(), destroyLeaderSession(), generateToken() (+4 more)
+### Community 6 - "readJsonRequest"
+Cohesion: 0.11
+Nodes (27): dynamic, POST(), runtime, dynamic, POST(), runtime, POST(), bodySchema (+19 more)
 
 ### Community 7 - "getAdminSession"
 Cohesion: 0.10
-Nodes (33): createSchema, DELETE(), dynamic, eventSlugSchema, GET(), POST(), revokeSchema, runtime (+25 more)
+Nodes (30): createSchema, DELETE(), dynamic, eventSlugSchema, GET(), POST(), revokeSchema, runtime (+22 more)
 
-### Community 8 - "About and Contact Content"
-Cohesion: 0.21
-Nodes (11): AboutPage(), FounderCard, revalidate, TeamCard, values, builder, EVENT_BY_ID_QUERY, FOUNDER_QUERY (+3 more)
+### Community 8 - "sanity.ts"
+Cohesion: 0.15
+Nodes (14): AboutPage(), FounderCard, revalidate, TeamCard, values, ContactPage(), revalidate, ContactForm() (+6 more)
 
 ### Community 9 - "Package Development Dependencies"
 Cohesion: 0.10
@@ -167,28 +171,28 @@ Cohesion: 0.17
 Nodes (10): @sanity/image-url@2, @sanity/vision@^5.31.1, @sanity/image-url, @sanity/vision, apiVersion, dataset, projectId, builder (+2 more)
 
 ### Community 11 - "Homepage Sections"
-Cohesion: 0.10
-Nodes (14): AdminLoginPage(), HomePage(), CheckinLogoutButton(), GetInvolvedTabs(), tabs, HeroImageRotator(), heroImages, QuickStory() (+6 more)
+Cohesion: 0.11
+Nodes (17): actions, fallbackStats, HomePage(), partners, revalidate, GetInvolvedTabs(), tabs, HeroImageRotator() (+9 more)
 
 ### Community 12 - "Application Dependencies"
 Cohesion: 0.09
-Nodes (23): dependencies, clsx@^2.1.1, next@16.3.0, next-auth@^4.24.15, postgres@^3.4.9, qrcode@^1.5.4, react@19.2.8, @react-email/components@^1.0.12 (+15 more)
+Nodes (23): dependencies, clsx@^2.1.1, lucide-react@^1.28.0, next@16.3.0, next-auth@^4.24.15, postgres@^3.4.9, qrcode@^1.5.4, react@19.2.8 (+15 more)
 
 ### Community 13 - "TypeScript Configuration"
 Cohesion: 0.10
 Nodes (19): compilerOptions, allowImportingTsExtensions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib (+11 more)
 
 ### Community 14 - "db"
-Cohesion: 0.13
-Nodes (17): dynamic, GET(), dynamic, GET(), DELETE(), PATCH(), AdminMembershipSupport(), dynamic (+9 more)
+Cohesion: 0.17
+Nodes (13): dynamic, GET(), dynamic, GET(), AdminLeaderReportDetail(), dynamic, csvFile(), db (+5 more)
 
 ### Community 15 - "(protected)/events/[slug]/page.tsx"
 Cohesion: 0.26
 Nodes (8): AdminEventRegistrationsPage(), dynamic, CheckinOperatorManager(), addOperator(), load(), revoke(), Operator, SendReminderButton()
 
-### Community 16 - "checkin-access.ts"
-Cohesion: 0.18
-Nodes (15): dynamic, POST(), runtime, dynamic, requestSchema, runtime, dynamic, OperatorCheckinPage() (+7 more)
+### Community 16 - "check-in/verify/route.ts"
+Cohesion: 0.15
+Nodes (18): dynamic, POST(), requestSchema, runtime, dynamic, POST(), requestSchema, runtime (+10 more)
 
 ### Community 17 - "leader-validations.ts"
 Cohesion: 0.09
@@ -211,8 +215,8 @@ Cohesion: 0.18
 Nodes (9): BG, chip(), emblem(), flame(), fs, path, sharp, SRC (+1 more)
 
 ### Community 22 - "[memberId]/page.tsx"
-Cohesion: 0.25
-Nodes (5): dynamic, MemberProfilePage(), DeleteMemberButton(), EditMemberPosition(), ResendCardButton()
+Cohesion: 0.19
+Nodes (7): AdminLoginPage(), dynamic, MemberProfilePage(), DeleteMemberButton(), EditMemberPosition(), ResendCardButton(), react
 
 ### Community 23 - "Event Check-in Migrations"
 Cohesion: 0.28
@@ -222,13 +226,13 @@ Nodes (11): idx_registry_event_id, idx_registry_event_slug, public.event_tables_
 Cohesion: 0.08
 Nodes (47): GET(), maxDuration, runtime, POST(), runtime, POST(), runtime, EventSnapshot (+39 more)
 
-### Community 25 - "reports/route.ts"
-Cohesion: 0.29
-Nodes (8): POST(), runtime, POST(), runtime, LeadersIndexPage(), sendNewSubmissionNotices(), getLeader(), safeEqual()
+### Community 25 - "admin-data.ts"
+Cohesion: 0.27
+Nodes (8): dynamic, GET(), runtime, dynamic, GET(), runtime, buildCsv(), csvCell()
 
-### Community 26 - "Events Listing"
-Cohesion: 0.23
-Nodes (9): EventCard(), EventsPage(), formatEventDate(), revalidate, EventCardProps, FeaturedEventsCarousel(), formatEventDate(), PAST_EVENTS_QUERY (+1 more)
+### Community 26 - "FeaturedEventsCarousel.tsx"
+Cohesion: 0.38
+Nodes (4): EventCardProps, FeaturedEventsCarousel(), formatEventDate(), EventDocument
 
 ### Community 27 - "MembershipForm.tsx"
 Cohesion: 0.15
@@ -246,9 +250,9 @@ Nodes (4): AdminMembersPage(), dynamic, escapeLike(), MembersSearch()
 Cohesion: 0.23
 Nodes (13): Failure, Member, RegistrationForm(), confirmRegistration(), editId(), post(), requestCode(), save() (+5 more)
 
-### Community 31 - "readJsonRequest"
-Cohesion: 0.12
-Nodes (31): POST(), runtime, verifyPassword(), dynamic, POST(), requestSchema, runtime, POST() (+23 more)
+### Community 31 - "getClientIp"
+Cohesion: 0.15
+Nodes (21): POST(), POST(), POST(), POST(), schema, POST(), runtime, POST() (+13 more)
 
 ### Community 32 - "Core Database Migrations"
 Cohesion: 0.29
@@ -258,45 +262,45 @@ Nodes (8): contact_submissions, donations, events_registrations, idx_donations_e
 Cohesion: 0.18
 Nodes (11): scripts, admin:hash-password, build, db:check, db:migrate, dev, lint, migrate:events (+3 more)
 
-### Community 34 - "next"
-Cohesion: 0.11
-Nodes (10): ProtectedAdminLayout(), metadata, metadata, AdminNavigation(), items, LogoutButton(), csp, nextConfig (+2 more)
+### Community 34 - "lucide-react"
+Cohesion: 0.22
+Nodes (3): pathways, metadata, lucide-react
 
 ### Community 35 - "next-sanity"
 Cohesion: 0.40
 Nodes (3): dynamic, next-sanity@13, next-sanity
 
-### Community 36 - "requireLeader"
-Cohesion: 0.27
-Nodes (7): dynamic, LeaderDashboardPage(), dynamic, LeaderReportDetailPage(), dynamic, LeaderRequestDetailPage(), requireLeader()
+### Community 36 - "leader-auth.ts"
+Cohesion: 0.11
+Nodes (21): POST(), LeaderLoginPage(), LeadersIndexPage(), dynamic, LeaderDashboardPage(), LeaderPortalLayout(), dynamic, LeaderReportDetailPage() (+13 more)
 
 ### Community 37 - "leadership-invites/route.ts"
-Cohesion: 0.33
-Nodes (5): dynamic, InvitationError, invitationSchema, POST(), runtime
+Cohesion: 0.18
+Nodes (8): dynamic, InvitationError, invitationSchema, runtime, dynamic, runtime, tokenSchema, zod
 
 ### Community 38 - "sanity.ts"
-Cohesion: 0.14
-Nodes (18): GalleryIntro(), GalleryPage(), revalidate, GalleryAlbum(), GalleryAlbumProps, slots, GalleryAlbums(), GalleryAlbumsProps (+10 more)
+Cohesion: 0.15
+Nodes (17): GalleryIntro(), GalleryPage(), revalidate, GalleryAlbum(), GalleryAlbumProps, slots, GalleryAlbums(), GalleryAlbumsProps (+9 more)
 
 ### Community 39 - "admin-session.ts"
-Cohesion: 0.46
-Nodes (6): POST(), createAdminSession(), destroyAdminSession(), getSecret(), signValue(), verifyValue()
+Cohesion: 0.30
+Nodes (9): POST(), runtime, verifyPassword(), POST(), createAdminSession(), destroyAdminSession(), getSecret(), signValue() (+1 more)
 
-### Community 40 - "react"
-Cohesion: 0.22
-Nodes (9): dynamic, EventCheckinPage(), CameraTicketScanner(), controlsStop(), start(), CheckinList(), Registrant, @zxing/browser@^0.2.1 (+1 more)
+### Community 40 - "GenderPanel"
+Cohesion: 0.33
+Nodes (5): GenderPanel(), colors, GenderBreakdown(), GenderCount, getGenderBreakdown()
 
 ### Community 41 - "registration.test.mjs"
-Cohesion: 0.09
-Nodes (16): resend(), check(), { classifyEmailFailure, EmailProviderError, retryDelay }, codes, { countdownSeconds, eventSlug }, load, memberId(), { NextRequest, NextResponse } (+8 more)
+Cohesion: 0.08
+Nodes (19): resend(), check(), { classifyEmailFailure, EmailProviderError, retryDelay }, codes, { countdownSeconds, eventSlug }, load, memberId(), { NextRequest, NextResponse } (+11 more)
 
 ### Community 42 - "Application Root Layout"
 Cohesion: 0.29
 Nodes (4): metadata, urbanist, @vercel/analytics@^2.0.1, @vercel/analytics
 
 ### Community 43 - "migrate-gallery.mjs"
-Cohesion: 0.20
-Nodes (14): absolutePathFor(), assertFilesExist(), buildDocument(), client, DRY_RUN, fetchExistingAssets(), IMAGE_ROOT, main() (+6 more)
+Cohesion: 0.17
+Nodes (16): @sanity/client@7.26.2, @sanity/client, absolutePathFor(), assertFilesExist(), buildDocument(), client, DRY_RUN, fetchExistingAssets() (+8 more)
 
 ### Community 44 - "member-card.tsx"
 Cohesion: 0.19
@@ -306,9 +310,9 @@ Nodes (10): dynamic, GET(), runtime, CARD, generateMemberCardPDF(), MemberCard()
 Cohesion: 0.25
 Nodes (7): maxDuration, crons, framework, functions, app/api/paystack/webhook/route.ts, regions, $schema
 
-### Community 46 - "quoteEventTableName"
-Cohesion: 0.24
-Nodes (9): dynamic, GET(), runtime, dynamic, GET(), runtime, buildCsv(), csvCell() (+1 more)
+### Community 46 - "check-in/[slug]/page.tsx"
+Cohesion: 0.16
+Nodes (12): dynamic, EventCheckinPage(), dynamic, OperatorCheckinPage(), CameraTicketScanner(), controlsStop(), start(), CheckinList() (+4 more)
 
 ### Community 47 - "Prettier Configuration"
 Cohesion: 0.33
@@ -321,10 +325,6 @@ Nodes (8): GET(), normalize(), InstitutionCombobox(), InstitutionComboboxProps, 
 ### Community 49 - "Member Table Migration"
 Cohesion: 0.60
 Nodes (4): member_number_counters, members, members_status_idx, members_year_joined_idx
-
-### Community 50 - "lucide-react"
-Cohesion: 0.16
-Nodes (6): DonationReference(), DonateSuccessPage(), pathways, metadata, lucide-react@^1.28.0, lucide-react
 
 ### Community 51 - "Database Type Definitions"
 Cohesion: 0.50
@@ -358,13 +358,13 @@ Nodes (11): idx_login_tokens_expiry, idx_login_tokens_leader, idx_reports_create
 Cohesion: 0.25
 Nodes (7): emerge2025, featuredPhotos, GALLERY_IMAGE_DIR, KampGalleryAlbum, kampGalleryAlbums, KampGalleryPhoto, remainingFiles
 
-### Community 88 - "(site)/events/[slug]/page.tsx"
-Cohesion: 0.24
-Nodes (8): descriptionComponents, EventDetailPage(), formatDate(), formatTime(), revalidate, freshClient, EVENT_BY_SLUG_QUERY, EVENT_SLUGS_QUERY
+### Community 88 - "queries.ts"
+Cohesion: 0.16
+Nodes (17): EventCard(), EventsPage(), formatEventDate(), revalidate, descriptionComponents, EventDetailPage(), formatDate(), formatTime() (+9 more)
 
-### Community 89 - "(site)/page.tsx"
-Cohesion: 0.17
-Nodes (13): ContactPage(), revalidate, actions, fallbackStats, partners, revalidate, ContactForm(), client (+5 more)
+### Community 89 - "MembershipTypeBreakdown.tsx"
+Cohesion: 0.33
+Nodes (4): barColors, colors, StudyLevelBreakdown(), CategoryCount
 
 ### Community 90 - "invite/page.tsx"
 Cohesion: 0.38
@@ -382,6 +382,10 @@ Nodes (3): MembershipSupportPage(), metadata, MembershipSupportForm()
 Cohesion: 0.31
 Nodes (4): AdminLeaderRequestDetail(), dynamic, ReviewLeaderRequest(), SendRequestAdminNotification()
 
+### Community 94 - "members/support/page.tsx"
+Cohesion: 0.19
+Nodes (9): AdminMembershipSupport(), deliveryLabels, dynamic, nextStep(), SupportWelcomeAction(), SupportWhatsAppNumber(), findMembershipSupportRequests(), SupportMember (+1 more)
+
 ### Community 96 - "019_event_member_otp_audit.sql"
 Cohesion: 0.83
 Nodes (3): event_member_otp_audit_created_idx, event_member_otp_audit_event_created_idx, public.event_member_otp_audit
@@ -390,27 +394,31 @@ Nodes (3): event_member_otp_audit_created_idx, event_member_otp_audit_event_crea
 Cohesion: 0.38
 Nodes (3): CheckinLoginPage(), dynamic, CheckinLoginForm()
 
-### Community 99 - "LeaderPortalNav.tsx"
-Cohesion: 0.48
-Nodes (4): LeaderPortalLayout(), LeaderLogoutButton(), LeaderPortalNav(), links
+### Community 99 - "SignupTrendChart.tsx"
+Cohesion: 0.40
+Nodes (4): EmptyChart(), SignupTrendChart(), SignupMonth, recharts
+
+### Community 100 - "(protected)/layout.tsx"
+Cohesion: 0.39
+Nodes (4): ProtectedAdminLayout(), AdminNavigation(), items, LogoutButton()
 
 ## Knowledge Gaps
-- **33 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **37 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `next` connect `next` to `membership/route.ts`, `Admin Dashboard Analytics`, `migrate-events.mjs`, `member-code/route.ts`, `community-status/route.ts`, `leader-auth.ts`, `getAdminSession`, `About and Contact Content`, `Package Development Dependencies`, `Homepage Sections`, `Application Dependencies`, `db`, `(protected)/events/[slug]/page.tsx`, `checkin-access.ts`, `leader-validations.ts`, `Community Email Campaigns`, `Navigation and Footer`, `[memberId]/page.tsx`, `email.ts`, `reports/route.ts`, `Events Listing`, `MembershipForm.tsx`, `programs/page.tsx`, `members/page.tsx`, `RegistrationForm.tsx`, `readJsonRequest`, `requireLeader`, `leadership-invites/route.ts`, `sanity.ts`, `admin-session.ts`, `react`, `registration.test.mjs`, `Application Root Layout`, `quoteEventTableName`, `InstitutionCombobox.tsx`, `lucide-react`, `(protected)/leaders/page.tsx`, `WhatsAppJoinAction.tsx`, `MembershipForm`, `verify/page.tsx`, `(site)/events/[slug]/page.tsx`, `(site)/page.tsx`, `invite/page.tsx`, `GalleryMarquee.tsx`, `(protected)/requests/[id]/page.tsx`, `check-in/login/page.tsx`, `LeaderPortalNav.tsx`, `(auth)/login/page.tsx`?**
-  _High betweenness centrality (0.342) - this node is a cross-community bridge._
+- **Why does `next` connect `getAdminSession` to `membership/route.ts`, `Admin Dashboard Analytics`, `migrate-events.mjs`, `member-code/route.ts`, `admin-analytics.ts`, `readJsonRequest`, `sanity.ts`, `Package Development Dependencies`, `Homepage Sections`, `Application Dependencies`, `db`, `(protected)/events/[slug]/page.tsx`, `check-in/verify/route.ts`, `leader-validations.ts`, `Community Email Campaigns`, `Navigation and Footer`, `[memberId]/page.tsx`, `email.ts`, `admin-data.ts`, `FeaturedEventsCarousel.tsx`, `MembershipForm.tsx`, `programs/page.tsx`, `members/page.tsx`, `RegistrationForm.tsx`, `getClientIp`, `lucide-react`, `leader-auth.ts`, `leadership-invites/route.ts`, `sanity.ts`, `admin-session.ts`, `registration.test.mjs`, `Application Root Layout`, `check-in/[slug]/page.tsx`, `InstitutionCombobox.tsx`, `success/page.tsx`, `(protected)/leaders/page.tsx`, `WhatsAppJoinAction.tsx`, `MembershipForm`, `verify/page.tsx`, `queries.ts`, `invite/page.tsx`, `GalleryMarquee.tsx`, `(protected)/requests/[id]/page.tsx`, `members/support/page.tsx`, `check-in/login/page.tsx`, `(protected)/layout.tsx`, `leaders/layout.tsx`, `[[...tool]]/layout.tsx`, `next.config.ts`?**
+  _High betweenness centrality (0.321) - this node is a cross-community bridge._
 - **Should `membership/route.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.11428571428571428 - nodes in this community are weakly interconnected._
-- **Why does `db` connect `db` to `membership/route.ts`, `Admin Dashboard Analytics`, `member-code/route.ts`, `community-status/route.ts`, `leader-auth.ts`, `getAdminSession`, `(protected)/events/[slug]/page.tsx`, `checkin-access.ts`, `Community Email Campaigns`, `[memberId]/page.tsx`, `email.ts`, `reports/route.ts`, `members/page.tsx`, `readJsonRequest`, `requireLeader`, `leadership-invites/route.ts`, `react`, `quoteEventTableName`, `(protected)/leaders/page.tsx`, `(protected)/requests/[id]/page.tsx`, `db-migrate.ts`, `check-in/login/page.tsx`?**
-  _High betweenness centrality (0.106) - this node is a cross-community bridge._
+  _Cohesion score 0.08 - nodes in this community are weakly interconnected._
+- **Why does `db` connect `db` to `membership/route.ts`, `Admin Dashboard Analytics`, `member-code/route.ts`, `admin-analytics.ts`, `readJsonRequest`, `getAdminSession`, `(protected)/events/[slug]/page.tsx`, `check-in/verify/route.ts`, `Community Email Campaigns`, `[memberId]/page.tsx`, `email.ts`, `admin-data.ts`, `members/page.tsx`, `getClientIp`, `leader-auth.ts`, `leadership-invites/route.ts`, `GenderPanel`, `check-in/[slug]/page.tsx`, `(protected)/leaders/page.tsx`, `(protected)/requests/[id]/page.tsx`, `members/support/page.tsx`, `db-migrate.ts`, `check-in/login/page.tsx`?**
+  _High betweenness centrality (0.110) - this node is a cross-community bridge._
 - **Should `Admin Dashboard Analytics` be split into smaller, more focused modules?**
-  _Cohesion score 0.07740112994350283 - nodes in this community are weakly interconnected._
-- **Why does `react` connect `Homepage Sections` to `membership/route.ts`, `Admin Dashboard Analytics`, `migrate-events.mjs`, `member-code/route.ts`, `Package Development Dependencies`, `Application Dependencies`, `(protected)/events/[slug]/page.tsx`, `leader-validations.ts`, `Community Email Campaigns`, `Navigation and Footer`, `[memberId]/page.tsx`, `Events Listing`, `MembershipForm.tsx`, `members/page.tsx`, `RegistrationForm.tsx`, `next`, `sanity.ts`, `react`, `member-card.tsx`, `InstitutionCombobox.tsx`, `lucide-react`, `DonateForm.tsx`, `(protected)/leaders/page.tsx`, `WhatsAppJoinAction.tsx`, `verify/page.tsx`, `(site)/page.tsx`, `invite/page.tsx`, `GalleryMarquee.tsx`, `membership/support/page.tsx`, `(protected)/requests/[id]/page.tsx`, `check-in/login/page.tsx`, `(auth)/login/page.tsx`?**
-  _High betweenness centrality (0.074) - this node is a cross-community bridge._
+  _Cohesion score 0.14942528735632185 - nodes in this community are weakly interconnected._
+- **Why does `react` connect `[memberId]/page.tsx` to `membership/route.ts`, `Admin Dashboard Analytics`, `migrate-events.mjs`, `member-code/route.ts`, `sanity.ts`, `Package Development Dependencies`, `Homepage Sections`, `Application Dependencies`, `(protected)/events/[slug]/page.tsx`, `leader-validations.ts`, `Community Email Campaigns`, `Navigation and Footer`, `FeaturedEventsCarousel.tsx`, `MembershipForm.tsx`, `members/page.tsx`, `RegistrationForm.tsx`, `leader-auth.ts`, `sanity.ts`, `registration.test.mjs`, `member-card.tsx`, `check-in/[slug]/page.tsx`, `InstitutionCombobox.tsx`, `success/page.tsx`, `DonateForm.tsx`, `(protected)/leaders/page.tsx`, `WhatsAppJoinAction.tsx`, `verify/page.tsx`, `invite/page.tsx`, `GalleryMarquee.tsx`, `membership/support/page.tsx`, `(protected)/requests/[id]/page.tsx`, `members/support/page.tsx`, `check-in/login/page.tsx`, `(protected)/layout.tsx`?**
+  _High betweenness centrality (0.088) - this node is a cross-community bridge._
 - **Should `migrate-events.mjs` be split into smaller, more focused modules?**
   _Cohesion score 0.12857142857142856 - nodes in this community are weakly interconnected._
 - **Should `member-code/route.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.07199032062915911 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06394230769230769 - nodes in this community are weakly interconnected._

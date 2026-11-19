@@ -2,6 +2,7 @@
 
 import { useState, useSyncExternalStore } from 'react'
 import { ArrowUpRight, LoaderCircle } from 'lucide-react'
+import Link from 'next/link'
 
 function subscribeToHashChange(onChange: () => void) {
   window.addEventListener('hashchange', onChange)
@@ -51,5 +52,6 @@ export default function WhatsAppJoinAction({ token: initialToken, compact = fals
       {!busy && <ArrowUpRight aria-hidden="true" className="size-4" />}
     </button>
     {error && <p role="alert" className="mt-2 text-sm text-red-700">{error}</p>}
+    <Link href="/membership/support?issue=whatsapp" className="mt-3 block w-fit text-sm font-semibold underline underline-offset-4">Can’t join? Leave your WhatsApp number for help</Link>
   </div>
 }

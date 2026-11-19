@@ -26,6 +26,8 @@ const files = [
   { name: '019_event_member_otp_audit.sql', path: 'migrations/019_event_member_otp_audit.sql' },
   { name: '020_registration_reliability.sql', path: 'migrations/020_registration_reliability.sql' },
   { name: '021_registration_resume.sql', path: 'migrations/021_registration_resume.sql' },
+  { name: '022_membership_support_recovery.sql', path: 'migrations/022_membership_support_recovery.sql' },
+  { name: '023_whatsapp_support.sql', path: 'migrations/023_whatsapp_support.sql' },
 ]
 
 async function migrate() {

@@ -1,43 +1,133 @@
 import Link from 'next/link'
-import { db } from '@/lib/db'
+import { ArrowLeft, ArrowUpRight, Check, Search, UserRound } from 'lucide-react'
 import { getAdminSession } from '@/lib/admin-session'
+import { findMembershipSupportRequests } from '@/lib/membership-support-data'
+import SupportWelcomeAction from '@/components/admin/SupportWelcomeAction'
+import SupportWhatsAppNumber from '@/components/admin/SupportWhatsAppNumber'
 import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 
-export default async function AdminMembershipSupport({ searchParams }: { searchParams: Promise<{ result?: string }> }) {
+const field = 'mt-2 min-h-11 w-full rounded-xl border border-brand-ink/15 bg-white px-4 py-2.5 text-sm outline-none focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20'
+const deliveryLabels: Record<string, string> = {
+  pending: 'Queued', sending: 'Sending', accepted: 'Accepted by Resend', delivered: 'Delivered',
+  delayed: 'Delivery delayed', bounced: 'Bounced', suppressed: 'Suppressed', failed: 'Failed', unknown: 'Awaiting confirmation',
+}
+
+function nextStep(status: string | null, category: string | null) {
+  if (status === 'bounced' || status === 'suppressed' || category === 'invalid_recipient') return 'Confirm the registered address with the member. Correct it below if needed, then check delivery before sending again.'
+  if (status === 'unknown') return 'Review the previous message in Resend to confirm its outcome before issuing another copy.'
+  if (status === 'pending' || status === 'sending') return 'A welcome email is already queued. Check its status before sending again.'
+  return 'Send a copy of the member ID and welcome email to the registered address.'
+}
+
+export default async function AdminMembershipSupport({ searchParams }: {
+  searchParams: Promise<{ result?: string; request?: string; q?: string }>
+}) {
   if (!(await getAdminSession())) redirect('/admin/login')
-  const [{ result }, requests] = await Promise.all([searchParams, db`
-    SELECT id, reply_email, member_id_hint, message, created_at
-    FROM membership_support_requests WHERE resolved_at IS NULL ORDER BY created_at DESC LIMIT 100
-  `])
-  return <section className="mx-auto max-w-4xl space-y-5 p-6">
-    <Link href="/admin/members" className="text-sm underline">Back to members</Link>
-    <h1 className="font-display text-3xl font-semibold">Membership support</h1>
-    {result && <p role="status">{result === 'saved' ? 'Request resolved.' : 'The update could not be completed. Check the details and any active email jobs.'}</p>}
-    {!requests.length && <p>No open requests.</p>}
-    {requests.map((request) => <article key={String(request.id)} className="space-y-4 rounded-xl bg-white p-5">
-      <div>
-        <p className="font-semibold">{String(request.reply_email)}</p>
-        <p className="text-sm text-brand-grey">{request.member_id_hint ? String(request.member_id_hint) : 'No member ID supplied'}</p>
-      </div>
-      <p className="whitespace-pre-wrap break-words text-sm">{String(request.message)}</p>
-      <form action="/admin/api/members/support" method="post">
-        <input type="hidden" name="id" value={String(request.id)} />
-        <button name="action" value="resolve" className="text-sm font-semibold underline">Mark resolved</button>
-      </form>
-      <details className="text-sm">
-        <summary className="cursor-pointer font-semibold">Correct the registered email</summary>
-        <form method="post" action="/admin/api/members/support" className="mt-3 grid gap-3">
-          <input type="hidden" name="id" value={String(request.id)} />
-          <label>Verified member ID<input name="memberId" required maxLength={64} className="ml-2 rounded border p-2" /></label>
-          <label>Verified new email<input name="email" required type="email" maxLength={254} className="ml-2 rounded border p-2" /></label>
-          <label className="flex gap-2"><input type="checkbox" name="ownershipVerified" required />
-            I confirmed the requester’s ownership through an existing trusted contact or in person, and confirmed access to the new address.
-          </label>
-          <button name="action" value="correct_email" className="w-fit rounded bg-brand-ink px-4 py-2 font-semibold text-white">Save correction and resolve</button>
+  const params = await searchParams
+  const requests = await findMembershipSupportRequests({ requestId: params.request, query: params.q })
+  return <section className="mx-auto max-w-5xl space-y-6 px-5 py-7 sm:p-8">
+    <Link href="/admin/members" className="inline-flex items-center gap-2 text-sm text-brand-grey hover:text-brand-ink">
+      <ArrowLeft aria-hidden="true" className="size-4" /> Back to members
+    </Link>
+    <header>
+      <h1 className="font-display text-3xl font-semibold tracking-tight">Membership support</h1>
+      <p className="mt-2 text-sm leading-6 text-brand-grey">Find a member, check their welcome email, and help them recover their ID.</p>
+    </header>
+    {params.request && <Link href="/admin/members/support" className="inline-block text-sm font-semibold underline underline-offset-4">View all open requests</Link>}
+    {params.result && <p role="status" className="rounded-xl border border-brand-card bg-white p-4 text-sm">
+      {params.result === 'saved' ? 'Request resolved.' : 'The update could not be completed. Check the member details and active email jobs.'}
+    </p>}
+    {!requests.length && <p className="rounded-2xl border border-brand-card bg-white p-6 text-sm text-brand-grey">No open requests found.</p>}
+    {requests.map((request) => <article key={request.id} className="overflow-hidden rounded-2xl border border-brand-card bg-white shadow-[0_1px_2px_rgba(32,32,32,.03)]">
+      <header className="flex flex-wrap items-start justify-between gap-4 border-b border-brand-card px-5 py-5 sm:px-6">
+        <div className="min-w-0">
+          {request.issue_type === 'whatsapp' && <p className="mb-1 text-xs font-semibold text-[#176B42]">WhatsApp community access</p>}
+          <p className="break-all font-semibold text-brand-ink">{request.reply_email}</p>
+          <p className="mt-1 text-xs text-brand-grey">
+            {new Date(request.created_at).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Africa/Lagos' })}
+            {request.member_id_hint ? ` · Supplied ID ${request.member_id_hint}` : ' · Member ID not provided'}
+          </p>
+        </div>
+        <form action="/admin/api/members/support" method="post">
+          <input type="hidden" name="id" value={request.id} />
+          <button name="action" value="resolve" className="inline-flex min-h-10 items-center gap-2 rounded-full border border-brand-ink/15 px-4 py-2 text-xs font-semibold transition-colors hover:bg-brand-cream">
+            <Check aria-hidden="true" className="size-3.5" /> Mark resolved
+          </button>
         </form>
-      </details>
+      </header>
+      <div className="space-y-5 p-5 sm:p-6">
+        <p className="whitespace-pre-wrap break-words text-sm leading-6">{request.message}</p>
+        {request.issue_type === 'whatsapp' && request.whatsapp_number && <section className="space-y-4 rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 sm:p-5" aria-label="Manual WhatsApp addition">
+          <div>
+            <h2 className="font-semibold">Add to the WhatsApp community</h2>
+            <p className="mt-1 text-sm leading-6 text-brand-grey">Use this number to add the requester in WhatsApp. Mark this request as added once you’ve completed the addition.</p>
+          </div>
+          <SupportWhatsAppNumber number={request.whatsapp_number} />
+          <form action="/admin/api/members/support" method="post">
+            <input type="hidden" name="id" value={request.id} />
+            <button name="action" value="resolve_whatsapp" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#176B42] px-5 py-2.5 text-sm font-semibold text-white">
+              <Check aria-hidden="true" className="size-4" /> Mark added & resolve
+            </button>
+          </form>
+        </section>}
+        <div className="space-y-3">
+          <h2 className="text-sm font-semibold">{request.matches.length ? 'Matching memberships' : 'Find their membership'}</h2>
+          {!request.matches.length && <p className="rounded-xl bg-brand-cream p-4 text-sm leading-6 text-brand-grey">
+            No membership matches the supplied email or ID. Search using their full name, another email, or member ID. If they have never registered, ask them to complete the membership form.
+          </p>}
+          {request.matches.map((member) => <div key={member.member_id} className="space-y-4 rounded-xl border border-brand-card bg-brand-cream/40 p-4 sm:p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="flex items-center gap-2 font-semibold"><UserRound aria-hidden="true" className="size-4 text-brand-grey" />{member.full_name}</p>
+                <p className="mt-1 text-xs text-brand-grey">{member.match_reason} · {member.status}</p>
+                <p className="mt-3 select-all break-all font-mono text-base font-semibold text-brand-ink">{member.member_id}</p>
+                <p className="mt-1 break-all text-sm text-brand-grey">{member.email}</p>
+              </div>
+              <Link href={`/admin/members/${encodeURIComponent(member.member_id)}`} className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold underline decoration-brand-gold decoration-2 underline-offset-4">
+                Member profile <ArrowUpRight aria-hidden="true" className="size-4" />
+              </Link>
+            </div>
+            <div className="rounded-xl bg-white px-4 py-3 text-sm">
+              <p><span className="text-brand-grey">Welcome email</span> · <strong>{member.email_status ? deliveryLabels[member.email_status] ?? member.email_status : 'No tracked email'}</strong></p>
+              <p className="mt-1 text-xs leading-5 text-brand-grey">{nextStep(member.email_status, member.error_category)}</p>
+              {member.error_category && <p className="mt-1 text-xs text-red-700">Failure category · {member.error_category}</p>}
+              {member.next_retry_at && <p className="mt-1 text-xs text-brand-grey">Next retry from {new Date(member.next_retry_at).toLocaleString('en-NG', { timeZone: 'Africa/Lagos' })}</p>}
+              <a href={`/admin/members/support?request=${request.id}`} className="mt-2 inline-block text-xs font-semibold underline underline-offset-4">Refresh delivery status</a>
+            </div>
+            {member.status === 'active'
+              && !['bounced', 'suppressed', 'unknown', 'sending'].includes(member.email_status ?? '')
+              && !['invalid_recipient', 'bounced', 'suppressed'].includes(member.error_category ?? '')
+              && <SupportWelcomeAction
+              requestId={request.id} memberId={member.member_id} registeredEmail={member.email}
+              confirmOwnership={member.email.toLowerCase() !== request.reply_email.toLowerCase()}
+            />}
+            <details className="border-t border-brand-card pt-3 text-sm">
+              <summary className="cursor-pointer font-semibold">Correct this member’s email</summary>
+              <form method="post" action="/admin/api/members/support" className="mt-4 grid gap-4">
+                <input type="hidden" name="id" value={request.id} />
+                <input type="hidden" name="memberId" value={member.member_id} />
+                <label className="font-medium">Verified new email<input name="email" required type="email" maxLength={254} className={field} /></label>
+                <label className="flex items-start gap-2.5 text-xs leading-5 text-brand-grey"><input type="checkbox" name="ownershipVerified" required className="mt-1 size-4 shrink-0 accent-brand-ink" />
+                  I verified ownership through an existing trusted contact or in person, and confirmed access to the new address.
+                </label>
+                <button name="action" value="correct_email" className="min-h-11 w-fit rounded-full bg-brand-ink px-5 py-2.5 font-semibold text-white">Save correction and resolve</button>
+              </form>
+            </details>
+          </div>)}
+        </div>
+        <form method="get" action="/admin/members/support" className="border-t border-brand-card pt-4">
+          <input type="hidden" name="request" value={request.id} />
+          <label htmlFor={`search-${request.id}`} className="text-xs font-semibold text-brand-grey">Search by name, email, or member ID</label>
+          <div className="mt-2 flex gap-2">
+            <input id={`search-${request.id}`} name="q" type="search" minLength={2} maxLength={160} required defaultValue={params.request === request.id ? params.q ?? '' : ''} placeholder="Find another membership…" className={`${field} mt-0 min-w-0 flex-1`} />
+            <button className="inline-flex min-h-11 items-center gap-2 rounded-full border border-brand-ink/15 px-4 text-sm font-semibold hover:bg-brand-cream">
+              <Search aria-hidden="true" className="size-4" /><span className="hidden sm:inline">Search</span>
+            </button>
+          </div>
+        </form>
+      </div>
     </article>)}
   </section>
 }

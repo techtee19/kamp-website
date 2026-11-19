@@ -137,7 +137,7 @@ export default function MembershipForm({ leadershipInvite }: { leadershipInvite?
       }} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-brand-ink px-5 py-3 text-sm font-semibold text-white">
         Continue to event registration <ArrowRight aria-hidden="true" className="size-4" />
       </Link>}
-      <Link href="/membership/support" className="mt-4 block text-sm underline underline-offset-4">Get help with your welcome email</Link>
+      <Link href="/membership/support" className="mt-4 block text-sm underline underline-offset-4">Get help with your membership or WhatsApp community</Link>
       <div className="mt-6 rounded-xl border border-emerald-200 bg-white p-5">
         <h3 className="font-semibold text-brand-ink">Join your KAMP community</h3>
         <p className="mt-1 mb-4 text-sm leading-relaxed text-brand-grey">Connect with other members for community updates and opportunities. We’ve also included the WhatsApp link in your welcome email.</p>
